@@ -17,10 +17,20 @@ The main goal here is to analyze imputed and rare variants for association with 
 * MFA: push #after this accept the access in the duo mobile app
 
 *In the terminal*
+```
+$ ssh dc2325@farnam.hpc.yale.edu
+$ Dmcs1988!@
+```
 
-`$ ssh dc2325@farnam.hpc.yale.edu`
+### Important HPC commands
 
-Password: Dmcs1988!@
+```
+$ module avail # For a list of modules available to use
+$ module list # Displays all of the module files that are currently loaded in your environment
+$ module avail python # To look for specific modules
+$ module spider # Displays a description of all available modules
+
+```
 
 ## Location of important files
 
@@ -39,12 +49,21 @@ Output:
 *  UKB_caucasians_waistcircumference_adjbmiagesex_nopreg_residuals_022720
 *  UKB_caucasians_waisthipratio_adjbmiagesex_nopreg_residuals_022720
 
-## Imputed genotypes, phased haplotypes and mfi-infoscore
+### Fam files in PLINK format
+
+```
+/SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles
+```
+* UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv.fam
+* UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv.bim
+* UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv.bed
+
+### Imputed genotypes, phased haplotypes and mfi-infoscore
 
 ```
 /SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset
-
 ```
+
 **Sample file:** ukb32285_imputedindiv.sample
 
 **Phased haplotypes:** ukb_hap_chrN_v2.bgen, ukb_hap_chrN_v2.bgen.bgi
