@@ -13,13 +13,11 @@ The main goal here is to analyze imputed and rare variants for association with 
 
 * VNP: access.yale.edu
 * username: dc2325
-* password: D28CA11E
 * MFA: push #after this accept the access in the duo mobile app
 
 *In the terminal*
 ```
 $ ssh dc2325@farnam.hpc.yale.edu
-$ Dmcs1988!@
 ```
 
 ### Important HPC commands
