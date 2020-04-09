@@ -3,7 +3,7 @@ hosts:
     address: localhost
     paths:
       home: /home/{user_name}
-  midway2:
+  farnam:
     description: Yale University Farnam cluster
     address: localhost
     paths:
