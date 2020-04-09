@@ -10,12 +10,24 @@
 The main goal here is to analyze imputed and rare variants for association with different traits (asthma, BMI, waist-to-hip ratio, diabetes, waist circumference). First single variant analysis. 
 
 ## Access to Yale HPC cluster
+Using AnyConnect to establish connection:
 
 * VNP: access.yale.edu
 * username: dc2325
 * MFA: push #after this accept the access in the duo mobile app
 
-*In the terminal*
+Using Linux terminal command:
+
+```
+sudo openconnect -u dc2325 access.yale.edu
+```
+
+Then type password at first password prompt, and `push` at 2nd password prompt. After this accept the access in the duo mobile app.
+
+Before you can login you must provide the public key of your computer to the server. To do so, please visit: https://secure.its.yale.edu/cas/login to login, then provide the key at http://gold.hpc.yale.internal/cgi-bin/sshkeys.py
+
+To login from the terminal:
+
 ```
 $ ssh dc2325@farnam.hpc.yale.edu
 ```
@@ -70,3 +82,6 @@ Output:
 
 **Imputation minor allele frequency and information scores:** ukb_mfi_chrN_v3.txt
 
+### Summary statistics
+
+`/SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results`
