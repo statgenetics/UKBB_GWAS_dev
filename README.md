@@ -1,4 +1,4 @@
-# Pleiotropy UKB
+# Pleiotropy Project UKB
 
 ## **Goals**
 
@@ -9,40 +9,7 @@
 
 The main goal here is to analyze imputed and rare variants for association with different traits (asthma, BMI, waist-to-hip ratio, diabetes, waist circumference). First single variant analysis. 
 
-## Access to Yale HPC cluster
-Using AnyConnect to establish connection:
-
-* VNP: access.yale.edu
-* username: dc2325
-* MFA: push #after this accept the access in the duo mobile app
-
-Using Linux terminal command:
-
-```
-sudo openconnect -u dc2325 access.yale.edu
-```
-
-Then type password at first password prompt, and `push` at 2nd password prompt. After this accept the access in the duo mobile app.
-
-Before you can login you must provide the public key of your computer to the server. To do so, please visit: https://secure.its.yale.edu/cas/login to login, then provide the key at http://gold.hpc.yale.internal/cgi-bin/sshkeys.py
-
-To login from the terminal:
-
-```
-$ ssh dc2325@farnam.hpc.yale.edu
-```
-
-### Important HPC commands
-
-```
-$ module avail # For a list of modules available to use
-$ module list # Displays all of the module files that are currently loaded in your environment
-$ module avail python # To look for specific modules
-$ module spider # Displays a description of all available modules
-
-```
-
-## Location of important files
+## Location of phenotypic, genotypic and imputed data files used in the project
 
 ### Phenotypic files
 ```
@@ -59,7 +26,7 @@ Output:
 *  UKB_caucasians_waistcircumference_adjbmiagesex_nopreg_residuals_022720
 *  UKB_caucasians_waisthipratio_adjbmiagesex_nopreg_residuals_022720
 
-### Fam files in PLINK format
+### Genotypic files in PLINK binary format: used to compute the genetic relationship matrix
 
 ```
 /SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles
@@ -85,3 +52,25 @@ Output:
 ### Summary statistics
 
 `/SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results`
+
+## BOLT-LMM options 
+
+BOLT-LMM software computes statistics for testing association between phenotypes and genotypes using a linear mixed model
+
+`--bfile` accepts genotype files in PLINK binary format (.fam, .bed, .bim)
+`--geneticMapFile` Oxford-format file for interpolating genetic distances: tables/genetic_map_hg##.txt.gz
+`--phenoFile` phenotype file (header required; FII and IID must be first two columns)
+`--phenoCol` phenotype columns header
+`--covarFile` covariate file (header required; FII and IID must be first two columns)
+`--covarCol` categorical covariate column(s); for >1, use multiple `--covarCol` and/or {i:j} expansion
+`--qcovarCol` quantitative covariate column(s); for  >1, use multiple `--qCovarCol` and/or {i:j} expansion
+`--lmm` compute assoc stats under the inf model and with Bayesian non-inf prior (VB approx), if power gain expected
+`--modelSnps` file(s) listing SNPs to use in model (i.e., GRM) (default: use all non-excluded SNPs)
+`--LDscoresFile` LD Scores for calibration of Bayesian assoc stats: tables/LDSCORE.1000G_EUR.tab.g
+`--numThreads` number of computational threads
+`--statsFile` output file for assoc stats at **PLINK genotypes**
+`--bgenFile` file(s) containing Oxford BGEN-format genotypes to test for association
+`--sampleFile` file containing Oxford sample file corresponding to BGEN file(s)
+`--bgenMinMAF` MAF threshold on Oxford BGEN-format genotypes; lower-MAF SNPs will be ignored
+`--bgenMinINFO` INFO threshold on Oxford BGEN-format genotypes; lower-INFO SNPs will be ignored
+`--statsFileBgenSNPs` output file for assoc stats at **BGEN-format genotypes**
