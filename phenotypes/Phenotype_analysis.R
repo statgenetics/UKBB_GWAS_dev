@@ -183,11 +183,14 @@ df[complete.cases(df$BMI), ] #Keep only complete rows for BMI column
 df_complete_BMI = df[complete.cases(df$BMI), ] # create a dataset with complete cases for BMI
 colSums(is.na(df_complete_BMI)) # make sure it did the right thing
 
+df_complete_WAIST = df[complete.cases(df$WAIST), ]
+
 # Now apply rank normalization using library(RNOmni)
 
 z = rankNorm(df_complete_BMI$BMI)
 
 df_complete_BMI$rankNorm_BMI = rankNorm(df_complete_BMI$BMI)
+df_complete_WAIST$rankNorm_WAIST = rankNorm(df_complete_WAIST$WAIST)
 
 # Visualize the data
 
@@ -210,7 +213,36 @@ png("QQplot_INT-BMI_UKB_Caucasian.png", width = 6, height = 4, unit="in", res=30
 print(INT_BMI_qqplot)
 dev.off()
 
+INT_WAIST_qqplot = ggplot(df_complete_WAIST,aes(sample=rankNorm_WAIST)) + 
+  stat_qq() +
+  labs(title="QQ plot for INT-WAIST UKB-EUR")+
+  theme_classic()
+png("QQplot_INT-WAIST_UKB_Caucasian.png", width = 6, height = 4, unit="in", res=300)
+print(INT_WAIST_qqplot)
+dev.off()
+
 # Write new dataframe to file
 
 write.table(df_complete_BMI, file = "UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720", append = FALSE, sep = " ", dec = ".",
             row.names = FALSE, col.names = TRUE, quote=FALSE)
+
+# GLM: apply generalized linear models to obtain residuals
+
+bmi_glm <- glm(BMI ~ AGE + factor(SEX), data=df_complete_BMI)
+summary(bmi_glm)
+df_complete_BMI$bmi_residuals = residuals.glm(bmi_residuals)
+plot(bmi_residuals)
+
+waist_glm <- glm(WAIST ~ BMI + AGE + factor(SEX), data=df)
+summary(waist_glm)
+plot(waist_glm)
+
+whr_glm  <- glm(WHR ~ AGE + factor(SEX), data=df)
+summary(whr_glm)
+plot(whr_glm)
+
+# To plot residuals from library car
+install.packages("car")
+library(car)
+residualPlots(dfbmi_residuals)
+
