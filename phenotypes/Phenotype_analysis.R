@@ -184,6 +184,10 @@ df_complete_BMI = df[complete.cases(df$BMI), ] # create a dataset with complete 
 colSums(is.na(df_complete_BMI)) # make sure it did the right thing
 
 df_complete_WAIST = df[complete.cases(df$WAIST), ]
+colSums(is.na(df_complete_WAIST))
+
+df_complete_WHR = df[complete.cases(df$WHR), ]
+colSums(is.na(df_complete_WHR))
 
 # Now apply rank normalization using library(RNOmni)
 
@@ -191,6 +195,7 @@ z = rankNorm(df_complete_BMI$BMI)
 
 df_complete_BMI$rankNorm_BMI = rankNorm(df_complete_BMI$BMI)
 df_complete_WAIST$rankNorm_WAIST = rankNorm(df_complete_WAIST$WAIST)
+df_complete_WHR$rankNorm_WHR = rankNorm(df_complete_WHR$WHR)
 
 # Visualize the data
 
@@ -221,9 +226,20 @@ png("QQplot_INT-WAIST_UKB_Caucasian.png", width = 6, height = 4, unit="in", res=
 print(INT_WAIST_qqplot)
 dev.off()
 
+INT_WHR_qqplot = ggplot(df_complete_WHR,aes(sample=rankNorm_WHR)) +
+stat_qq() +
+  labs(title="QQ plot for INT-WHR UKB-EUR")+
+  theme_classic()
+png("QQplot_INT-WHR_UKB_Caucasian.png", width = 6, height = 4, unit="in", res=300)
+print(INT_WHR_qqplot)
+dev.off()
+
 # Write new dataframe to file
 
 write.table(df_complete_BMI, file = "UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720", append = FALSE, sep = " ", dec = ".",
+            row.names = FALSE, col.names = TRUE, quote=FALSE)
+
+write.table(df_complete_WHR, file = "UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WHR_withagesex_042020", append = FALSE, sep = " ", dec = ".",
             row.names = FALSE, col.names = TRUE, quote=FALSE)
 
 # GLM: apply generalized linear models to obtain residuals
