@@ -36,9 +36,9 @@ localhost:${port}  (prefix w/ https:// if using password)
 
 # load modules or conda environments here
 # uncomment the following two lines to use your conda environment called notebook_env
-#module load miniconda
-#conda create -yn notebook_env anaconda python=3
-#source activate notebook_env
+module load miniconda
+conda create -yn notebook_env anaconda python=3
+source activate notebook_env
 
 
 # DON'T USE ADDRESS BELOW.
