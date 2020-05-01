@@ -34,3 +34,19 @@ devtools::install_github("weizhouUMICH/SAIGE")`
 ```
 
 
+Fixing problem with conda template: can't execute `conda activate` from bash script 
+https://github.com/conda/conda/issues/7980
+
+Added these variables to `.bash_profile` apparently fixed the issue
+
+```
+export -f conda
+export -f __conda_activate
+export -f __conda_reactivate
+export -f __conda_hashr
+        
+```
+Then `source .bash_profile`
+
+
+my-script.sh: line 8: __add_sys_prefix_to_path: command not found
