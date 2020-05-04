@@ -242,6 +242,9 @@ write.table(df_complete_BMI, file = "UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT
 write.table(df_complete_WHR, file = "UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WHR_withagesex_042020", append = FALSE, sep = " ", dec = ".",
             row.names = FALSE, col.names = TRUE, quote=FALSE)
 
+write.table(df_complete_WAIST, file = "UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WAIST_withagesex_042020", append = FALSE, sep = " ", dec = ".",
+            row.names = FALSE, col.names = TRUE, quote=FALSE)
+
 # GLM: apply generalized linear models to obtain residuals
 
 bmi_glm <- glm(BMI ~ AGE + factor(SEX), data=df_complete_BMI)
