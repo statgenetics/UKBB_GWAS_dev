@@ -2,8 +2,8 @@
 #SBATCH --partition general
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
-#SBATCH --mem-per-cpu 8G
-#SBATCH --time 2-0:00:00
+#SBATCH --mem-per-cpu 60G
+#SBATCH --time 3-0:00:00
 #SBATCH --job-name jupyter-notebook
 #SBATCH --output jupyter-notebook-%J.log
 
