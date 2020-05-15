@@ -1,0 +1,13 @@
+docs/analysis.html
+docs/analysis.tpl
+docs/analysis/phenotype_analysis.html
+docs/index.html
+docs/index.tpl
+docs/js/docs.js
+docs/workflow.html
+docs/workflow.tpl
+docs/workflow/BoltLMM.html
+docs/workflow/SAIGE.html
+docs/workflow/fastGWA.html
+docs/workflow/postprocessing.html
+docs/workflow/setup.html

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="ipynb_website:version" content="0.9.7" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link rel="stylesheet" type="text/css" href="../css/jt.css">
+
+<link rel="stylesheet" type="text/css" href="../css/toc2.css">
+
+<link href="../site_libs/jqueryui-1.11.4/jquery-ui.css">
+<link rel="stylesheet" href="../site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="../site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+
+<link rel="stylesheet"
+      href="../site_libs/highlightjs/null.min.css"
+      type="text/css" />
+
+<script src="../site_libs/highlightjs/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+<script src="../js/doc_toc.js"></script>
+<script src="../js/docs.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script>
+    MathJax.Hub.Config({
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+        },
+        "HTML-CSS": {
+            preferredFont: "TeX",
+            availableFonts: ["TeX"],
+            styles: {
+                scale: 110,
+                ".MathJax_Display": {
+                    "font-size": "110%",
+                }
+            }
+        }
+    });
+</script>
+<script>
+function filterDataFrame(id) {
+    var input = document.getElementById("search_" + id);
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("dataframe_" + id);
+    var tr = table.getElementsByTagName("tr");
+    // Loop through all table rows, and hide those who don't match the search query
+    for (var i = 1; i < tr.length; i++) {
+        for (var j = 0; j < tr[i].cells.length; ++j) {
+            var matched = false;
+            if (tr[i].cells[j].innerHTML.toUpperCase().indexOf(filter) != -1) {
+                tr[i].style.display = "";
+                matched = true
+                break;
+            }
+            if (!matched)
+                tr[i].style.display = "none";
+        }
+    }
+}
+function sortDataFrame(id, n, dtype) {
+    var table = document.getElementById("dataframe_" + id);
+    var tb = table.tBodies[0]; // use `<tbody>` to ignore `<thead>` and `<tfoot>` rows
+    var tr = Array.prototype.slice.call(tb.rows, 0); // put rows into array
+    if (dtype === 'numeric') {
+        var fn = function(a, b) { 
+            return parseFloat(a.cells[n].textContent) <= parseFloat(b.cells[n].textContent) ? -1 : 1;
+        }
+    } else {
+        var fn = function(a, b) {
+            var c = a.cells[n].textContent.trim().localeCompare(b.cells[n].textContent.trim()); 
+            return c > 0 ? 1 : (c < 0 ? -1 : 0) }
+    }
+    var isSorted = function(array, fn) {
+        if (array.length < 2)
+            return 1;
+        var direction = fn(array[0], array[1]); 
+        for (var i = 1; i < array.length - 1; ++i) {
+            var d = fn(array[i], array[i+1]);
+            if (d == 0)
+                continue;
+            else if (direction == 0)
+                direction = d;
+            else if (direction != d)
+                return 0;
+            }
+        return direction;
+    }
+    var sorted = isSorted(tr, fn);
+    if (sorted == 1 || sorted == -1) {
+        // if sorted already, reverse it
+        for(var i = tr.length - 1; i >= 0; --i)
+            tb.appendChild(tr[i]); // append each row in order
+    } else {
+        tr = tr.sort(fn);
+        for(var i = 0; i < tr.length; ++i)
+            tb.appendChild(tr[i]); // append each row in order
+    }
+}
+</script>
+
+<script>
+$( document ).ready(function(){
+            var cfg={'threshold':3,     // depth of toc (number of levels)
+             'number_sections': false,
+             'toc_cell': false,          // useless here
+             'toc_window_display': true, // display the toc window
+             "toc_section_display": "block", // display toc contents in the window
+             'sideBar':true,       // sidebar or floating window
+             'navigate_menu':false       // navigation menu (only in liveNotebook -- do not change)
+            }
+            var st={};                  // some variables used in the script
+            st.rendering_toc_cell = false;
+            st.config_loaded = false;
+            st.extension_initialized=false;
+            st.nbcontainer_marginleft = $('#notebook-container').css('margin-left')
+            st.nbcontainer_marginright = $('#notebook-container').css('margin-right')
+            st.nbcontainer_width = $('#notebook-container').css('width')
+            st.oldTocHeight = undefined
+            st.cell_toc = undefined;
+            st.toc_index=0;
+            // fire the main function with these parameters
+            table_of_contents(cfg, st);
+            var file=workflowDict[$("h1:first").attr("id")];
+            $("#toc-level0 a").css("color","#126dce");
+            $('a[href="#'+$("h1:first").attr("id")+'"]').hide()
+            var docs=workflowArray;
+            var docs_map=workflowArrayMap;
+            var pos=workflowArray.indexOf(file);
+            for (var a=pos;a>=0;a--){
+                  $('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>').insertBefore("#toc-level0 li:eq(0)");
+            }
+            $('a[href="'+file+'.html'+'"]').css("color","#126dce");
+            for (var a=pos+1;a<docs.length;a++){
+                  $(".toc #toc-level0").append('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>');
+            }
+            // $("#toc-header").hide(); // comment out because it prevents search bar from displaying
+    });
+</script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+  // mark it active
+  menuAnchor.parent().addClass('active');
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+<div class="container-fluid main-container">
+<!-- tabsets -->
+<script src="../site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+
+
+<title>Pleiotropy analysis in UKBB</title>
+
+<style type = "text/css">
+body {
+  font-family: "Droid Sans";
+  padding-top: 66px;
+  padding-bottom: 40px;
+}
+</style>
+</head>
+
+<body>
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+<div class="container" id="notebook-container">
+
+<!-- code folding -->
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="../index.html">Pleiotropy analysis in UKBB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+<li>
+  <a href="../index.html">Overview</a>
+</li>
+        
+<li>
+  <a href="../workflow.html">Workflow</a>
+</li>
+        
+<li>
+  <a href="../analysis.html">Analysis</a>
+</li>
+        
+      </ul>
+        
+<ul class="nav navbar-nav navbar-right">
+<li>
+   <a href="http://github.com/dianacornejo/pleiotropy_UKB"> <span class="fa fa-github"></span> </a>
+</li>
+</ul>
+        
+      </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Data-analysis">Data analysis<a class="anchor-link" href="#Data-analysis">&#182;</a></h2><p><a href="https://www.r-graph-gallery.com/101_Manhattan_plot.html">https://www.r-graph-gallery.com/101_Manhattan_plot.html</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Running-sos-notebook">Running sos notebook<a class="anchor-link" href="#Running-sos-notebook">&#182;</a></h2><p>On the Yale Farnam cluster,</p>
+<p>On a local computer with for example 8 threads,</p>
+
+<pre><code>sos run ~/pleiotropy_UKB/BOLT-LMM_R_analysis.ipynb -q none -j 8</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[91]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="k">global</span><span class="p">]</span>
+<span class="c1"># Working directory</span>
+<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/results/pleiotropy/2020-04_bolt/INT-WHR&#39;</span><span class="p">)</span>
+<span class="c1">#Input individuals summary stats file</span>
+<span class="kn">parameter:</span> <span class="n">input_pattern</span> <span class="o">=</span> <span class="s1">&#39;*.snp_stats.gz&#39;</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="n">input_file</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">input_pattern</span><span class="p">))</span>
+<span class="n">fail_if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Input pattern ``</span><span class="si">{</span><span class="n">input_pattern</span><span class="si">}</span><span class="s2">`` failed to match any files.&quot;</span><span class="p">)</span>
+<span class="c1">#Output merged summary stats file</span>
+<span class="kn">parameter:</span> <span class="n">summary_stats_file</span> <span class="o">=</span> <span class="s1">&#39;INT-WHR.txt&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Merging-summary-stats-for-all-chromosomes">Merging summary stats for all chromosomes<a class="anchor-link" href="#Merging-summary-stats-for-all-chromosomes">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[92]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">step_1</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">input_file</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">summary_stats_file</span><span class="si">}</span><span class="s1">.gz&#39;</span>
+<span class="kn">python:</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span>
+    <span class="kn">import</span> <span class="nn">gzip</span>
+    <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">{_output}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;wt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">({</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">r</span><span class="p">})</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">files</span> <span class="ow">in</span> <span class="p">[{</span><span class="n">_input</span><span class="p">:</span><span class="n">r</span><span class="p">,}][</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;SNP&#39;</span><span class="p">):</span>
+                            <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{_output}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Creating-the-Manhattan-and-Q-Q-plots">Creating the Manhattan and Q-Q plots<a class="anchor-link" href="#Creating-the-Manhattan-and-Q-Q-plots">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[89]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">step_2</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">output_from</span><span class="p">(</span><span class="s1">&#39;step_1&#39;</span><span class="p">)</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bnn</span><span class="si">}</span><span class="s1">.manhattan.png&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bnn</span><span class="si">}</span><span class="s1">.qqplot.png&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;12h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="kn">R:</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span>
+    <span class="k">if</span> <span class="p">(</span><span class="err">!</span><span class="n">require</span><span class="p">(</span><span class="s1">&#39;qqman&#39;</span><span class="p">))</span> <span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s1">&#39;qqman&#39;</span><span class="p">);</span> <span class="n">library</span><span class="p">(</span><span class="s1">&#39;qqman&#39;</span><span class="p">)</span>
+    <span class="n">INTWHR_data</span> <span class="o">&lt;-</span> <span class="n">read</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">gzfile</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{_input}</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">png</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{_output[0]}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">whr_manhattan</span> <span class="o">&lt;-</span> <span class="n">manhattan</span><span class="p">(</span><span class="n">INTWHR_data</span><span class="p">,</span> <span class="nb">chr</span><span class="o">=</span><span class="s1">&#39;CHR&#39;</span><span class="p">,</span> <span class="n">bp</span><span class="o">=</span><span class="s1">&#39;BP&#39;</span><span class="p">,</span> <span class="n">snp</span><span class="o">=</span><span class="s1">&#39;SNP&#39;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s1">&#39;P_BOLT_LMM&#39;</span><span class="p">,</span> <span class="n">main</span> <span class="o">=</span> <span class="s2">&quot;INT-WHR Manhattan Plot&quot;</span><span class="p">,</span> <span class="n">ylim</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">250</span><span class="p">),</span> <span class="n">cex</span> <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span> 
+    <span class="n">cex</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="s2">&quot;blue4&quot;</span><span class="p">,</span> <span class="s2">&quot;orange3&quot;</span><span class="p">),</span> <span class="n">suggestiveline</span> <span class="o">=</span> <span class="n">T</span><span class="p">,</span> <span class="n">genomewideline</span> <span class="o">=</span> <span class="n">T</span><span class="p">,</span> <span class="n">chrlabs</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">22</span><span class="p">))</span>
+    <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
+    <span class="n">png</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{_output[1]}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">qq_plot</span> <span class="o">&lt;-</span> <span class="n">qq</span><span class="p">(</span><span class="n">INTWHR_data</span><span class="err">$</span><span class="n">P_BOLT_LMM</span><span class="p">,</span> <span class="n">main</span> <span class="o">=</span> <span class="s2">&quot;INT-WHR Q-Q plot of Bolt-LMM p-values&quot;</span><span class="p">,</span> <span class="n">xlim</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">ylim</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="n">pch</span> <span class="o">=</span> <span class="mi">18</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="s2">&quot;blue4&quot;</span><span class="p">,</span> <span class="n">cex</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">las</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Awk to find the minimum and maximum values in a specific column</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1">#awk &#39;(NR==1){Min=$3;Max=$3};(NR&gt;=3){if(Min&gt;$3) Min=$3;if(Max&lt;$3) Max=$3} END {printf &quot;The Min is %d ,Max is %d&quot;,Min,Max}&#39; ukb_mfi_chr1_v3.txt</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Show the lowest p-values</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1">#gzcat Test_INT-BMI.txt.gz | awk -F &quot;\t&quot; &#39;{ if ($16 &lt;= 5e-8) { print } }&#39;| sort -g | head -n 5</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To find the overlapping variants between dataset 1 and dataset 2</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1">#awk &#39;NR==FNR {FILE1[$1]=$0; next} ($1 in FILE1) {print $0}&#39; dataset2 dataset1 &gt; dataset1_subset_overlapping_dataset2</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="PLINK-v1.9-LD-clumping">PLINK v1.9 LD-clumping<a class="anchor-link" href="#PLINK-v1.9-LD-clumping">&#182;</a></h2><p>To perform p-value informed LD clumping in PLINK. 
+In this procedure only the most significant SNP (i.e. lowest p-value) in a LD block is identified and used for further analysis. This reduces the correlation between the remaining SNPs while retaining SNPs with the strongest statistical evidence. 
+This is done to identify a subset of independent SNPs in the dataset</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Questions:</strong></p>
+<ol>
+<li>Which reference dataset to use? Options are 1000G_CEU, hapmap_CEU_r23a_filtered, UK10K, HRC reference panel
+FIXME: if the SNPs are not in the reference panel they won't be outputed as index SNPs</li>
+<li>What is the significance threshold for the index variant (p1) we should use for the analyses? p=5e-08</li>
+<li>What significance threshold to use for the SNPs to be clumped? p=1 (this will include all the SNPs)</li>
+<li>What LD r2 to use? r2=0.5</li>
+<li>What window size in kb to use (research about the average LD in the human genome for CEU population)? I decided to use 1Mb (1000Kb)</li>
+</ol>
+<p>Below the default options used by PLINK</p>
+
+<pre><code>--clump-p1 0.0001: significance threshold for Index SNPs
+--clump-p2 0.01: Secondary significance threshold for clumped SNPs
+--clump-r2 0.50: LD threshold for clumping
+--clump-kb 250: Physical distance threshold for clumping
+--clump-field P_BOLT_LMM: To specify the name of the field for P-value
+--clump-verbose: to add a more detailed report of SNPs in each clump
+--clump-best: to select the single best proxy</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>plink \
+--noweb \
+--bfile ~/pleiotropy_UKB/data/1000G_20101123_v3_GIANT_chr1_23_minimacnamesifnotRS_CEU_MAF0.01 \
+--clump ~/pleiotropy_UKB/data/Test_INT-BMI.txt.gz \
+--clump-field P_BOLT_LMM \
+--clump-p1 5e-08 \
+--clump-p2 1 \
+--clump-r2 0.5 \
+--clump-kb 1000 \
+--clump-allow-overlap \
+--clump-best \
+--out Test_INT-BMI.txt</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>plink \
+--noweb \
+--bfile /SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv \
+--clump /home/dc2325/results/pleiotropy/2020-04_bolt/INT-BMI/Test_INT-BMI.txt.gz \
+--clump-field P_BOLT_LMM \
+--clump-p1 5e-08 \
+--clump-p2 1 \
+--clump-r2 0.5 \
+--clump-kb 1000 \
+--clump-allow-overlap \
+--clump-best \
+--out Test_INT-BMI.txt</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The output file .clumped will contain the index SNPs for each LD block in column 3. To extract this column and create a vector to use for highlighting in the Manhattan Plot</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>awk '{ print $3 }' \
+Test_INT-BMI.txt.clumped \
+&gt; dataset1_subset_overlapping_dataset2_clump1.SNPs</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Filtering <code>.bgen</code> files using qctool2</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>qctool -g ukb_imp_chr1_v3.bgen -og subset_ukb_imp_chr1_v3.bgen -s ukb32285_imputedindiv.sample -incl-range 1:10177-20000 -incl-samples samples.txt</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Then create a list of files to be combined using R. In this case the summary statistics for the association analysis and then create the dataset by binding files from chr{1:22}. The drawback is that R runs out of memory when doing this</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>#install.packages("reader")
+#intall.packages("plyr")
+#install.packages("ggplot2")
+#library(readr)
+#library(plyr)
+#library(ggplot2)
+#file_list = Sys.glob("*.snp_stats.bgen.gz") #one way of creating lists
+#file_list = list.files(path=mydir, pattern="*.snp_stats.bgen.gz", full.names=TRUE) #another way of creating lists
+#data.list = lapply(file_list, function(x){read.table(file = x,header = TRUE, sep = "\t")})
+#data.merged = do.call("rbind", data.list</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Some summary statistics from the phenotypic data</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1">#Number of controls</span>
+<span class="c1">#awk &#39;{ if ($5 == 0) { print } }&#39; Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720 | wc -l</span>
+<span class="c1"># Number of cases</span>
+<span class="c1">#awk &#39;{ if ($5 == 1) { print } }&#39; Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720 | wc -l</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<hr>
+&copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/53b744b6d7928e7faeda71657144a2125e3f0442/workflow/postprocessing.ipynb"><code>workflow/postprocessing.ipynb</code></a> committed by Gao Wang on Fri May 15 13:49:03 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/53b744b6d7928e7faeda71657144a2125e3f0442">revision 1, 53b744b</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+</div>
+</div>
+</body>
+</html>
