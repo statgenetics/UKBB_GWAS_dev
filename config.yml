@@ -4,7 +4,7 @@ footer: "&copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky
 include_dir: ['workflow', 'analysis']
 # exclude_file: []
 # hide_navbar: []
-homepage: "README.Rmd"
+homepage: "README.md"
 # skip_homepage: False
 # add_commit_info: True
 # disqus: NULL
