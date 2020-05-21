@@ -7,4 +7,6 @@
 3. **Determine tissue types most relevant to complex trait/disease etiology**
 4. **Analysis of tissue-specific expression levels with phenotype data to biologically validate pleiotropic effects**
 
-The main goal here is to analyze imputed and rare variants for association with different traits (asthma, BMI, waist-to-hip ratio, diabetes, waist circumference). First single variant analysis.
+The main goal here is to analyze imputed and rare variants for association with different traits (asthma, BMI, waist-to-hip ratio, diabetes, waist circumference). First through a single variant analysis using Linear Mixed Models.
+
+To update the website run `./release`
