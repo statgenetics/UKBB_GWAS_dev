@@ -239,7 +239,14 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Data-analysis">Data analysis<a class="anchor-link" href="#Data-analysis">&#182;</a></h2><p><a href="https://www.r-graph-gallery.com/101_Manhattan_plot.html">https://www.r-graph-gallery.com/101_Manhattan_plot.html</a></p>
+<h2 id="Data-analysis">Data analysis<a class="anchor-link" href="#Data-analysis">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Pipeline to process the output files from the association results and analyze summary statistics</p>
 
 </div>
 </div>
@@ -250,7 +257,21 @@ body {
 <h2 id="Running-sos-notebook">Running sos notebook<a class="anchor-link" href="#Running-sos-notebook">&#182;</a></h2><p>On the Yale Farnam cluster,</p>
 <p>On a local computer with for example 8 threads,</p>
 
-<pre><code>sos run ~/pleiotropy_UKB/BOLT-LMM_R_analysis.ipynb -q none -j 8</code></pre>
+<pre><code>sos run ~/project/pleiotropy_UKB/postprocessing.ipynb -q none -j 8</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Input-files">Input files<a class="anchor-link" href="#Input-files">&#182;</a></h2><h3 id="BOLT-LMM">BOLT-LMM<a class="anchor-link" href="#BOLT-LMM">&#182;</a></h3><p>The input files for this process are the files created after running the <code>BoltLMM.ipynb</code> notebook that should be the following (example for INT-BMI):</p>
+<ul>
+<li>ukb_imp_chr{1-22}_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.snp_stats.gz (these are the association results for the bgen genotypes)</li>
+<li>ukb_imp_chr{1-22}_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.stats.gz (take into account that the 22 files generated in this step will have the same information, that is the association results for the hard called genotypes - PLINK genotypes)</li>
+<li>ukb_imp_chr{1-22}_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.snp_stats.stderr</li>
+<li>ukb_imp_chr{1-22}_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.snp_stats.stdout</li>
+</ul>
 
 </div>
 </div>
@@ -261,15 +282,19 @@ body {
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="k">global</span><span class="p">]</span>
-<span class="c1"># Working directory</span>
-<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/results/pleiotropy/2020-04_bolt/INT-WHR&#39;</span><span class="p">)</span>
-<span class="c1">#Input individuals summary stats file</span>
+<span class="c1"># Working directory: change accordingly</span>
+<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/scratch60/2020-04_bolt/INT-BMI&#39;</span><span class="p">)</span>
+<span class="c1"># Input individual bgen summary stats files</span>
 <span class="kn">parameter:</span> <span class="n">input_pattern</span> <span class="o">=</span> <span class="s1">&#39;*.snp_stats.gz&#39;</span>
 <span class="kn">import</span> <span class="nn">glob</span>
-<span class="n">input_file</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">input_pattern</span><span class="p">))</span>
-<span class="n">fail_if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Input pattern ``</span><span class="si">{</span><span class="n">input_pattern</span><span class="si">}</span><span class="s2">`` failed to match any files.&quot;</span><span class="p">)</span>
-<span class="c1">#Output merged summary stats file</span>
-<span class="kn">parameter:</span> <span class="n">summary_stats_file</span> <span class="o">=</span> <span class="s1">&#39;INT-WHR.txt&#39;</span>
+<span class="n">snp_stats_file</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">input_pattern</span><span class="p">))</span>
+<span class="n">fail_if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">snp_stats_file</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Input pattern ``</span><span class="si">{</span><span class="n">input_pattern</span><span class="si">}</span><span class="s2">`` failed to match any files.&quot;</span><span class="p">)</span>
+<span class="c1"># Output merged summary stats file</span>
+<span class="kn">parameter:</span> <span class="n">bgen_sumstats</span> <span class="o">=</span> <span class="s1">&#39;ukb_imp_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.snp_stats.all_chr&#39;</span>
+<span class="c1"># Input plink genotypes summary stats</span>
+<span class="kn">parameter:</span> <span class="n">stats_file</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/scratch60/2020-04_bolt/INT-BMI/ukb_imp_chr1_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.stats.gz&#39;</span><span class="p">)</span>
+<span class="c1"># Output plink genotypes summary stats</span>
+<span class="kn">parameter:</span> <span class="n">plink_sumstats</span> <span class="o">=</span> <span class="s1">&#39;ukb_imp_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.stats.all_chr&#39;</span>
 </pre></div>
 
     </div>
@@ -280,18 +305,37 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Merging-summary-stats-for-all-chromosomes">Merging summary stats for all chromosomes<a class="anchor-link" href="#Merging-summary-stats-for-all-chromosomes">&#182;</a></h2>
+<h2 id="Merging-bgen-summary-stats-for-all-chromosomes">Merging bgen summary stats for all chromosomes<a class="anchor-link" href="#Merging-bgen-summary-stats-for-all-chromosomes">&#182;</a></h2>
 </div>
 </div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Create files with the counts of imputed SNPs and genotyped SNPs</span>
+<span class="p">[</span><span class="n">step_0</span><span class="p">]</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">bgen_sumstats</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.numimpsnps.txt&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">plink_sumstats</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.numgenosnps.txt&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span> 
+    <span class="n">ls</span> <span class="o">-</span><span class="n">v</span> <span class="err">$</span><span class="p">(</span><span class="n">find</span> <span class="err">$</span><span class="p">{</span><span class="n">cwd</span><span class="p">}</span> <span class="o">-</span><span class="kp">name</span> <span class="s2">&quot;*.snp_stats.gz&quot;</span><span class="p">)</span> <span class="o">|</span> <span class="k">while</span> <span class="n">read</span> <span class="o">-</span><span class="n">r</span> <span class="n">file</span><span class="p">;</span> <span class="n">do</span> <span class="n">echo</span> <span class="s2">&quot;$file: `zcat $file | wc -l`&quot;</span><span class="p">;</span> <span class="n">done</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+    <span class="n">ls</span> <span class="o">-</span><span class="n">v</span> <span class="err">$</span><span class="p">(</span><span class="n">find</span> <span class="err">$</span><span class="p">{</span><span class="n">cwd</span><span class="p">}</span> <span class="o">-</span><span class="kp">name</span> <span class="s2">&quot;*.stats.gz&quot;</span><span class="p">)</span> <span class="o">|</span> <span class="k">while</span> <span class="n">read</span> <span class="o">-</span><span class="n">r</span> <span class="n">file</span><span class="p">;</span> <span class="n">do</span> <span class="n">echo</span> <span class="s2">&quot;$file: `zcat $file | wc -l`&quot;</span><span class="p">;</span> <span class="n">done</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[92]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">step_1</span><span class="p">]</span>
-<span class="kn">input:</span> <span class="n">input_file</span>
-<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">summary_stats_file</span><span class="si">}</span><span class="s1">.gz&#39;</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Merge all the bgen summary statistics</span>
+<span class="p">[</span><span class="n">step_1</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">snp_stats_file</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">bgen_sumstats</span><span class="si">}</span><span class="s1">.gz&#39;</span>
 <span class="kn">python:</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span>
     <span class="kn">import</span> <span class="nn">gzip</span>
     <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">{_output}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;wt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
@@ -311,10 +355,81 @@ body {
 </div>
 
 </div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Leave only one stats.gz file</span>
+<span class="p">[</span><span class="n">step_2</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">stats_file</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">plink_sumstats</span><span class="si">}</span><span class="s1">.gz&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span> 
+    <span class="n">mv</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span> \
+    <span class="n">echo</span> <span class="n">File</span> <span class="s2">&quot;$</span><span class="si">{_output}</span><span class="s2">&quot;</span> <span class="n">created</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Merge all the .snp_stats.stderr files and gzip</span>
+<span class="p">[</span><span class="n">step_3</span><span class="p">]</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">bgen_sumstats</span><span class="si">}</span><span class="s1">.stderr.gz&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span> 
+    <span class="n">ls</span> <span class="o">-</span><span class="n">v</span> <span class="err">$</span><span class="p">(</span><span class="n">find</span> <span class="err">$</span><span class="p">{</span><span class="n">cwd</span><span class="p">}</span> <span class="o">-</span><span class="nb">type</span> <span class="n">f</span> <span class="o">-</span><span class="kp">name</span> <span class="s1">&#39;*.stderr&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="k">while</span> <span class="n">read</span> <span class="n">filename</span><span class="p">;</span> <span class="n">do</span>
+    <span class="n">echo</span> <span class="s2">&quot;$filename&quot;</span>
+    <span class="n">cat</span> <span class="s2">&quot;$filename&quot;</span>
+    <span class="n">done</span> <span class="o">|</span> <span class="n">gzip</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span> \
+    <span class="n">echo</span> <span class="n">File</span> <span class="s2">&quot;$</span><span class="si">{_output}</span><span class="s2">&quot;</span> <span class="n">created</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Merge all the .snp_stats.stdout files, gziped them and remove unnecessary files</span>
+<span class="p">[</span><span class="n">step_4</span><span class="p">]</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">bgen_sumstats</span><span class="si">}</span><span class="s1">.stdout.gz&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span> 
+    <span class="n">ls</span> <span class="o">-</span><span class="n">v</span> <span class="err">$</span><span class="p">(</span><span class="n">find</span> <span class="err">$</span><span class="p">{</span><span class="n">cwd</span><span class="p">}</span> <span class="o">-</span><span class="nb">type</span> <span class="n">f</span> <span class="o">-</span><span class="kp">name</span> <span class="s1">&#39;*.stdout&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="k">while</span> <span class="n">read</span> <span class="n">filename</span><span class="p">;</span> <span class="n">do</span>
+    <span class="n">echo</span> <span class="s2">&quot;$filename&quot;</span>
+    <span class="n">cat</span> <span class="s2">&quot;$filename&quot;</span>
+    <span class="n">done</span> <span class="o">|</span> <span class="n">gzip</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span> \
+    <span class="n">echo</span> <span class="n">File</span> <span class="s2">&quot;$</span><span class="si">{_output}</span><span class="s2">&quot;</span> <span class="n">created</span> \
+    <span class="n">rm</span> <span class="o">*.</span><span class="n">stats</span><span class="o">.</span><span class="n">gz</span> <span class="o">*.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> <span class="o">*.</span><span class="n">stderr</span> <span class="o">*.</span><span class="n">stdout</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Creating-the-Manhattan-and-Q-Q-plots">Creating the Manhattan and Q-Q plots<a class="anchor-link" href="#Creating-the-Manhattan-and-Q-Q-plots">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Some options to making Manhattan Plots</p>
+<p><a href="https://www.r-graph-gallery.com/101_Manhattan_plot.html">https://www.r-graph-gallery.com/101_Manhattan_plot.html</a></p>
+
 </div>
 </div>
 </div>
@@ -323,7 +438,7 @@ body {
 <div class="prompt input_prompt">In&nbsp;[89]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">step_2</span><span class="p">]</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">step_5</span><span class="p">]</span>
 <span class="kn">input:</span> <span class="n">output_from</span><span class="p">(</span><span class="s1">&#39;step_1&#39;</span><span class="p">)</span>
 <span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bnn</span><span class="si">}</span><span class="s1">.manhattan.png&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bnn</span><span class="si">}</span><span class="s1">.qqplot.png&#39;</span>
 <span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;12h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
@@ -570,7 +685,7 @@ Test_INT-BMI.txt.clumped \
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/53b744b6d7928e7faeda71657144a2125e3f0442/workflow/postprocessing.ipynb"><code>workflow/postprocessing.ipynb</code></a> committed by Gao Wang on Fri May 15 13:49:03 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/53b744b6d7928e7faeda71657144a2125e3f0442">revision 1, 53b744b</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/b330d5769d4cebcfbf14d578ede751a7d372b2ce/workflow/postprocessing.ipynb"><code>workflow/postprocessing.ipynb</code></a> committed by dianacornejo on Wed May 20 18:14:19 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/b330d5769d4cebcfbf14d578ede751a7d372b2ce">revision 5, b330d57</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

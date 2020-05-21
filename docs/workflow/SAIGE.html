@@ -354,7 +354,7 @@ body {
 <span class="c1"># Mimimum allele count to be sued</span>
 <span class="kn">parameter:</span> <span class="n">minMAC</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="c1"># the output directory for generated files</span>
-<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/results/pleiotropy/2020-04_saige/asthma/&#39;</span><span class="p">)</span>
+<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/scratch60/2020-04_saige/asthma&#39;</span><span class="p">)</span>
 <span class="c1"># Specific number of threads to use</span>
 <span class="kn">parameter:</span> <span class="n">numThreads</span> <span class="o">=</span> <span class="mi">20</span>
 <span class="c1"># For cluster jobs, number commands to run per job</span>
@@ -390,8 +390,8 @@ body {
 <pre><code>sos run pleiotropy_UKB/SAIGE_binary_UKB.ipynb saige_1 -q none</code></pre>
 <p>If using the sos-submit-template.sh <code>sbatch saige_asthma.sh</code></p>
 
-<pre><code>sos run pleiotropy_UKB/SAIGE_binary_UKB.ipynb -c pleiotropy_UKB/farnam.yml -q farnam -J 40 \
--s build &amp; &gt; sos-submission-saige-asthma.log</code></pre>
+<pre><code>sos run ~/project/pleiotropy_UKB/workflow/SAIGE.ipynb -c ~/project/pleiotropy_UKB/farnam.yml -q farnam -J 40 \
+-s build &amp; &gt; sos-submission-saige-asthma-051920.log</code></pre>
 
 </div>
 </div>
@@ -496,7 +496,7 @@ body {
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/53b744b6d7928e7faeda71657144a2125e3f0442/workflow/SAIGE.ipynb"><code>workflow/SAIGE.ipynb</code></a> committed by Gao Wang on Fri May 15 13:49:03 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/53b744b6d7928e7faeda71657144a2125e3f0442">revision 1, 53b744b</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/25f24220841197b5b81a5005c8e3cce7ace94552/workflow/SAIGE.ipynb"><code>workflow/SAIGE.ipynb</code></a> committed by dianacornejo on Wed May 20 09:38:50 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/25f24220841197b5b81a5005c8e3cce7ace94552">revision 2, 25f2422</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

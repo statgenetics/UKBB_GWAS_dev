@@ -545,6 +545,20 @@ export -f __conda_hashr</code></pre>
 <p>For released versions (when is implemented)</p>
 
 <pre><code>pip install sos -U</code></pre>
+<p>When you don't get the full features of the update do:</p>
+
+<pre><code>pip uninstall sos
+pip install sos -U</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To check if the code in your notebook is running</p>
+
+<pre><code>sos dryrun notebook.ipynb -q localhost</code></pre>
 
 </div>
 </div>
@@ -700,6 +714,13 @@ hg clone -r beta https://gavinband@bitbucket.org/gavinband/qctool &amp;&amp; cd 
 <p>To see all pending jobs sorted by priority (jobs with higher priority at the top)</p>
 
 <pre><code>squeue --sort=-p -t PD -p general</code></pre>
+<p>To see files that will be deleted from scratch60 (they purge every 30 days)</p>
+
+<pre><code>cat /gpfs/ysm/scratch60/todelete/${UID}</code></pre>
+<p>To see the last job submitted slurm</p>
+
+<pre><code>sacct
+sacct -S start-date -u user-name</code></pre>
 
 </div>
 </div>
@@ -755,6 +776,38 @@ hg clone -r beta https://gavinband@bitbucket.org/gavinband/qctool &amp;&amp; cd 
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Copying-results-to-shared-folder">Copying results to shared folder<a class="anchor-link" href="#Copying-results-to-shared-folder">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>After completing the runs of the association analysis you should copy the results to the project shared folder</p>
+<h4 id="Path">Path<a class="anchor-link" href="#Path">&#182;</a></h4><p><code>/SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results/results_imputed_data/INT-BMI</code></p>
+<ul>
+<li>The combined association analyses for the imputed data in .snp_stats.gz</li>
+</ul>
+<p>cp ukb_imp_allchr_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.snp_stats.gz /SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results/results_imputed_data</p>
+<ul>
+<li>The combined association analyses for the hard called genotypes in .stats.gz</li>
+</ul>
+<p>cp ukb_imp_allchr_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.stats.gz /SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results/results_imputed_data</p>
+<ul>
+<li>The gziped .stderr files in .stats.stderr.gz</li>
+</ul>
+<p>cp ukb_imp_allchr_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.stats.stderr.gz /SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results/results_imputed_data</p>
+<ul>
+<li>The gziped .stdout files in .stdout.gz</li>
+</ul>
+<p>cp ukb_imp_allchr_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.stdout.gz /SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results/results_imputed_data</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
@@ -770,7 +823,7 @@ hg clone -r beta https://gavinband@bitbucket.org/gavinband/qctool &amp;&amp; cd 
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/53b744b6d7928e7faeda71657144a2125e3f0442/workflow/setup.ipynb"><code>workflow/setup.ipynb</code></a> committed by Gao Wang on Fri May 15 13:49:03 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/53b744b6d7928e7faeda71657144a2125e3f0442">revision 1, 53b744b</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/25f24220841197b5b81a5005c8e3cce7ace94552/workflow/setup.ipynb"><code>workflow/setup.ipynb</code></a> committed by dianacornejo on Wed May 20 09:38:50 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/25f24220841197b5b81a5005c8e3cce7ace94552">revision 4, 25f2422</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

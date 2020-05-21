@@ -335,7 +335,7 @@ body {
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="k">global</span><span class="p">]</span>
 <span class="c1"># the output directory for generated files</span>
-<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/results/pleiotropy/2020-04_bolt/INT-WHR/&#39;</span><span class="p">)</span>
+<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/scratch60/2020-04_bolt/INT-WHR&#39;</span><span class="p">)</span>
 <span class="c1"># Path to sample file</span>
 <span class="kn">parameter:</span> <span class="n">sampleFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb32285_imputedindiv.sample&#39;</span><span class="p">)</span>
 <span class="c1"># Genotype files in plink binary this is used for computing the GRM</span>
@@ -380,29 +380,30 @@ body {
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Running-BOLT-LMM">Running BOLT-LMM<a class="anchor-link" href="#Running-BOLT-LMM">&#182;</a></h2><p>On Yale Farnam cluster,</p>
+<ul>
+<li>INT-BMI with age and sex as covariates</li>
+</ul>
 
-<pre><code>PHEN_DIR=/home/dc2325/phenotypes_UKB/
-sos run pleiotropy_UKB/BOLT-LMM_quantitative_UKB.ipynb bolt -c pleiotropy_UKB/farnam.yml -q farnam -J 40 \
-   --phenoFile $PHEN_DIR/UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720</code></pre>
+<pre><code>PHEN_DIR=~/project/phenotypes_UKB/
+sos run ~/project/pleiotropy_UKB/worfkflow/BoltLMM.ipynb bolt -c ~/project/pleiotropy_UKB/farnam.yml -q farnam -J 40 \
+   --phenoFile $PHEN_DIR/UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720 -s build &amp;&gt; sos-submission-INT-BMI.log</code></pre>
+<ul>
+<li>INT-WAIST with age, sex and BMI as covariates</li>
+</ul>
 
-<pre><code>PHEN_DIR=/SAY/dbgapstg/scratch/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/
-sos run pleiotropy_UKB/BOLT-LMM_quantitative_UKB.ipynb bolt -c pleiotropy_UKB/farnam.yml -q farnam -J 40 \
-   --phenoFile $PHEN_DIR/UKB_caucasians_BMI_nopreg_adjagesex_residuals_andstandardized_022720</code></pre>
-
-<pre><code>PHEN_DIR=/SAY/dbgapstg/scratch/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/
-sos run pleiotropy_UKB/BOLT-LMM_quantitative_UKB.ipynb bolt -c pleiotropy_UKB/farnam.yml -q farnam -J 40 \
-   --phenoFile $PHEN_DIR/UKB_caucasians_waistcircumference_adjbmiagesex_nopreg_residuals_022720</code></pre>
-
-<pre><code>PHEN_DIR=/home/dc2325/phenotypes_UKB/
-sos run pleiotropy_UKB/BOLT-LMM_quantitative_UKB.ipynb bolt -c pleiotropy_UKB/farnam.yml -q farnam -J 40 \
-   --phenoFile $PHEN_DIR/UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WHR_withagesex_042020 -s build</code></pre>
-
-<pre><code>PHEN_DIR=/home/dc2325/phenotypes_UKB/
-sos run pleiotropy_UKB/BOLT-LMM_quantitative_UKB.ipynb bolt -c pleiotropy_UKB/farnam.yml -q farnam -J 40 \
+<pre><code>PHEN_DIR=~/project/phenotypes_UKB/
+sos run ~/project/pleiotropy_UKB/worfkflow/BoltLMM.ipynb bolt -c ~/project/pleiotropy_UKB/farnam.yml -q farnam -J 40 \
    --phenoFile $PHEN_DIR/UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WAIST_withagesex_042020 -s build &amp;&gt; sos-submission-INT-WAIST.log</code></pre>
+<ul>
+<li>INT-WHR with age, sex and BMI as covariates</li>
+</ul>
+
+<pre><code>PHEN_DIR=~/project/phenotypes_UKB/
+sos run ~/project/pleiotropy_UKB/worfkflow/BoltLMM.ipynb bolt -c ~/project/pleiotropy_UKB/farnam.yml -q farnam -J 40 \
+   --phenoFile $PHEN_DIR/UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WHR_withagesex_042020 -s build &amp;&gt; sos-submission-INT-WHR.log</code></pre>
 <p>On a local computer with for example 8 threads,</p>
 
-<pre><code>sos run BOLT-LMM_quantitative_UKB.ipynb bolt -q none -j 8</code></pre>
+<pre><code>sos run BoltLMM.ipynb bolt -q none -j 8</code></pre>
 
 </div>
 </div>
@@ -410,7 +411,7 @@ sos run pleiotropy_UKB/BOLT-LMM_quantitative_UKB.ipynb bolt -c pleiotropy_UKB/fa
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Notes-about-how-the-analyses-where-ran">Notes about how the analyses where ran<a class="anchor-link" href="#Notes-about-how-the-analyses-where-ran">&#182;</a></h3><ol>
+<h3 id="Notes-about-how-the-analyses-where-done">Notes about how the analyses where done<a class="anchor-link" href="#Notes-about-how-the-analyses-where-done">&#182;</a></h3><ol>
 <li>Run INT-BMI with covariates AGE and SEX</li>
 <li>Run INT-WHR with covariates AGE and SEX, repeated on 05-07-2020 with BMI as covariate</li>
 <li>Run INT-WAIST with covariates AGE, SEX and BMI</li>
@@ -425,23 +426,23 @@ sos run pleiotropy_UKB/BOLT-LMM_quantitative_UKB.ipynb bolt -c pleiotropy_UKB/fa
 <h2 id="Workflow-implementation-details">Workflow implementation details<a class="anchor-link" href="#Workflow-implementation-details">&#182;</a></h2><p><strong>A note for developers</strong>: it is important to have input and output for each step. Input files and output files are best derived from one another.</p>
 <p>BOLT-LMM software computes statistics for testing association between phenotypes and genotypes using a linear mixed model</p>
 
-<pre><code>`--bfile` accepts genotype files in PLINK binary format (.fam, .bed, .bim)
-`--geneticMapFile` Oxford-format file for interpolating genetic distances: tables/genetic_map_hg##.txt.gz
-`--phenoFile` phenotype file (header required; FII and IID must be first two columns)
-`--phenoCol` phenotype columns header
-`--covarFile` covariate file (header required; FII and IID must be first two columns)
-`--covarCol` categorical covariate column(s); for &gt;1, use multiple `--covarCol` and/or {i:j} expansion
-`--qcovarCol` quantitative covariate column(s); for  &gt;1, use multiple `--qCovarCol` and/or {i:j} expansion
-`--lmm` compute assoc stats under the inf model and with Bayesian non-inf prior (VB approx), if power gain expected
-`--modelSnps` file(s) listing SNPs to use in model (i.e., GRM) (default: use all non-excluded SNPs)
-`--LDscoresFile` LD Scores for calibration of Bayesian assoc stats: tables/LDSCORE.1000G_EUR.tab.g
-`--numThreads` number of computational threads
-`--statsFile` output file for assoc stats at **PLINK genotypes**
-`--bgenFile` file(s) containing Oxford BGEN-format genotypes to test for association
-`--sampleFile` file containing Oxford sample file corresponding to BGEN file(s)
-`--bgenMinMAF` MAF threshold on Oxford BGEN-format genotypes; lower-MAF SNPs will be ignored
-`--bgenMinINFO` INFO threshold on Oxford BGEN-format genotypes; lower-INFO SNPs will be ignored
-`--statsFileBgenSNPs` output file for assoc stats at **BGEN-format genotypes**</code></pre>
+<pre><code>--bfile = accepts genotype files in PLINK binary format (.fam, .bed, .bim)
+--geneticMapFile = Oxford-format file for interpolating genetic distances: tables/genetic_map_hg##.txt.gz
+--phenoFile = phenotype file (header required; FII and IID must be first two columns)
+--phenoCol = phenotype columns header
+--covarFile = covariate file (header required; FII and IID must be first two columns)
+--covarCol = categorical covariate column(s); for &gt;1, use multiple --covarCol and/or {i:j} expansion
+--qcovarCol = quantitative covariate column(s); for  &gt;1, use multiple --qCovarCol and/or {i:j} expansion
+--lmm = compute assoc stats under the inf model and with Bayesian non-inf prior (VB approx), if power gain expected
+--modelSnps = file(s) listing SNPs to use in model (i.e., GRM) (default: use all non-excluded SNPs)
+--LDscoresFile = LD Scores for calibration of Bayesian assoc stats: tables/LDSCORE.1000G_EUR.tab.g
+--numThreads = number of computational threads
+--statsFile = output file for assoc stats at PLINK genotypes
+--bgenFile = file(s) containing Oxford BGEN-format genotypes to test for association
+--sampleFile = file containing Oxford sample file corresponding to BGEN file(s)
+--bgenMinMAF = MAF threshold on Oxford BGEN-format genotypes; lower-MAF SNPs will be ignored
+--bgenMinINFO = INFO threshold on Oxford BGEN-format genotypes; lower-INFO SNPs will be ignored
+--statsFileBgenSNPs = output file for assoc stats at BGEN-format genotypes</code></pre>
 
 </div>
 </div>
@@ -477,8 +478,6 @@ sos run pleiotropy_UKB/BOLT-LMM_quantitative_UKB.ipynb bolt -c pleiotropy_UKB/fa
     <span class="o">--</span><span class="n">sampleFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">sampleFile</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">statsFileBgenSnps</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">verboseStats</span>
-    
- <span class="n">zcat</span> <span class="o">*.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> <span class="o">|</span> <span class="n">wc</span> <span class="o">-</span><span class="n">l</span>  <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">nn</span><span class="p">}</span><span class="o">.</span><span class="n">number_snps</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 
     </div>
@@ -498,7 +497,7 @@ sos run pleiotropy_UKB/BOLT-LMM_quantitative_UKB.ipynb bolt -c pleiotropy_UKB/fa
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">cd</span> <span class="o">~/</span><span class="n">results</span><span class="o">/</span><span class="n">pleiotropy</span><span class="o">/</span><span class="mi">2020</span><span class="o">-</span><span class="mi">04</span><span class="n">_bolt</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">cd</span> <span class="o">~/</span><span class="n">scratch60</span><span class="o">/</span><span class="mi">2020</span><span class="o">-</span><span class="mi">04</span><span class="n">_bolt</span>
 </pre></div>
 
     </div>
@@ -508,7 +507,7 @@ sos run pleiotropy_UKB/BOLT-LMM_quantitative_UKB.ipynb bolt -c pleiotropy_UKB/fa
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/53b744b6d7928e7faeda71657144a2125e3f0442/workflow/BoltLMM.ipynb"><code>workflow/BoltLMM.ipynb</code></a> committed by Gao Wang on Fri May 15 13:49:03 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/53b744b6d7928e7faeda71657144a2125e3f0442">revision 1, 53b744b</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/b330d5769d4cebcfbf14d578ede751a7d372b2ce/workflow/BoltLMM.ipynb"><code>workflow/BoltLMM.ipynb</code></a> committed by dianacornejo on Wed May 20 18:14:19 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/b330d5769d4cebcfbf14d578ede751a7d372b2ce">revision 3, b330d57</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
