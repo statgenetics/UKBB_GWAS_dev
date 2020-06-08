@@ -2,7 +2,6 @@
 
 #Defining bash variables for the different paths
 
-cwd=~/scratch60/plink-clumping/MWE
 output=output
 bfile=~/scratch60/plink-clumping/MWE/UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv.MWE_data
 sampleFile=~/scratch60/plink-clumping/MWE/ukb_imp_chr1_v3.filtered.sample
@@ -21,4 +20,20 @@ bgenMinINFO = 0.1
 
 #Running the workflow for the MWE
 
-sos run ~/project/pleiotropy_UKB/worfkflow/BoltLMM.ipynb bolt -q localhost -j 8 &> sos-MWE-060820.log
+sos run ~/project/pleiotropy_UKB/worfkflow/BoltLMM.ipynb bolt -q localhost -j 8 \
+    --cwd $output \
+    --bfile $bfile \
+    --sampleFile $sampleFile 
+    --bgenFile $bgenFile \
+    --phenoFile $phenoFile \
+    --covarFile $covarFile \
+    --LDscoresFile $LDscoresFile \
+    --geneticMapFile $geneticMapFile \
+    --phenoCol $phenoCol \
+    --covarCol1 $covarCol1 \
+    --covarMaxLevels $covarMaxLevels \
+    --qCovarCol2 $qCovarCol2 \
+    --numThreads $numThreads \
+    --bgenMinMAF $bgenMinMAF \
+    --bgenMinINFO $bgenMinINFO \
+    &> sos-MWE-060820.log
