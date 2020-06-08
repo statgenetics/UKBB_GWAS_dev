@@ -7,6 +7,7 @@ docs/js/docs.js
 docs/workflow.html
 docs/workflow.tpl
 docs/workflow/BoltLMM.html
+docs/workflow/LDclumping.html
 docs/workflow/SAIGE.html
 docs/workflow/fastGWA.html
 docs/workflow/postprocessing.html

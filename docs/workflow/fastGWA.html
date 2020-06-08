@@ -254,7 +254,7 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>To perfom genetic association analysis for binary traits (asthma and diabetes) using fastGWA software and UK Biobank imputed data of ~500K invidivuals</p>
+<p>To perfom genetic association analysis for binary traits (asthma and type 2 diabetes) using fastGWA software and UK Biobank imputed data of ~500K invidivuals</p>
 
 </div>
 </div>
@@ -271,7 +271,7 @@ body {
 <div class="text_cell_render border-box-sizing rendered_html">
 <ol>
 <li>Data from UKB: phenotype, genotypes files (<code>.fam</code>,<code>.bed</code>, <code>.bim</code>) and imputed genotypes (<code>.bgen</code>, <code>.bgi</code>, <code>.sample</code>)</li>
-<li>Install fastGWA part of the GCTA software in Yale's HRC cluster (in this case binary file is being used). Instructions in <a href="https://cnsgenomics.com/software/gcta/#Download">https://cnsgenomics.com/software/gcta/#Download</a></li>
+<li>Install fastGWA part of the GCTA software in Yale's HRC cluster (in this case binary file is being used). Instructions can be found in <a href="https://cnsgenomics.com/software/gcta/#Download">https://cnsgenomics.com/software/gcta/#Download</a></li>
 <li>Run fastGWA analysis to obtain summary statistics for association analysis of binary traits</li>
 </ol>
 
@@ -288,16 +288,21 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Step 1: Create the Genetic Relationship Matrix</p>
 <ol>
 <li>genotypic file in PLINK binary format: <code>.bin</code>, <code>.fam</code>, <code>.bed</code></li>
-<li>phenotypic file: apparently is needed in plink format <code>.phe</code></li>
-<li>covariates file:</li>
+<li>phenotypic file: is needed in plink format <code>.phe</code></li>
+<li>covariates files: are in PLINK format: FID, IID, Covariate</li>
 </ol>
+<p>Asthma:</p>
 
-<pre><code>--make-grm
---make-grm-bin
---make-grm-part m i</code></pre>
+<pre><code>~/project/phenotypes_UKB/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_fastGWA.phe
+~/project/phenotypes_UKB/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_fastGWA_covSEX.txt
+~/project/phenotypes_UKB/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_fastGWA_covAGE.txt</code></pre>
+<p>Diabetes:</p>
+
+<pre><code>~/project/phenotypes_UKB/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_052820.phe
+~/project/phenotypes_UKB/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_052820_covSEX.txt
+~/project/phenotypes_UKB/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_052820_covAGE.txt</code></pre>
 
 </div>
 </div>
@@ -305,7 +310,7 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Running-fastLMM">Running fastLMM<a class="anchor-link" href="#Running-fastLMM">&#182;</a></h2>
+<h2 id="Running-fastGWA">Running fastGWA<a class="anchor-link" href="#Running-fastGWA">&#182;</a></h2>
 </div>
 </div>
 </div>
@@ -313,8 +318,12 @@ body {
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>On Yale Farnam cluster,</p>
+<p>Asthma:</p>
 
 <pre><code>sos run ~/project/pleiotropy_UKB/workflow/fastGWA.ipynb -c ~/project/pleiotropy_UKB/farnam.yml -q farnam -J 100 -s build &amp;&gt; sos-submission-fastGWA-asthma-051920.log</code></pre>
+<p>Diabetes: to run only one part of the workflow use <code>sos run name.ipynb workflow_name</code></p>
+
+<pre><code>sos run ~/project/pleiotropy_UKB/workflow/fastGWA.ipynb fastGWA -c ~/project/pleiotropy_UKB/farnam.yml -q farnam -J 100 -s build &amp;&gt; sos-submission-fastGWA-diabetes-052820.log</code></pre>
 
 </div>
 </div>
@@ -336,11 +345,15 @@ body {
 <span class="c1"># Phenotype file for binary trait 1 (asthma) This is the original file</span>
 <span class="c1">#parameter: phenoFile = path(&#39;/SAY/dbgapstg/scratch/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720&#39;)</span>
 <span class="c1"># Phenotype file for binary trait 1 (asthma) This is the created file with fastGWA formatting</span>
-<span class="kn">parameter:</span> <span class="n">phenoFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/project/phenotypes_UKB/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_fastGWA.phe&#39;</span><span class="p">)</span>
+<span class="kn">parameter:</span> <span class="n">phenoFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/project/phenotypes_UKB/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_052820.phe&#39;</span><span class="p">)</span>
 <span class="c1"># Qualitative (SEX) covariates file for binary trait=asthma. This is the created file with fastGWA formatting</span>
-<span class="kn">parameter:</span> <span class="n">covarFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/project/phenotypes_UKB/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_fastGWA_covSEX.txt&#39;</span><span class="p">)</span>
+<span class="kn">parameter:</span> <span class="n">covarFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/project/phenotypes_UKB/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_052820_covSEX.txt&#39;</span><span class="p">)</span>
 <span class="c1"># Quantitative covariates (AGE) for binary trait=asthma. This is the created file with fastGWA formatting</span>
-<span class="kn">parameter:</span> <span class="n">qcovarFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/project/phenotypes_UKB/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_fastGWA_covAGE.txt&#39;</span><span class="p">)</span>
+<span class="kn">parameter:</span> <span class="n">qcovarFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/project/phenotypes_UKB/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_052820_covAGE.txt&#39;</span><span class="p">)</span>
+<span class="c1"># Minimum MAF to be used</span>
+<span class="kn">parameter:</span> <span class="n">bgenMinMAF</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="c1"># Mimimum info score to be used</span>
+<span class="kn">parameter:</span> <span class="n">bgenMinINFO</span> <span class="o">=</span> <span class="mf">0.8</span>
 <span class="c1"># Number of parts the GRM calculation is to be partitioned</span>
 <span class="kn">parameter:</span> <span class="n">parts</span> <span class="o">=</span> <span class="mi">100</span>
 <span class="c1"># Specific number of threads to use</span>
@@ -353,6 +366,14 @@ body {
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Step-1:-Creation-of-the-GRM">Step 1: Creation of the GRM<a class="anchor-link" href="#Step-1:-Creation-of-the-GRM">&#182;</a></h2><p>The GRM only needs to be created once for all the phenotypes to analyze with the same genotypic data. In this step the GRM calculation is divided into multiple parts for a faster computational time.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
@@ -369,7 +390,7 @@ body {
         <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.part_</span><span class="si">{</span><span class="n">_part_number</span><span class="si">}</span><span class="s1">.grm.N.bin&#39;</span><span class="p">,</span> 
         <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.part_</span><span class="si">{</span><span class="n">_part_number</span><span class="si">}</span><span class="s1">.grm.id&#39;</span>
 <span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;48G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
-<span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">gcta64</span> \
     <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">n</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">grm</span><span class="o">-</span><span class="n">part</span> <span class="err">$</span><span class="p">{</span><span class="n">parts</span><span class="p">}</span> <span class="err">$</span><span class="p">{</span><span class="n">_part_number</span><span class="p">}</span> \
@@ -381,6 +402,13 @@ body {
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Step-2:-Combine-all-the-GRM-parts-into-one-file">Step 2: Combine all the GRM parts into one file<a class="anchor-link" href="#Step-2:-Combine-all-the-GRM-parts-into-one-file">&#182;</a></h2>
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
@@ -398,30 +426,71 @@ body {
     <span class="n">cat</span> <span class="err">$</span><span class="p">{</span><span class="n">paths</span><span class="p">(</span><span class="n">_input</span><span class="p">[::</span><span class="mi">3</span><span class="p">])}</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
     <span class="n">cat</span> <span class="err">$</span><span class="p">{</span><span class="n">paths</span><span class="p">(</span><span class="n">_input</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">3</span><span class="p">])}</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
     <span class="n">cat</span> <span class="err">$</span><span class="p">{</span><span class="n">paths</span><span class="p">(</span><span class="n">_input</span><span class="p">[</span><span class="mi">2</span><span class="p">::</span><span class="mi">3</span><span class="p">])}</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">2</span><span class="p">]}</span>
+    <span class="c1">#rm ${paths(_input)}</span>
+</pre></div>
 
-<span class="c1"># Make a sparse GRM from the merged full-dense GRM</span>
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Step-3:-Make-a-sparse-GRM-to-be-used-in-the-association-analyses">Step 3: Make a sparse GRM to be used in the association analyses<a class="anchor-link" href="#Step-3:-Make-a-sparse-GRM-to-be-used-in-the-association-analyses">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Make a sparse GRM from the merged full-dense GRM</span>
 <span class="p">[</span><span class="n">gcta_3</span><span class="p">]</span>
+<span class="kn">depends:</span> <span class="n">executable</span><span class="p">(</span><span class="s2">&quot;gcta64&quot;</span><span class="p">)</span>
 <span class="kn">output:</span> <span class="n">sparse_grm</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">nn</span><span class="si">}</span><span class="s1">.grm.sp&#39;</span> 
 <span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;48G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
-<span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span>
-    <span class="n">gcta64</span> <span class="o">--</span><span class="n">grm</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">nn</span><span class="p">}</span> <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bK</span><span class="o">-</span><span class="n">sparse</span> <span class="mf">0.05</span> <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">nn</span><span class="p">}</span>
-
-<span class="c1"># fastGWA mixed model (based on the sparse GRM generated above)</span>
-<span class="p">[</span><span class="n">gcta_4</span><span class="p">]</span>
-<span class="kn">input:</span> <span class="n">bgenFile</span><span class="p">,</span> <span class="n">group_by</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">group_with</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="p">[(</span><span class="n">phenoFile</span><span class="p">,</span> <span class="n">sampleFile</span><span class="p">,</span> <span class="n">named_output</span><span class="p">(</span><span class="s1">&#39;sparse_grm&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">qcovarFile</span><span class="p">,</span> <span class="n">covarFile</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">bgenFile</span><span class="p">))</span>
-<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">nn</span><span class="si">}</span><span class="s1">.fastGWA&#39;</span>
-<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;48G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">}</span><span class="s1">.stdout&#39;</span>
+    <span class="n">gcta64</span> <span class="o">--</span><span class="n">grm</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">nn</span><span class="p">}</span> <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bK</span><span class="o">-</span><span class="n">sparse</span> <span class="mf">0.05</span> <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">nn</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Step-4:-Run-the-single-variant-association-analysis-using-FastGWA">Step 4: Run the single variant association analysis using FastGWA<a class="anchor-link" href="#Step-4:-Run-the-single-variant-association-analysis-using-FastGWA">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># fastGWA mixed model (based on the sparse GRM generated above)</span>
+<span class="p">[</span><span class="n">fastGWA</span><span class="p">]</span>
+<span class="kn">depends:</span> <span class="n">executable</span><span class="p">(</span><span class="s2">&quot;gcta64&quot;</span><span class="p">)</span>
+<span class="kn">input:</span> <span class="n">bgenFile</span><span class="p">,</span> <span class="n">group_by</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">group_with</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="p">[(</span><span class="n">phenoFile</span><span class="p">,</span> <span class="n">sampleFile</span><span class="p">,</span> <span class="n">named_output</span><span class="p">(</span><span class="s1">&#39;sparse_grm&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">qcovarFile</span><span class="p">,</span> <span class="n">covarFile</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">bgenFile</span><span class="p">))</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bnn</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">_input</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.fastGWA&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bnn</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">_input</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.log&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;48G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">gcta64</span> \
     <span class="o">--</span><span class="n">bgen</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> \
-    <span class="o">--</span><span class="n">sample</span>  <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">n</span><span class="p">}</span> \
+    <span class="o">--</span><span class="n">sample</span>  <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> \
     <span class="o">--</span><span class="n">grm</span><span class="o">-</span><span class="n">sparse</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span><span class="n">nn</span><span class="p">}</span> \
+    <span class="o">--</span><span class="n">maf</span> <span class="err">$</span><span class="p">{</span><span class="n">bgenMinMAF</span><span class="p">}</span> \
+    <span class="o">--</span><span class="n">info</span> <span class="err">$</span><span class="p">{</span><span class="n">bgenMinINFO</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">fastGWA</span><span class="o">-</span><span class="n">mlm</span> \
     <span class="o">--</span><span class="n">pheno</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> \
     <span class="o">--</span><span class="n">qcovar</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="mi">3</span><span class="p">]}</span> \
     <span class="o">--</span><span class="n">covar</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="mi">4</span><span class="p">]}</span> \
     <span class="o">--</span><span class="n">threads</span> <span class="err">$</span><span class="p">{</span><span class="n">numThreads</span><span class="p">}</span> \
-    <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span>
+    <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">n</span><span class="p">}</span>
 </pre></div>
 
     </div>
@@ -440,31 +509,46 @@ body {
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <ol>
+<li><strong>gcta_1 for x number of parts (in the example above x=100, so this step will create 400 files):</strong></li>
+</ol>
+<ul>
+<li>test.part_{_part_number}.grm.bin</li>
+<li>test.part_{_part_number}.grm.N.bin </li>
+<li>test.part_{_part_number}.grm.id</li>
+<li>test.part_{_part_number}.log (the program creates the log file so there is no need for .stderr and .stdout)</li>
+</ul>
+<ol>
+<li><strong>gcta_2 this step creates 5 output files:</strong></li>
+</ol>
+<ul>
 <li>test.grm.bin (it is a binary file which contains the lower triangle elements of the GRM)</li>
 <li>test.grm.N.bin (it is a binary file which contains the number of SNPs used to calculate the GRM)</li>
 <li>test.grm.id (no header line; columns are family ID and individual ID, see above)</li>
-<li>test.grm.sp (sparse GRM made from the dense GRM)</li>
+<li>test.grm.stderr</li>
+<li>test.grm.stdout</li>
+</ul>
+<ol>
+<li><strong>gcta_3 this step creates 3 output files:</strong></li>
 </ol>
+<ul>
+<li>test.grm.sp (sparse GRM made from the dense GRM)</li>
+<li>test.grm.sp.stderr</li>
+<li>test.grm.sp.stdout</li>
+</ul>
+<ol>
+<li><strong>fastGWA this step creates 2 output files per chromosome</strong></li>
+</ol>
+<ul>
+<li>test{chr1:22}.fastGWA</li>
+<li>test{chr1:22}.fastGWA.log</li>
+</ul>
 
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/9fea6161229105ac2ca3dc7cbf29178c95bd1808/workflow/fastGWA.ipynb"><code>workflow/fastGWA.ipynb</code></a> committed by dianacornejo on Thu May 21 10:52:05 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/9fea6161229105ac2ca3dc7cbf29178c95bd1808">revision 11, 9fea616</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/d1f2fe35149f7f0d86da32e9e10ef197963120f8/workflow/fastGWA.ipynb"><code>workflow/fastGWA.ipynb</code></a> committed by dianacornejo on Mon Jun 1 09:22:49 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/d1f2fe35149f7f0d86da32e9e10ef197963120f8">revision 22, d1f2fe3</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
