@@ -1,5 +1,6 @@
 docs/analysis.html
 docs/analysis.tpl
+docs/analysis/20200608_Region_Extraction.html
 docs/analysis/phenotype_analysis.html
 docs/index.html
 docs/index.tpl
@@ -8,6 +9,8 @@ docs/workflow.html
 docs/workflow.tpl
 docs/workflow/BoltLMM.html
 docs/workflow/LDclumping.html
+docs/workflow/MWE.html
+docs/workflow/Region_Extraction.html
 docs/workflow/SAIGE.html
 docs/workflow/fastGWA.html
 docs/workflow/postprocessing.html
