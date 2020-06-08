@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="ipynb_website:version" content="0.9.7" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link rel="stylesheet" type="text/css" href="../css/jt.css">
+
+<link rel="stylesheet" type="text/css" href="../css/toc2.css">
+
+<link href="../site_libs/jqueryui-1.11.4/jquery-ui.css">
+<link rel="stylesheet" href="../site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="../site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+
+<link rel="stylesheet"
+      href="../site_libs/highlightjs/null.min.css"
+      type="text/css" />
+
+<script src="../site_libs/highlightjs/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+<script src="../js/doc_toc.js"></script>
+<script src="../js/docs.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script>
+    MathJax.Hub.Config({
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+        },
+        "HTML-CSS": {
+            preferredFont: "TeX",
+            availableFonts: ["TeX"],
+            styles: {
+                scale: 110,
+                ".MathJax_Display": {
+                    "font-size": "110%",
+                }
+            }
+        }
+    });
+</script>
+<script>
+function filterDataFrame(id) {
+    var input = document.getElementById("search_" + id);
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("dataframe_" + id);
+    var tr = table.getElementsByTagName("tr");
+    // Loop through all table rows, and hide those who don't match the search query
+    for (var i = 1; i < tr.length; i++) {
+        for (var j = 0; j < tr[i].cells.length; ++j) {
+            var matched = false;
+            if (tr[i].cells[j].innerHTML.toUpperCase().indexOf(filter) != -1) {
+                tr[i].style.display = "";
+                matched = true
+                break;
+            }
+            if (!matched)
+                tr[i].style.display = "none";
+        }
+    }
+}
+function sortDataFrame(id, n, dtype) {
+    var table = document.getElementById("dataframe_" + id);
+    var tb = table.tBodies[0]; // use `<tbody>` to ignore `<thead>` and `<tfoot>` rows
+    var tr = Array.prototype.slice.call(tb.rows, 0); // put rows into array
+    if (dtype === 'numeric') {
+        var fn = function(a, b) { 
+            return parseFloat(a.cells[n].textContent) <= parseFloat(b.cells[n].textContent) ? -1 : 1;
+        }
+    } else {
+        var fn = function(a, b) {
+            var c = a.cells[n].textContent.trim().localeCompare(b.cells[n].textContent.trim()); 
+            return c > 0 ? 1 : (c < 0 ? -1 : 0) }
+    }
+    var isSorted = function(array, fn) {
+        if (array.length < 2)
+            return 1;
+        var direction = fn(array[0], array[1]); 
+        for (var i = 1; i < array.length - 1; ++i) {
+            var d = fn(array[i], array[i+1]);
+            if (d == 0)
+                continue;
+            else if (direction == 0)
+                direction = d;
+            else if (direction != d)
+                return 0;
+            }
+        return direction;
+    }
+    var sorted = isSorted(tr, fn);
+    if (sorted == 1 || sorted == -1) {
+        // if sorted already, reverse it
+        for(var i = tr.length - 1; i >= 0; --i)
+            tb.appendChild(tr[i]); // append each row in order
+    } else {
+        tr = tr.sort(fn);
+        for(var i = 0; i < tr.length; ++i)
+            tb.appendChild(tr[i]); // append each row in order
+    }
+}
+</script>
+
+<script>
+$( document ).ready(function(){
+            var cfg={'threshold':3,     // depth of toc (number of levels)
+             'number_sections': false,
+             'toc_cell': false,          // useless here
+             'toc_window_display': true, // display the toc window
+             "toc_section_display": "block", // display toc contents in the window
+             'sideBar':true,       // sidebar or floating window
+             'navigate_menu':false       // navigation menu (only in liveNotebook -- do not change)
+            }
+            var st={};                  // some variables used in the script
+            st.rendering_toc_cell = false;
+            st.config_loaded = false;
+            st.extension_initialized=false;
+            st.nbcontainer_marginleft = $('#notebook-container').css('margin-left')
+            st.nbcontainer_marginright = $('#notebook-container').css('margin-right')
+            st.nbcontainer_width = $('#notebook-container').css('width')
+            st.oldTocHeight = undefined
+            st.cell_toc = undefined;
+            st.toc_index=0;
+            // fire the main function with these parameters
+            table_of_contents(cfg, st);
+            var file=workflowDict[$("h1:first").attr("id")];
+            $("#toc-level0 a").css("color","#126dce");
+            $('a[href="#'+$("h1:first").attr("id")+'"]').hide()
+            var docs=workflowArray;
+            var docs_map=workflowArrayMap;
+            var pos=workflowArray.indexOf(file);
+            for (var a=pos;a>=0;a--){
+                  $('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>').insertBefore("#toc-level0 li:eq(0)");
+            }
+            $('a[href="'+file+'.html'+'"]').css("color","#126dce");
+            for (var a=pos+1;a<docs.length;a++){
+                  $(".toc #toc-level0").append('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>');
+            }
+            // $("#toc-header").hide(); // comment out because it prevents search bar from displaying
+    });
+</script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+  // mark it active
+  menuAnchor.parent().addClass('active');
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+<div class="container-fluid main-container">
+<!-- tabsets -->
+<script src="../site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+
+
+<title>Pleiotropy analysis in UKBB</title>
+
+<style type = "text/css">
+body {
+  font-family: "Droid Sans";
+  padding-top: 66px;
+  padding-bottom: 40px;
+}
+</style>
+</head>
+
+<body>
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+<div class="container" id="notebook-container">
+
+<!-- code folding -->
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="../index.html">Pleiotropy analysis in UKBB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+<li>
+  <a href="../index.html">Overview</a>
+</li>
+        
+<li>
+  <a href="../workflow.html">Workflow</a>
+</li>
+        
+<li>
+  <a href="../analysis.html">Analysis</a>
+</li>
+        
+      </ul>
+        
+<ul class="nav navbar-nav navbar-right">
+<li>
+   <a href="http://github.com/dianacornejo/pleiotropy_UKB"> <span class="fa fa-github"></span> </a>
+</li>
+</ul>
+        
+      </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-a-minimal-example-from-the-UKB-data">Create a minimal example from the UKB data<a class="anchor-link" href="#Create-a-minimal-example-from-the-UKB-data">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Select 100 individuals from the bed files</p>
+<ol>
+<li>Individuals to select: <code>/home/dc2325/scratch60/plink-clumping/samplesID.txt</code></li>
+<li>Filter bgen files from chr1 and chr2 to contain only those individuals:</li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="k">global</span><span class="p">]</span>
+<span class="c1"># Working directory: change accordingly</span>
+<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/scratch60/plink-clumping&#39;</span><span class="p">)</span>
+<span class="c1"># Genotype file in plink binary format</span>
+<span class="kn">parameter:</span> <span class="n">genoFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindivs.bed&#39;</span><span class="p">)</span>
+<span class="c1"># Path to bgen files</span>
+<span class="kn">parameter:</span> <span class="n">bgenFile</span> <span class="o">=</span> <span class="n">paths</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb_imp_chr</span><span class="si">{</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">_v3.bgen&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)])</span>
+<span class="c1"># Path to sample file</span>
+<span class="kn">parameter:</span> <span class="n">sampleFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb32285_imputedindiv.sample&#39;</span><span class="p">)</span>
+<span class="c1"># Samples to select for plink format contains two columns FID and IID</span>
+<span class="kn">parameter:</span> <span class="n">samplesPlink</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/home/dc2325/scratch60/plink-clumping/samples_plink.txt&#39;</span><span class="p">)</span>
+<span class="c1"># Samples to select for awk contains only one column IID</span>
+<span class="kn">parameter:</span> <span class="n">samplesID</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/home/dc2325/scratch60/plink-clumping/samplesID.txt&#39;</span><span class="p">)</span>
+<span class="c1"># Samples to select for qctool white-space delimited list of IID</span>
+<span class="kn">parameter:</span> <span class="n">samplesQctool</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/home/dc2325/scratch60/plink-clumping/samples_qctool.txt&#39;</span><span class="p">)</span>
+<span class="c1"># Covariate file</span>
+<span class="kn">parameter:</span> <span class="n">covarFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/home/dc2325/scratch60/plink-clumping/phenotypes.txt&#39;</span><span class="p">)</span>
+<span class="c1"># Raw phenotype to extract individuals</span>
+<span class="kn">parameter:</span> <span class="n">rawPheno2</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/UKB_caucasians_BMIwaisthip_AsthmaAndT2D_withagesex_033120&#39;</span><span class="p">)</span>
+<span class="c1"># Raw phenotype to extract individuals</span>
+<span class="kn">parameter:</span> <span class="n">rawPheno1</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720&#39;</span><span class="p">)</span>
+<span class="c1"># Phenotype file for both quantitative (BMI) and qualitative (asthma) traits</span>
+<span class="kn">parameter:</span> <span class="n">phenoFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/home/dc2325/scratch60/plink-clumping/phenotypes.txt&#39;</span><span class="p">)</span>
+<span class="c1"># Unrelated samples from UKB</span>
+<span class="kn">parameter:</span> <span class="n">unrelated_samples</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/unrelated_n307259/UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620&#39;</span><span class="p">)</span>
+<span class="c1"># For cluster jobs, number commands to run per job</span>
+<span class="kn">parameter:</span> <span class="n">job_size</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="c1"># Specific number of threads to use</span>
+<span class="kn">parameter:</span> <span class="n">numThreads</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="c1"># Load specific modules</span>
+<span class="kn">parameter:</span> <span class="n">plink_module</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">module load PLINK/1.90-beta5.3</span>
+<span class="s1">echo &quot;Module plink loaded&quot;</span>
+<span class="si">{cmd}</span><span class="s1"></span>
+<span class="s1">&#39;&#39;&#39;</span>
+<span class="kn">parameter:</span> <span class="n">qctool_module</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">module load QCTOOL/2.0-foss-2016b-rc7-CentOS6.8</span>
+<span class="s1">echo &quot;Module qctool loaded&quot;</span>
+<span class="si">{cmd}</span><span class="s1"></span>
+<span class="s1">&#39;&#39;&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Create .bed, .fam and .bin files</span>
+<span class="p">[</span><span class="n">plink</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">genoFile</span><span class="p">,</span> <span class="n">samplesPlink</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">b</span><span class="si">}</span><span class="s1">.MWE_data.bed&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">template</span> <span class="o">=</span> <span class="n">plink_module</span>
+    <span class="n">plink</span> \
+    <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> \
+    <span class="o">--</span><span class="n">keep</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> \
+    <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> \
+    <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">bn</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Extract the 100 individuals from the phenotypic files</span>
+<span class="p">[</span><span class="n">phenotypes</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">rawPheno1</span><span class="p">,</span> <span class="n">rawPheno2</span><span class="p">,</span> <span class="n">unrelated_samples</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/phenotype_100samples.txt&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/samplesID.txt&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/samples_qctool.txt&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/samples_plink.txt&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span>
+    <span class="n">awk</span> <span class="s1">&#39;FNR==NR{a[$1];next}($1 in a)</span><span class="si">{print}</span><span class="s1">&#39;</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> <span class="o">&gt;</span> <span class="n">common_IDs</span><span class="o">.</span><span class="n">txt</span>
+    <span class="n">cat</span> <span class="n">common_IDs</span><span class="o">.</span><span class="n">txt</span> <span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;NR==1; $5==1 </span><span class="si">{print}</span><span class="s1">&#39;</span> <span class="o">|</span> <span class="n">head</span> <span class="o">-</span><span class="n">n</span> <span class="mi">51</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="n">_cases</span><span class="o">.</span><span class="n">txt</span>
+    <span class="n">cat</span> <span class="n">common_IDs</span><span class="o">.</span><span class="n">txt</span> <span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;NR==1; $5==0 </span><span class="si">{print}</span><span class="s1">&#39;</span> <span class="o">|</span> <span class="n">head</span> <span class="o">-</span><span class="n">n</span> <span class="mi">51</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="n">_controls</span><span class="o">.</span><span class="n">txt</span>
+    <span class="n">awk</span> <span class="s1">&#39;FNR&gt;1 || NR==1&#39;</span> <span class="mi">50</span><span class="n">_</span><span class="o">*</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+    <span class="n">awk</span> <span class="s1">&#39;{print $2}&#39;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> <span class="o">|</span> <span class="n">sort</span> <span class="o">-</span><span class="n">k</span> <span class="mi">1</span><span class="n">n</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
+    <span class="n">cat</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> <span class="o">|</span> <span class="n">awk</span> <span class="o">-</span><span class="n">F</span> <span class="s2">&quot; &quot;</span> <span class="s1">&#39;NR&gt;1 </span><span class="si">{print}</span><span class="s1">; {ORS= &quot; &quot;}&#39;</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">2</span><span class="p">]}</span>
+    <span class="n">awk</span> <span class="s1">&#39;{print $1,$2}&#39;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">3</span><span class="p">]}</span>
+    <span class="n">grep</span> <span class="o">-</span><span class="n">w</span> <span class="o">-</span><span class="n">F</span> <span class="o">-</span><span class="n">f</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">2</span><span class="p">]}</span>  <span class="o">&gt;</span> <span class="n">unrelated_samplesID</span><span class="o">.</span><span class="n">txt</span>
+    <span class="n">rm</span> <span class="mi">50</span><span class="n">_</span><span class="o">*</span> <span class="n">common_IDs</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Filter bgen files chr1 and chr2 with only the 100 individuals</span>
+<span class="p">[</span><span class="n">qctool</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">bgenFile</span><span class="p">,</span> <span class="n">group_by</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">paired_with</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">sample</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/chr1_filter_snps.txt&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/chr2_filter_snps.txt&#39;</span><span class="p">])</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.filtered.bgen&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.filtered.sample&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;12h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;48G&#39;</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span><span class="p">,</span> <span class="n">template</span> <span class="o">=</span> <span class="n">qctool_module</span>
+    <span class="n">qctool</span> \
+    <span class="o">-</span><span class="n">g</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> \
+    <span class="o">-</span><span class="n">s</span> <span class="err">$</span><span class="p">{</span><span class="n">sampleFile</span><span class="p">}</span> \
+    <span class="o">-</span><span class="n">og</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> \
+    <span class="o">-</span><span class="n">os</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> \
+    <span class="o">-</span><span class="n">incl</span><span class="o">-</span><span class="n">samples</span> <span class="err">$</span><span class="p">{</span><span class="n">samplesQctool</span><span class="p">}</span> \
+    <span class="o">-</span><span class="n">incl</span><span class="o">-</span><span class="n">rsids</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="o">.</span><span class="n">sample</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>cat /SAY/dbgapstg/scratch/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720 \
+| awk 'NR==1; $5==1 {print}' | head -n 51 &gt; asthma_cases.txt
+cat /SAY/dbgapstg/scratch/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720 \
+| awk 'NR==1; $5==0 {print}' | head -n 51 &gt; asthma_controls.txt
+
+#This was to see which ID's were different between asthma and BMI
+diff -y &lt;( awk '{print $1}' samples_asthma_sorted.txt) &lt;( awk '{print $1}' BMI_samples_sorted.txt )
+
+# Look for common IDs in both files
+# One way to do it with awk
+awk 'FNR==NR{a[$1];next}($1 in a){print}' Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720 UKB_caucasians_BMIwaisthip_AsthmaAndT2D_withagesex_033120 &gt; common_IDs.txt
+
+# Another way to do it but files need to be sorted firt
+sort -k 2n Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720
+sort -k 2n UKB_caucasians_BMIwaisthip_AsthmaAndT2D_withagesex_033120
+comm -12  &lt;( awk '{print $1}' Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720) \
+&lt;( awk '{print $1}' UKB_caucasians_BMIwaisthip_AsthmaAndT2D_withagesex_033120) &gt; common_IDs.txt
+
+#Now select 50 cases and 50 controls based on asthma 
+cat common_IDs.txt | awk 'NR==1; $5==1 {print}' | head -n 51 &gt; asthma_cases.txt
+cat common_IDs.txt | awk 'NR==1; $5==0 {print}' | head -n 51 &gt; asthma_controls.txt
+
+#Join the cases and controls in one file 
+awk 'FNR&gt;1 || NR==1' asthma_c* &gt; asthma_samples.txt
+
+# Create the samplesID file to be used 
+awk '{print $2}' asthma_samples.txt | sort -k 1n &gt; samplesID.txt #only 84 are unrelated
+
+# See if the samples are unrelated
+grep -w -F -f samplesID.txt /SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/unrelated_n307259/UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620 &gt; unrelated_samplesID.txt
+
+#Create the samples file for qctools
+cat samplesID.txt | awk -F " " 'NR&gt;1 {print}; {ORS= " "}' &gt; samples_qctool.txt
+
+#Create the sample file for plink
+awk '{print $1,$2}' asthma_samples.txt &gt; samples_plink.txt
+
+#Select column with awk with partial matches
+
+awk '$2 ~ /rs/ { print $2 }' dummy_file 
+
+cat chr1_snps.txt | awk 'BEGIN {ORS=" "}; $2 ~ /rs/ { print $2 }' &gt; chr1_filter_snps.txt
+cat chr2_snps.txt | awk 'BEGIN {ORS=" "}; $2 ~ /rs/ { print $2 }' &gt; chr2_filter_snps.txt</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<hr>
+&copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/976e883af04ec64f7ea6b689e49a40e9895cb8c2/workflow/MWE.ipynb"><code>workflow/MWE.ipynb</code></a> committed by dianacornejo on Fri Jun 5 15:23:00 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/976e883af04ec64f7ea6b689e49a40e9895cb8c2">revision 3, 976e883</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+</div>
+</div>
+</body>
+</html>
