@@ -258,36 +258,6 @@ body {
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">cd</span> <span class="o">~/</span><span class="n">tmp</span><span class="o">/</span><span class="mi">08</span><span class="o">-</span><span class="n">Jun</span><span class="o">-</span><span class="mi">2020</span><span class="o">/</span><span class="n">MWE</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>/home/gw/tmp/08-Jun-2020/MWE</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -298,13 +268,15 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Region extract input:</p>
-<ul>
+<h3 id="Input">Input<a class="anchor-link" href="#Input">&#182;</a></h3><ul>
 <li>list of regions e.g. SNP rs849335 is at chr 7:28223990; and we extract 1Mb radius around it.<ul>
 <li>The locus will be represented by one line in the region list with 3 columns <code>7 27723990 28723990</code></li>
 </ul>
 </li>
-<li>all genotypes, in <code>bgen</code> format and in <code>plink format</code>.</li>
+<li>list of all genotypes, in <code>bgen</code> format or in <code>plink format</code>.<ul>
+<li><strong>FIXME: explain the format of this list, as outlined in <a href="https://github.com/dianacornejo/pleiotropy_UKB/issues/1">https://github.com/dianacornejo/pleiotropy_UKB/issues/1</a></strong></li>
+</ul>
+</li>
 <li>all summary statistics ($\hat{\beta}$, $SE(\hat{\beta})$ and p-values)<ul>
 <li>These summary statistics should contain at least these columns: <strong>FIXME please read <a href="https://github.com/dianacornejo/pleiotropy_UKB/issues/1#issuecomment-640680333">https://github.com/dianacornejo/pleiotropy_UKB/issues/1#issuecomment-640680333</a>  and explain it here</strong></li>
 </ul>
@@ -328,8 +300,7 @@ body {
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>FIXME: examplain format of summary stats file and format of unrelated individual list</strong></p>
-<p>output:</p>
-<ul>
+<h3 id="Output">Output<a class="anchor-link" href="#Output">&#182;</a></h3><ul>
 <li>regional genotype</li>
 <li>regional LD accounting for related individuals</li>
 <li>reginonal summary stats</li>
@@ -348,12 +319,16 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>If genotypes are in PLINK format,</p>
+<p>Using our minimal working example data-set,</p>
 
-<pre><code>sos run Region_Extraction.ipynb plink</code></pre>
-<p>If genotypes are in bgen format,</p>
-
-<pre><code>sos run Region_Extraction.ipynb bgen</code></pre>
+<pre><code>sos run Region_Extraction.ipynb \
+    --cwd output \
+    --region-file data/regions.txt \
+    --pheno-path data/phenotypes.txt \
+    --geno-path data/genotype_inventory.txt \
+    --sumstats-path output/ukb_imp_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.snp_stats.all_chr.gz \
+    --unrelated-samples data/UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620 \
+    --chrom-col 2 --pos-col 3 --a0-col 6 --a1-col 5 --bhat-col 11 --sbhat-col 12 --p-col 16</code></pre>
 
 </div>
 </div>
@@ -375,17 +350,19 @@ body {
 <span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span>
 <span class="c1"># Region specifications</span>
 <span class="kn">parameter:</span> <span class="n">region_file</span> <span class="o">=</span> <span class="n">path</span>
-<span class="c1"># Genotype file in plink binary format or bgen format</span>
+<span class="c1"># Genotype file inventory</span>
 <span class="kn">parameter:</span> <span class="n">geno_path</span> <span class="o">=</span> <span class="n">path</span>
 <span class="c1"># Phenotype path</span>
 <span class="kn">parameter:</span> <span class="n">pheno_path</span> <span class="o">=</span> <span class="n">path</span>
 <span class="c1"># Path to summary stats file</span>
-<span class="kn">parameter:</span> <span class="n">sumstat_path</span><span class="o">=</span> <span class="n">path</span>
+<span class="kn">parameter:</span> <span class="n">sumstats_path</span> <span class="o">=</span> <span class="n">path</span>
 <span class="c1"># Path to samples of unrelated individuals</span>
 <span class="kn">parameter:</span> <span class="n">unrelated_samples</span> <span class="o">=</span> <span class="n">path</span>
 <span class="c1"># Column ID for summary stats, 1-based index</span>
 <span class="kn">parameter:</span> <span class="n">chrom_col</span> <span class="o">=</span> <span class="nb">int</span>
 <span class="kn">parameter:</span> <span class="n">pos_col</span> <span class="o">=</span> <span class="nb">int</span>
+<span class="kn">parameter:</span> <span class="n">a0_col</span> <span class="o">=</span> <span class="nb">int</span>
+<span class="kn">parameter:</span> <span class="n">a1_col</span> <span class="o">=</span> <span class="nb">int</span>
 <span class="kn">parameter:</span> <span class="n">bhat_col</span> <span class="o">=</span> <span class="nb">int</span>
 <span class="kn">parameter:</span> <span class="n">sbhat_col</span> <span class="o">=</span> <span class="nb">int</span>
 <span class="kn">parameter:</span> <span class="n">p_col</span> <span class="o">=</span> <span class="nb">int</span>
@@ -416,15 +393,15 @@ body {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">plink_0</span><span class="p">,</span> <span class="n">bgen_0</span><span class="p">]</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">utils</span><span class="p">]</span>
 <span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">:</span><span class="s1">a</span><span class="si">}</span><span class="s1">/utils.py&#39;</span>
-<span class="kn">report:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s1">&#39;${ }&#39;</span>
+<span class="kn">report:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s1">&#39;${ }&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">_output</span>
     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
     <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-    <span class="k">def</span> <span class="nf">region_index</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span><span class="n">chrom</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">end</span><span class="p">,</span> <span class="n">chrom_col</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_chrom_col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">},</span> <span class="n">pos_col</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">pos_col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">}):</span>
+    <span class="k">def</span> <span class="nf">region_index</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span><span class="n">chrom</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">end</span><span class="p">,</span> <span class="n">chrom_col</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">chrom_col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">},</span> <span class="n">pos_col</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">pos_col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">}):</span>
         <span class="n">chr_bool</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="n">chrom_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">chrom</span>
         <span class="n">chr_ind</span> <span class="o">=</span> <span class="n">chr_bool</span><span class="p">[</span><span class="n">chr_bool</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
         <span class="n">reg_bool</span> <span class="o">=</span> <span class="p">(</span><span class="n">ss</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="n">pos_col</span><span class="p">][</span><span class="n">chr_ind</span><span class="p">]</span><span class="o">&gt;</span><span class="n">start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">ss</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="n">pos_col</span><span class="p">][</span><span class="n">chr_ind</span><span class="p">]</span><span class="o">&lt;</span><span class="n">end</span><span class="p">)</span>
@@ -450,8 +427,8 @@ body {
         <span class="c1"># FIXME: are you removing all samples having `nan` genotypes? This might not be the best</span>
         <span class="c1"># thing to do.</span>
         <span class="c1"># here is a possible alternative: https://stackoverflow.com/questions/31619578/numpy-corrcoef-compute-correlation-matrix-while-ignoring-missing-data</span>
-        <span class="n">rg_bed</span><span class="o">=</span><span class="n">rg_bed</span><span class="p">[:,</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">rg_bed</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span> <span class="c1">#remove columns included nan</span>
-        <span class="n">rg_ld</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">rg_bed</span><span class="p">)</span>
+        <span class="n">reg_geno</span><span class="o">=</span><span class="n">reg_geno</span><span class="p">[:,</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">reg_geno</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span> <span class="c1">#remove columns included nan</span>
+        <span class="n">rg_ld</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">reg_geno</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">extract_region</span><span class="p">(</span><span class="n">region</span><span class="p">,</span><span class="n">gwas</span><span class="p">,</span><span class="n">geno</span><span class="p">,</span><span class="n">iid</span><span class="p">):</span>
         <span class="c1"># FIXME: for genotype information we need it for all individuals, not unrelated samples</span>
@@ -474,24 +451,44 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Extract-from-PLINK-format">Extract from PLINK format<a class="anchor-link" href="#Extract-from-PLINK-format">&#182;</a></h2>
+<h2 id="Extract-data">Extract data<a class="anchor-link" href="#Extract-data">&#182;</a></h2><p>This step runs in parallel for all loci listed in the region file (via <code>for_each</code>).</p>
+
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[97]:</div>
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">plink_1</span> <span class="p">(</span><span class="n">extract</span> <span class="n">genotypes</span><span class="p">)]</span>
-<span class="kn">depend:</span> <span class="n">Py_Module</span><span class="p">(</span><span class="s1">&#39;pandas_plink&#39;</span><span class="p">)</span>
-<span class="kn">input:</span> <span class="n">output_from</span><span class="p">(</span><span class="s1">&#39;plink_0&#39;</span><span class="p">),</span> <span class="n">geno_path</span><span class="p">,</span> <span class="n">pheno_path</span><span class="p">,</span> <span class="n">sumstats_path</span><span class="p">,</span> <span class="n">unrelated_samples</span><span class="p">,</span> <span class="n">for_each</span> <span class="o">=</span> <span class="s1">&#39;regions&#39;</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">default</span> <span class="p">(</span><span class="n">extract</span> <span class="n">genotypes</span><span class="p">)]</span>
+<span class="kn">depends:</span> <span class="n">Py_Module</span><span class="p">(</span><span class="s1">&#39;pandas_plink&#39;</span><span class="p">)</span>
+<span class="kn">input:</span> <span class="n">geno_path</span><span class="p">,</span> <span class="n">pheno_path</span><span class="p">,</span> <span class="n">sumstats_path</span><span class="p">,</span> <span class="n">unrelated_samples</span><span class="p">,</span> <span class="n">output_from</span><span class="p">(</span><span class="s1">&#39;utils&#39;</span><span class="p">),</span> <span class="n">for_each</span> <span class="o">=</span> <span class="s1">&#39;regions&#39;</span>
 <span class="kn">output:</span> <span class="n">sumstats</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">:</span><span class="s1">a</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">sumstats_path</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s1">.sumstats.gz&#39;</span><span class="p">,</span>
         <span class="n">genotype</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">:</span><span class="s1">a</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">geno_path</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">pheno_path</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s1">.genotype.gz&#39;</span><span class="p">,</span>
         <span class="n">ld</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">:</span><span class="s1">a</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">geno_path</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">pheno_path</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s1">.ld.gz&#39;</span>
-<span class="kn">python:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s1">&#39;${ }&#39;</span>
-    <span class="kn">from</span> <span class="nn">pandas_plink</span> <span class="kn">import</span> <span class="n">read_plink</span>
-    <span class="n">geno</span> <span class="o">=</span> <span class="n">read_plink</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">nr</span><span class="p">})</span>
+<span class="kn">python:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s1">&#39;${ }&#39;</span><span class="p">,</span> <span class="nb">input</span> <span class="o">=</span> <span class="n">_input</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span>
+    <span class="c1"># Load genotype file for the region of interest</span>
+    <span class="n">geno_inventory</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">r</span><span class="p">})</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()])</span>
+    <span class="k">if</span> <span class="s2">&quot;$</span><span class="si">{_regions[0]}</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">geno_inventory</span><span class="p">:</span>
+        <span class="n">geno_file</span> <span class="o">=</span> <span class="n">geno_inventory</span><span class="p">[</span><span class="s1">&#39;0&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">geno_file</span> <span class="o">=</span> <span class="n">geno_inventory</span><span class="p">[</span><span class="s2">&quot;$</span><span class="si">{_regions[0]}</span><span class="s2">&quot;</span><span class="p">]</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">geno_file</span><span class="p">):</span>
+        <span class="c1"># relative path</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;${_input[0]:ad}/&#39;</span> <span class="o">+</span> <span class="n">geno_file</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot find genotype file&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">geno_file</span> <span class="o">=</span> <span class="s1">&#39;${_input[0]:ad}/&#39;</span> <span class="o">+</span> <span class="n">geno_file</span>
+    <span class="k">if</span> <span class="n">geno_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.bed&#39;</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">pandas_plink</span> <span class="kn">import</span> <span class="n">read_plink</span>
+        <span class="n">geno</span> <span class="o">=</span> <span class="n">read_plink</span><span class="p">(</span><span class="n">geno_file</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># FIXME: load from bgen file</span>
+        <span class="c1"># https://bgen-reader.readthedocs.io/en/latest/read.html</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;FIXME&#39;</span><span class="p">)</span>
+    <span class="c1"># Load other files</span>
     <span class="n">sumstats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span><span class="n">r</span><span class="p">},</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;gzip&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
     <span class="n">unr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span><span class="n">r</span><span class="p">},</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
     <span class="n">fid</span> <span class="o">=</span> <span class="n">geno</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fid</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
@@ -501,35 +498,10 @@ body {
     <span class="c1"># you need to load phenotype files too, matching samples in phenotypes</span>
     <span class="c1"># then get genotypes only for these phenotypes</span>
     <span class="c1"># and LD matrix based on unrelated individuals in the given phenotypes</span>
-    <span class="n">rg_info</span> <span class="o">=</span> <span class="n">extract_region</span><span class="p">((</span><span class="s1">&#39;$</span><span class="si">{_region[0]}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="si">{_region[1]}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="si">{_region[2]}</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">sumstats</span><span class="p">,</span> <span class="n">geno</span><span class="p">,</span> <span class="n">fid_ind</span><span class="p">)</span>
+    <span class="n">rg_info</span> <span class="o">=</span> <span class="n">extract_region</span><span class="p">((</span><span class="s1">&#39;$</span><span class="si">{_regions[0]}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="err">$</span><span class="p">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">1</span><span class="p">]},</span> <span class="err">$</span><span class="p">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">2</span><span class="p">]}),</span> <span class="n">sumstats</span><span class="p">,</span> <span class="n">geno</span><span class="p">,</span> <span class="n">fid_ind</span><span class="p">)</span>
     <span class="n">rg_info</span><span class="p">[</span><span class="s1">&#39;stats&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">r</span><span class="p">},</span> <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
     <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">r</span><span class="p">},</span> <span class="n">rg_info</span><span class="p">[</span><span class="s1">&#39;geno&#39;</span><span class="p">])</span>
     <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span><span class="n">r</span><span class="p">},</span> <span class="n">rg_info</span><span class="p">[</span><span class="s1">&#39;ld&#39;</span><span class="p">])</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Extract-from-bgen-format">Extract from bgen format<a class="anchor-link" href="#Extract-from-bgen-format">&#182;</a></h2><p><strong>FIXME: to be completed</strong></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">bgen_1</span> <span class="p">(</span><span class="n">extract</span> <span class="n">genotypes</span><span class="p">)]</span>
-<span class="kn">input:</span> <span class="n">output_from</span><span class="p">(</span><span class="s1">&#39;bgen_0&#39;</span><span class="p">),</span> <span class="n">geno_path</span><span class="p">,</span> <span class="n">pheno_path</span><span class="p">,</span> <span class="n">sumstats_path</span><span class="p">,</span> <span class="n">unrelated_samples</span><span class="p">,</span> <span class="n">for_each</span> <span class="o">=</span> <span class="s1">&#39;regions&#39;</span>
-<span class="kn">output:</span> <span class="n">sumstats</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">:</span><span class="s1">a</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">sumstats_path</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s1">.sumstats.gz&#39;</span><span class="p">,</span>
-        <span class="n">genotype</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">:</span><span class="s1">a</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">geno_path</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">pheno_path</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s1">.genotype.gz&#39;</span><span class="p">,</span>
-        <span class="n">ld</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">:</span><span class="s1">a</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">geno_path</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">pheno_path</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_regions</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s1">.ld.gz&#39;</span>
 </pre></div>
 
     </div>
@@ -1912,7 +1884,7 @@ UKBrelated_AsthmaT2D_casesbyfieldoricd10_noautoincontrols_dataforbothphenotypes_
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/b4ff68bf3415d5948679512be121cf28ff55dee4/workflow/Region_Extraction.ipynb"><code>workflow/Region_Extraction.ipynb</code></a> committed by Gao Wang on Mon Jun 8 11:52:55 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/b4ff68bf3415d5948679512be121cf28ff55dee4">revision 2, b4ff68b</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/b39054ed04dbea2acfc42db2327c313027072182/workflow/Region_Extraction.ipynb"><code>workflow/Region_Extraction.ipynb</code></a> committed by Gao Wang on Mon Jun 8 20:25:06 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/b39054ed04dbea2acfc42db2327c313027072182">revision 3, b39054e</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
