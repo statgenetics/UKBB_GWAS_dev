@@ -255,6 +255,20 @@ body {
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Running-this-notebook">Running this notebook<a class="anchor-link" href="#Running-this-notebook">&#182;</a></h2><p>On Yale Farnam cluster,</p>
+
+<pre><code>sos run ~/project/pleiotropy_UKB/workflow/MWE.ipynb plink2 -c ~/project/pleiotropy_UKB/farnam.yml -q farnam -J 40 \
+-s build &amp;&gt; sos-submission-MWE-060920.log
+
+sos run ~/project/pleiotropy_UKB/workflow/MWE.ipynb qctool -c ~/project/pleiotropy_UKB/farnam.yml -q farnam -J 40 \
+-s build &amp;&gt; sos-submission-MWE-061020.log</code></pre>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
@@ -262,7 +276,7 @@ body {
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="k">global</span><span class="p">]</span>
 <span class="c1"># Working directory: change accordingly</span>
-<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/scratch60/plink-clumping&#39;</span><span class="p">)</span>
+<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/scratch60/plink-clumping/MWE&#39;</span><span class="p">)</span>
 <span class="c1"># Genotype file in plink binary format</span>
 <span class="kn">parameter:</span> <span class="n">genoFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindivs.bed&#39;</span><span class="p">)</span>
 <span class="c1"># Path to bgen files</span>
@@ -276,21 +290,23 @@ body {
 <span class="c1"># Samples to select for qctool white-space delimited list of IID</span>
 <span class="kn">parameter:</span> <span class="n">samplesQctool</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/home/dc2325/scratch60/plink-clumping/samples_qctool.txt&#39;</span><span class="p">)</span>
 <span class="c1"># Covariate file</span>
-<span class="kn">parameter:</span> <span class="n">covarFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/home/dc2325/scratch60/plink-clumping/phenotypes.txt&#39;</span><span class="p">)</span>
+<span class="kn">parameter:</span> <span class="n">covarFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/home/dc2325/scratch60/plink-clumping/MWE/phenotypes.txt&#39;</span><span class="p">)</span>
 <span class="c1"># Raw phenotype to extract individuals</span>
 <span class="kn">parameter:</span> <span class="n">rawPheno2</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/UKB_caucasians_BMIwaisthip_AsthmaAndT2D_withagesex_033120&#39;</span><span class="p">)</span>
 <span class="c1"># Raw phenotype to extract individuals</span>
 <span class="kn">parameter:</span> <span class="n">rawPheno1</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720&#39;</span><span class="p">)</span>
 <span class="c1"># Phenotype file for both quantitative (BMI) and qualitative (asthma) traits</span>
-<span class="kn">parameter:</span> <span class="n">phenoFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/home/dc2325/scratch60/plink-clumping/phenotypes.txt&#39;</span><span class="p">)</span>
+<span class="kn">parameter:</span> <span class="n">phenoFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/home/dc2325/scratch60/plink-clumping/MWE/phenotypes.txt&#39;</span><span class="p">)</span>
 <span class="c1"># Unrelated samples from UKB</span>
 <span class="kn">parameter:</span> <span class="n">unrelated_samples</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/unrelated_n307259/UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620&#39;</span><span class="p">)</span>
 <span class="c1"># Filter snps in bgenFiles</span>
-<span class="kn">parameter:</span> <span class="n">rsid</span> <span class="o">=</span> <span class="n">path</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/chr</span><span class="si">{</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">_filter_snps.txt&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)])</span>
+<span class="kn">parameter:</span> <span class="n">rsid</span> <span class="o">=</span> <span class="n">paths</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;~/scratch60/plink-clumping/chr</span><span class="si">{</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">_filter_snps.txt&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)])</span> 
+<span class="c1"># Output the bgen file with 8bit formatting</span>
+<span class="kn">parameter:</span> <span class="n">bgen_bits</span><span class="o">=</span><span class="mi">8</span>
+<span class="c1"># Specify the nymber of threads to use</span>
+<span class="kn">parameter:</span> <span class="n">numThreads</span> <span class="o">=</span> <span class="mi">20</span>
 <span class="c1"># For cluster jobs, number commands to run per job</span>
 <span class="kn">parameter:</span> <span class="n">job_size</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="c1"># Specific number of threads to use</span>
-<span class="kn">parameter:</span> <span class="n">numThreads</span> <span class="o">=</span> <span class="mi">6</span>
 <span class="c1"># Load specific modules</span>
 <span class="kn">parameter:</span> <span class="n">plink_module</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">module load PLINK/1.90-beta5.3</span>
@@ -300,6 +316,11 @@ body {
 <span class="kn">parameter:</span> <span class="n">qctool_module</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">module load QCTOOL/2.0-foss-2016b-rc7-CentOS6.8</span>
 <span class="s1">echo &quot;Module qctool loaded&quot;</span>
+<span class="si">{cmd}</span><span class="s1"></span>
+<span class="s1">&#39;&#39;&#39;</span>
+<span class="kn">parameter:</span> <span class="n">plink2_module</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">module load PLINK/2_x86_64_20180428</span>
+<span class="s1">echo &quot;Module plink2 loaded&quot;</span>
 <span class="si">{cmd}</span><span class="s1"></span>
 <span class="s1">&#39;&#39;&#39;</span>
 </pre></div>
@@ -362,9 +383,29 @@ body {
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1">#To filter snps with info score above 0.8 </span>
+<span class="p">[</span><span class="n">snps</span><span class="p">]</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span>
+    <span class="n">awk</span> <span class="s1">&#39;$2 ~ /rs/ { print $2 }&#39;</span> <span class="o">/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb_mfi_chr21_v3</span><span class="o">.</span><span class="n">txt_infoabove0</span><span class="o">.</span><span class="mi">8</span> <span class="o">|</span> \
+    <span class="n">tail</span> <span class="o">-</span><span class="n">n</span> <span class="mi">50</span> <span class="o">&gt;</span> <span class="o">~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">plink</span><span class="o">-</span><span class="n">clumping</span><span class="o">/</span><span class="n">chr21_snps</span><span class="o">.</span><span class="n">txt</span>
+    <span class="n">awk</span> <span class="s1">&#39;$2 ~ /rs/ { print $2 }&#39;</span> <span class="o">/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb_mfi_chr22_v3</span><span class="o">.</span><span class="n">txt_infoabove0</span><span class="o">.</span><span class="mi">8</span> <span class="o">|</span> \
+    <span class="n">tail</span> <span class="o">-</span><span class="n">n</span> <span class="mi">50</span> <span class="o">&gt;</span> <span class="o">~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">plink</span><span class="o">-</span><span class="n">clumping</span><span class="o">/</span><span class="n">chr22_snps</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="c1"># Filter bgen files chr1 and chr2 with only the 100 individuals</span>
+<span class="c1"># Cluster script mwe_chr2.sh</span>
 <span class="p">[</span><span class="n">qctool</span><span class="p">]</span>
-<span class="kn">input:</span> <span class="n">bgenFile</span><span class="p">,</span> <span class="n">group_by</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">group_with</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="p">[</span><span class="n">rsid</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">bgenFile</span><span class="p">))</span>
+<span class="kn">input:</span> <span class="n">bgenFile</span><span class="p">,</span> <span class="n">paired_with</span><span class="o">=</span><span class="s1">&#39;rsid&#39;</span><span class="p">,</span> <span class="n">group_by</span><span class="o">=</span><span class="mi">1</span>
 <span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.filtered.bgen&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.filtered.sample&#39;</span>
 <span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;12h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;48G&#39;</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span><span class="p">,</span> <span class="n">template</span> <span class="o">=</span> <span class="n">qctool_module</span>
@@ -374,7 +415,34 @@ body {
     <span class="o">-</span><span class="n">og</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> \
     <span class="o">-</span><span class="n">os</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> \
     <span class="o">-</span><span class="n">incl</span><span class="o">-</span><span class="n">samples</span> <span class="err">$</span><span class="p">{</span><span class="n">samplesQctool</span><span class="p">}</span> \
-    <span class="o">-</span><span class="n">incl</span><span class="o">-</span><span class="n">rsids</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="o">.</span><span class="n">info</span><span class="p">}</span>
+    <span class="o">-</span><span class="n">incl</span><span class="o">-</span><span class="n">rsids</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="o">.</span><span class="n">_rsid</span><span class="p">}</span> \
+    <span class="o">-</span><span class="n">bgen</span><span class="o">-</span><span class="n">bits</span> <span class="err">$</span><span class="p">{</span><span class="n">bgen_bits</span><span class="p">}</span> \
+    <span class="o">-</span><span class="n">threads</span> <span class="err">$</span><span class="p">{</span><span class="n">numThreads</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Filter bgen files chr1 and chr2 with only the 100 individuals and 8 bytes format</span>
+<span class="p">[</span><span class="n">plink2</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">bgenFile</span><span class="p">,</span> <span class="n">paired_with</span><span class="o">=</span> <span class="s1">&#39;rsid&#39;</span><span class="p">,</span> <span class="n">group_by</span><span class="o">=</span><span class="mi">1</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.plink.filtered.bgen&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;12h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;48G&#39;</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span><span class="p">,</span> <span class="n">template</span> <span class="o">=</span> <span class="n">plink2_module</span>
+    <span class="n">plink2</span> \
+      <span class="o">--</span><span class="n">bgen</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> <span class="n">ref</span><span class="o">-</span><span class="n">first</span> \
+      <span class="o">--</span><span class="n">sample</span> <span class="err">$</span><span class="p">{</span><span class="n">sampleFile</span><span class="p">}</span> \
+      <span class="o">--</span><span class="n">keep</span> <span class="err">$</span><span class="p">{</span><span class="n">samplesPlink</span><span class="p">}</span> \
+      <span class="o">--</span><span class="n">extract</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="o">.</span><span class="n">_rsid</span><span class="p">:</span><span class="n">n</span><span class="p">}</span> \
+      <span class="o">--</span><span class="n">export</span> <span class="n">bgen</span><span class="o">-</span><span class="mf">1.2</span> <span class="s2">&quot;bits=8&quot;</span> \
+      <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span>
 </pre></div>
 
     </div>
@@ -425,10 +493,15 @@ awk '{print $1,$2}' asthma_samples.txt &gt; samples_plink.txt
 
 #Select column with awk with partial matches
 
-awk '$2 ~ /rs/ { print $2 }' dummy_file 
+awk '$2 ~ /rs/ { print $2 }' /SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb_mfi_chr21_v3.txt_infoabove0.8 | tail -n 50 &gt; ~/scratch60/plink-clumping/chr21_snps.txt
 
 cat chr1_snps.txt | awk 'BEGIN {ORS=" "}; $2 ~ /rs/ { print $2 }' &gt; chr1_filter_snps.txt
-cat chr2_snps.txt | awk 'BEGIN {ORS=" "}; $2 ~ /rs/ { print $2 }' &gt; chr2_filter_snps.txt</code></pre>
+cat chr2_snps.txt | awk 'BEGIN {ORS=" "}; $2 ~ /rs/ { print $2 }' &gt; chr2_filter_snps.txt
+
+#Extract the 1000 unrelated samples from phenotype file
+head -n 1 /SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/unrelated_n307259/UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620 &gt; phenotype_1000ind.txt
+
+grep -w -F -f  UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620.1000unrelatedindiv.sample   &gt; unrelated_samplesID.txt /SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/unrelated_n307259/UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620 &gt;&gt; phenotype_1000ind.txt</code></pre>
 
 </div>
 </div>
@@ -448,7 +521,7 @@ cat chr2_snps.txt | awk 'BEGIN {ORS=" "}; $2 ~ /rs/ { print $2 }' &gt; chr2_filt
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/2c58cf5a6822af5cebd2e055c6f92b204ad1dd62/workflow/MWE.ipynb"><code>workflow/MWE.ipynb</code></a> committed by dianacornejo on Mon Jun 8 11:58:45 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/2c58cf5a6822af5cebd2e055c6f92b204ad1dd62">revision 4, 2c58cf5</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/b876f2778de0d00eafff2e28d6afb66250654ee4/workflow/MWE.ipynb"><code>workflow/MWE.ipynb</code></a> committed by dianacornejo on Wed Jun 10 15:33:16 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/b876f2778de0d00eafff2e28d6afb66250654ee4">revision 30, b876f27</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

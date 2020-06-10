@@ -273,12 +273,16 @@ body {
 <li>The locus will be represented by one line in the region list with 3 columns <code>7 27723990 28723990</code></li>
 </ul>
 </li>
-<li>list of all genotypes, in <code>bgen</code> format or in <code>plink format</code>.<ul>
-<li><strong>FIXME: explain the format of this list, as outlined in <a href="https://github.com/dianacornejo/pleiotropy_UKB/issues/1">https://github.com/dianacornejo/pleiotropy_UKB/issues/1</a></strong></li>
+<li>list of all genotypes, in <code>bgen</code> format and in <code>plink</code> format.<ul>
+<li>The list is a file with 2 columns: <code>chr genotype_file_chr.ext</code>.</li>
+<li>The first column is chromosome ID, the 2nd file is genotype for that chromosome.</li>
+<li>When chromosome ID is 0, it implies that the genotype file contains all the genotypes.</li>
 </ul>
 </li>
-<li>all summary statistics ($\hat{\beta}$, $SE(\hat{\beta})$ and p-values)<ul>
-<li>These summary statistics should contain at least these columns: <strong>FIXME please read <a href="https://github.com/dianacornejo/pleiotropy_UKB/issues/1#issuecomment-640680333">https://github.com/dianacornejo/pleiotropy_UKB/issues/1#issuecomment-640680333</a>  and explain it here</strong></li>
+<li>all summary statistics (eg, $\hat{\beta}$, $SE(\hat{\beta})$ and p-values)<ul>
+<li>These summary statistics should contain at least these columns: </li>
+<li><code>chrom, pos, a0, a1, snp_id, bhat, sbhat, z, p</code></li>
+<li>If SNP id is not available we make it up as <code>chrom_pos_a1_a2</code></li>
 </ul>
 </li>
 </ul>
@@ -328,7 +332,7 @@ body {
     --geno-path data/genotype_inventory.txt \
     --sumstats-path output/ukb_imp_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.snp_stats.all_chr.gz \
     --unrelated-samples data/UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620 \
-    --chrom-col 2 --pos-col 3 --a0-col 6 --a1-col 5 --bhat-col 11 --sbhat-col 12 --p-col 16</code></pre>
+    --chrom-col 2 --pos-col 3 --a0-col 6 --a1-col 5 --bhat-col 11 --sbhat-col 12 --p-col 16 --snp-col 1</code></pre>
 
 </div>
 </div>
@@ -365,6 +369,7 @@ body {
 <span class="kn">parameter:</span> <span class="n">a1_col</span> <span class="o">=</span> <span class="nb">int</span>
 <span class="kn">parameter:</span> <span class="n">bhat_col</span> <span class="o">=</span> <span class="nb">int</span>
 <span class="kn">parameter:</span> <span class="n">sbhat_col</span> <span class="o">=</span> <span class="nb">int</span>
+<span class="kn">parameter:</span> <span class="n">snp_col</span> <span class="o">=</span> <span class="nb">int</span>
 <span class="kn">parameter:</span> <span class="n">p_col</span> <span class="o">=</span> <span class="nb">int</span>
 <span class="n">fail_if</span><span class="p">(</span><span class="ow">not</span> <span class="n">region_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Cannot find regions to extract. Please specify them using ``--region-file`` option.&#39;</span><span class="p">)</span>
 <span class="c1"># Load all regions of interest. Each item in the list will be a region: (chr, start, end)</span>
@@ -401,16 +406,30 @@ body {
 <span class="kn">report:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s1">&#39;${ }&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">_output</span>
     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
     <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-    <span class="k">def</span> <span class="nf">region_index</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span><span class="n">chrom</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">end</span><span class="p">,</span> <span class="n">chrom_col</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">chrom_col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">},</span> <span class="n">pos_col</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">pos_col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">}):</span>
-        <span class="n">chr_bool</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="n">chrom_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">chrom</span>
+    <span class="k">def</span> <span class="nf">region_index</span><span class="p">(</span><span class="n">bim</span><span class="p">,</span><span class="n">chrom</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">end</span><span class="p">,</span> <span class="n">chrom_col</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">chrom_col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">},</span> <span class="n">pos_col</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">pos_col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">}):</span>
+        <span class="n">chr_bool</span> <span class="o">=</span> <span class="n">bim</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="n">chrom_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">chrom</span>
         <span class="n">chr_ind</span> <span class="o">=</span> <span class="n">chr_bool</span><span class="p">[</span><span class="n">chr_bool</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
-        <span class="n">reg_bool</span> <span class="o">=</span> <span class="p">(</span><span class="n">ss</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="n">pos_col</span><span class="p">][</span><span class="n">chr_ind</span><span class="p">]</span><span class="o">&gt;</span><span class="n">start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">ss</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="n">pos_col</span><span class="p">][</span><span class="n">chr_ind</span><span class="p">]</span><span class="o">&lt;</span><span class="n">end</span><span class="p">)</span>
+        <span class="n">reg_bool</span> <span class="o">=</span> <span class="p">(</span><span class="n">bim</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="n">pos_col</span><span class="p">][</span><span class="n">chr_ind</span><span class="p">]</span><span class="o">&gt;</span><span class="n">start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">bim</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="n">pos_col</span><span class="p">][</span><span class="n">chr_ind</span><span class="p">]</span><span class="o">&lt;</span><span class="n">end</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">chr_ind</span><span class="p">[</span><span class="n">reg_bool</span><span class="p">]</span>
 
+    <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+
+    <span class="k">def</span> <span class="nf">p2z</span><span class="p">(</span><span class="n">pval</span><span class="p">,</span><span class="n">beta</span><span class="p">):</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="p">[</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">if</span> <span class="n">b</span><span class="o">&gt;</span><span class="mi">0</span> <span class="k">else</span> <span class="o">-</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pval</span><span class="p">,</span><span class="n">beta</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">z</span>
+
     <span class="k">def</span> <span class="nf">regional_stat</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span><span class="n">ind</span><span class="p">):</span>
+        <span class="n">rg_ss</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ind</span><span class="p">,:]</span>
         <span class="c1"># FIXME: please take into consideration here different columns</span>
         <span class="c1"># ultimately, the output format should be what&#39;s outline in this post</span>
         <span class="c1"># https://github.com/dianacornejo/pleiotropy_UKB/issues/1#issuecomment-640680333</span>
+        <span class="c1"># you need to reconstruct rg_ss using all those `*_col` parameters, see the example below</span>
+        <span class="c1"># This way we dont have to worry about whatever summary statistics format as long as the file contain</span>
+        <span class="c1"># these relevant information</span>
+        <span class="c1"># here I&#39;m just using pvalues as one example</span>
+        <span class="c1"># If a column is zero then we have to use its default value</span>
+        <span class="c1"># For example, if ${snp_col} == 0 then we create a SNP ID using `chr_pos_a0_a1`; otherwise we use provided SNPs</span>
+        <span class="n">rg_ss</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">p2z</span><span class="p">(</span><span class="n">rg_ss</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="err">$</span><span class="p">{</span><span class="n">p_col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">}],</span> <span class="n">rg_ss</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="err">$</span><span class="p">{</span><span class="n">bhat_col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">}])</span>
         <span class="k">return</span> <span class="n">ss</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ind</span><span class="p">,:]</span>
 
     <span class="k">def</span> <span class="nf">plink_slice</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="n">pb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">pf</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -423,23 +442,23 @@ body {
             <span class="n">bed</span> <span class="o">=</span> <span class="n">bed</span><span class="p">[:,</span><span class="n">pf</span><span class="p">]</span>
         <span class="k">return</span><span class="p">(</span><span class="n">bim</span><span class="p">,</span><span class="n">fam</span><span class="p">,</span><span class="n">bed</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">LD_matrix</span><span class="p">(</span><span class="n">reg_geno</span><span class="p">,</span> <span class="n">unrelated_iid</span><span class="p">):</span>
-        <span class="c1"># FIXME: are you removing all samples having `nan` genotypes? This might not be the best</span>
-        <span class="c1"># thing to do.</span>
-        <span class="c1"># here is a possible alternative: https://stackoverflow.com/questions/31619578/numpy-corrcoef-compute-correlation-matrix-while-ignoring-missing-data</span>
-        <span class="n">reg_geno</span><span class="o">=</span><span class="n">reg_geno</span><span class="p">[:,</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">reg_geno</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span> <span class="c1">#remove columns included nan</span>
-        <span class="n">rg_ld</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">reg_geno</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">LD_matrix</span><span class="p">(</span><span class="n">bed</span><span class="p">):</span>
+        <span class="n">snps</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">bed</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
+        <span class="n">ld</span> <span class="o">=</span> <span class="n">snps</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ld</span>
 
     <span class="k">def</span> <span class="nf">extract_region</span><span class="p">(</span><span class="n">region</span><span class="p">,</span><span class="n">gwas</span><span class="p">,</span><span class="n">geno</span><span class="p">,</span><span class="n">iid</span><span class="p">):</span>
-        <span class="c1"># FIXME: for genotype information we need it for all individuals, not unrelated samples</span>
-        <span class="c1"># You might have to change this function to including both all samples iid and unrelated iid</span>
-        <span class="n">rg_ind</span> <span class="o">=</span> <span class="n">region_index</span><span class="p">(</span><span class="n">gwas</span><span class="p">,</span><span class="n">region</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">region</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">region</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="c1"># FIXME: sample &amp; variants matching are still problematic</span>
+        <span class="c1"># genoteyp data should be the ones used for a specific phenotype, not that of all the genotype samples</span>
+        <span class="c1"># you need to load phenotype files too, matching samples in phenotypes</span>
+        <span class="c1"># then get genotypes only for these phenotypes</span>
+        <span class="c1"># and LD matrix based on unrelated individuals in the given phenotypes</span>
+        <span class="c1"># please let me know if you need additional clarifications</span>
+        <span class="n">rg_ind</span> <span class="o">=</span> <span class="n">region_index</span><span class="p">(</span><span class="n">geno</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">region</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">region</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">region</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
         <span class="n">rg_stat</span> <span class="o">=</span> <span class="n">regional_stat</span><span class="p">(</span><span class="n">gwas</span><span class="p">,</span><span class="n">rg_ind</span><span class="p">)</span>
-        <span class="n">rg_geno</span> <span class="o">=</span> <span class="n">plink_slice</span><span class="p">(</span><span class="n">geno</span><span class="p">,</span><span class="n">pb</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">rg_ind</span><span class="p">),</span><span class="n">pf</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">iid</span><span class="p">))</span>
+        <span class="n">rg_geno</span> <span class="o">=</span> <span class="n">plink_slice</span><span class="p">(</span><span class="n">geno</span><span class="p">,</span><span class="n">pb</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">rg_ind</span><span class="p">))</span>
         <span class="n">rg_bed</span> <span class="o">=</span> <span class="n">rg_geno</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
-        <span class="c1"># FIXME: we need to check and ensure that summary statistics and genotypes matrices contain exactly the same variants!</span>
-        <span class="c1"># for LD computation we only use unrelated individuals to compute LD</span>
-        <span class="n">rg_ld</span> <span class="o">=</span> <span class="n">LD_matrix</span><span class="p">(</span><span class="n">rg_bed</span><span class="p">,</span> <span class="n">iid</span><span class="p">)</span>
+        <span class="n">rg_ld</span> <span class="o">=</span> <span class="n">LD_matrix</span><span class="p">(</span><span class="n">rg_bed</span><span class="p">[:,</span><span class="n">iid</span><span class="p">])</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">stats</span><span class="o">=</span><span class="n">rg_stat</span><span class="p">,</span><span class="n">geno</span><span class="o">=</span><span class="n">rg_bed</span><span class="p">,</span><span class="n">ld</span><span class="o">=</span><span class="n">rg_ld</span><span class="p">)</span>
 </pre></div>
 
@@ -478,7 +497,7 @@ body {
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">geno_file</span><span class="p">):</span>
         <span class="c1"># relative path</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;${_input[0]:ad}/&#39;</span> <span class="o">+</span> <span class="n">geno_file</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot find genotype file&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot find genotype file </span><span class="si">{</span><span class="n">geno_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">geno_file</span> <span class="o">=</span> <span class="s1">&#39;${_input[0]:ad}/&#39;</span> <span class="o">+</span> <span class="n">geno_file</span>
     <span class="k">if</span> <span class="n">geno_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.bed&#39;</span><span class="p">):</span>
@@ -1884,7 +1903,7 @@ UKBrelated_AsthmaT2D_casesbyfieldoricd10_noautoincontrols_dataforbothphenotypes_
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/b39054ed04dbea2acfc42db2327c313027072182/workflow/Region_Extraction.ipynb"><code>workflow/Region_Extraction.ipynb</code></a> committed by Gao Wang on Mon Jun 8 20:25:06 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/b39054ed04dbea2acfc42db2327c313027072182">revision 3, b39054e</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/68ee90230ca76cfddc44c21e1da4a7bcb3b59f08/workflow/Region_Extraction.ipynb"><code>workflow/Region_Extraction.ipynb</code></a> committed by Gao Wang on Wed Jun 10 13:04:22 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/68ee90230ca76cfddc44c21e1da4a7bcb3b59f08">revision 7, 68ee902</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

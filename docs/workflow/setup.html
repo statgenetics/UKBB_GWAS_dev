@@ -262,49 +262,20 @@ body {
 </ul>
 <p>Using Linux terminal command:</p>
 
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">sudo</span> <span class="n">openconnect</span> <span class="o">-</span><span class="n">u</span> <span class="n">dc2325</span> <span class="n">access</span><span class="o">.</span><span class="n">yale</span><span class="o">.</span><span class="n">edu</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
+<pre><code>sudo openconnect -u dc2325 access.yale.edu</code></pre>
 <p>Then type password at first password prompt, and <code>push</code> at 2nd password prompt. After this accept the access in the duo mobile app.</p>
 <p>Before you can login you must provide the public key of your computer to the server. To do so, please visit: <a href="https://secure.its.yale.edu/cas/login">https://secure.its.yale.edu/cas/login</a> to login, then provide the key at <a href="http://gold.hpc.yale.internal/cgi-bin/sshkeys.py">http://gold.hpc.yale.internal/cgi-bin/sshkeys.py</a></p>
 <p>To login from the terminal:</p>
 
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">ssh</span> <span class="n">dc2325</span><span class="nd">@farnam</span><span class="o">.</span><span class="n">hpc</span><span class="o">.</span><span class="n">yale</span><span class="o">.</span><span class="n">edu</span>
-</pre></div>
+<pre><code>ssh dc2325@farnam.hpc.yale.edu</code></pre>
 
-    </div>
 </div>
 </div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Loading-and-listing-modules-in-your-environment">Loading and listing modules in your environment<a class="anchor-link" href="#Loading-and-listing-modules-in-your-environment">&#182;</a></h2>
+<h2 id="Loading-and-listing-modules-in-your-environment-on-the-cluster">Loading and listing modules in your environment on the cluster<a class="anchor-link" href="#Loading-and-listing-modules-in-your-environment-on-the-cluster">&#182;</a></h2>
 <pre><code>$ module avail # For a list of modules available to use
 $ module list # Displays all of the module files that are currently loaded in your environment
 $ module avail python # To look for specific modules
@@ -340,14 +311,14 @@ scp dc2325@farnam.hpc.yale.edu:/home/dc2325/scratch60/INT-BMI/*.stats.gz .</code
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Installing-software-in-your-$HOME-directory">Installing software in your $HOME directory<a class="anchor-link" href="#Installing-software-in-your-$HOME-directory">&#182;</a></h2>
+<h1 id="Installing-software-in-your-$HOME-directory">Installing software in your $HOME directory<a class="anchor-link" href="#Installing-software-in-your-$HOME-directory">&#182;</a></h1>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="BOLT-LMM-installation">BOLT-LMM installation<a class="anchor-link" href="#BOLT-LMM-installation">&#182;</a></h3>
+<h2 id="BOLT-LMM-installation">BOLT-LMM installation<a class="anchor-link" href="#BOLT-LMM-installation">&#182;</a></h2>
 </div>
 </div>
 </div>
@@ -382,14 +353,14 @@ cp BOLT-LMM_v2.3.4/lib/* ~/software/lib/</code></pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="SAIGE-installation">SAIGE installation<a class="anchor-link" href="#SAIGE-installation">&#182;</a></h3>
+<h2 id="SAIGE-installation">SAIGE installation<a class="anchor-link" href="#SAIGE-installation">&#182;</a></h2>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Creating-a-conda-environment">Creating a conda environment<a class="anchor-link" href="#Creating-a-conda-environment">&#182;</a></h4><p>as per SAIGE tutorial</p>
+<h4 id="Creating-a-conda-environment">Creating a conda environment<a class="anchor-link" href="#Creating-a-conda-environment">&#182;</a></h4><p>As per SAIGE tutorial</p>
 
 <pre><code>conda create -n RSAIGE r-essentials r-base=3.6.1 python=2.7
 conda activate RSAIGE
@@ -469,77 +440,22 @@ export -f __conda_hashr</code></pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="SoS-installation-and-configuration">SoS installation and configuration<a class="anchor-link" href="#SoS-installation-and-configuration">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The first step is to download miniconda3 to your local directory, then <code>ssh</code> to install.</p>
+<h2 id="SoS-installation-and-configuration">SoS installation and configuration<a class="anchor-link" href="#SoS-installation-and-configuration">&#182;</a></h2><p>The first step is to download miniconda3 to your local directory, then <code>ssh</code> to install.</p>
 
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">repo</span><span class="o">.</span><span class="n">anaconda</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">miniconda</span><span class="o">/</span><span class="n">Miniconda3</span><span class="o">-</span><span class="n">latest</span><span class="o">-</span><span class="n">Linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">.</span><span class="n">sh</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">ssh</span> <span class="n">Miniconda3</span><span class="o">-</span><span class="n">latest</span><span class="o">-</span><span class="n">Linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">.</span><span class="n">sh</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>By default a .bashrc file adding miniconda to the <code>$PATH</code> will be created. You can then modify as needed.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
+<pre><code>wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+ssh Miniconda3-latest-Linux-x86_64.sh</code></pre>
+<p>By default a .bashrc file adding miniconda to the <code>$PATH</code> will be created, you can then modify as needed.</p>
 <p>Then install sos, sos-pbs and sos-notebook as the minimum requirements</p>
 
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="n">sos</span> <span class="n">sos</span><span class="o">-</span><span class="n">pbs</span> <span class="n">sos</span><span class="o">-</span><span class="n">notebook</span> <span class="n">jupyterlab</span><span class="o">-</span><span class="n">sos</span> <span class="n">sos</span><span class="o">-</span><span class="n">papermill</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span>
-</pre></div>
+<pre><code>conda install sos sos-pbs sos-notebook jupyterlab-sos sos-papermill -c conda-forge</code></pre>
 
-    </div>
 </div>
 </div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="To-update-SoS-to-get-the-latest-improvements">To update SoS to get the latest improvements<a class="anchor-link" href="#To-update-SoS-to-get-the-latest-improvements">&#182;</a></h3><p>For development versions</p>
+<h2 id="SoS-update-to-get-the-latest-improvements">SoS update to get the latest improvements<a class="anchor-link" href="#SoS-update-to-get-the-latest-improvements">&#182;</a></h2><p>For development versions</p>
 
 <pre><code>pip install git+https://github.com/vatlab/sos -U</code></pre>
 <p>For released versions (when is implemented)</p>
@@ -556,7 +472,7 @@ pip install sos -U</code></pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>To check if the code in your notebook is running</p>
+<h2 id="Test-your-code-before-running-it">Test your code before running it<a class="anchor-link" href="#Test-your-code-before-running-it">&#182;</a></h2><p>To check if the code in your notebook is running</p>
 
 <pre><code>sos dryrun notebook.ipynb -q localhost</code></pre>
 
@@ -566,14 +482,11 @@ pip install sos -U</code></pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Creating-and-switching-environments-with-conda">Creating and switching environments with conda<a class="anchor-link" href="#Creating-and-switching-environments-with-conda">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Installing python 2.7 and creating a conda environment</p>
+<h2 id="SoS-commands-to-create-scripts-from-available-notebooks">SoS commands to create scripts from available notebooks<a class="anchor-link" href="#SoS-commands-to-create-scripts-from-available-notebooks">&#182;</a></h2><p>Make sure you have the latest papermill version</p>
+
+<pre><code>pip install sos-papermill -U</code></pre>
+
+<pre><code>sos convert ~/project/pleiotropy_UKB/analysis/minimal_working_example.ipynb ~/project/pleiotropy_UKB/docs/analysis/minimal_working_example.html --execute</code></pre>
 
 </div>
 </div>
@@ -581,7 +494,11 @@ pip install sos -U</code></pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>conda create --name py2 python=2.7</p>
+<h2 id="Creating-and-switching-environments-with-conda">Creating and switching environments with conda<a class="anchor-link" href="#Creating-and-switching-environments-with-conda">&#182;</a></h2><p>Installing python 2.7 and creating a conda environment</p>
+
+<pre><code>conda create --name py2 python=2.7
+conda activate py2
+conda deactivate</code></pre>
 
 </div>
 </div>
@@ -589,92 +506,21 @@ pip install sos -U</code></pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>conda activate py2</p>
+<h2 id="R-installation-using-conda">R installation using conda<a class="anchor-link" href="#R-installation-using-conda">&#182;</a></h2><p>Intalling R with conda will allow you to manage your own packages. Refer to <a href="https://docs.ycrc.yale.edu/clusters-at-yale/guides/r/">https://docs.ycrc.yale.edu/clusters-at-yale/guides/r/</a> for more information</p>
 
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>conda deactivate</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="R-installation-using-conda">R installation using conda<a class="anchor-link" href="#R-installation-using-conda">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Intalling R with conda will allow you to manage your own packages. Refer to <a href="https://docs.ycrc.yale.edu/clusters-at-yale/guides/r/">https://docs.ycrc.yale.edu/clusters-at-yale/guides/r/</a> for more information</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">r</span> <span class="n">r</span><span class="o">-</span><span class="n">base</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">r</span> <span class="n">r</span><span class="o">=</span><span class="mf">3.6</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
+<pre><code>conda install -c r r-base
+conda install -c r r=3.6</code></pre>
 <p>To install R packages using conda</p>
 
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">r</span> <span class="n">package_name</span>
-</pre></div>
+<pre><code>conda install -c r package_name</code></pre>
 
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="QCTOOL-version-2-usage">QCTOOL version 2 usage<a class="anchor-link" href="#QCTOOL-version-2-usage">&#182;</a></h2>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>If installed from source it requires zlib to be installed and compilation needs to be done with python 2</p>
+<h2 id="QCTOOL-version-2-usage">QCTOOL version 2 usage<a class="anchor-link" href="#QCTOOL-version-2-usage">&#182;</a></h2><p>If installed from source it requires zlib to be installed and compilation needs to be done with python 2</p>
 
 <pre><code>cd ~/software &amp;&amp; \
 hg clone -r beta https://gavinband@bitbucket.org/gavinband/qctool &amp;&amp; cd qctool\
@@ -689,14 +535,7 @@ hg clone -r beta https://gavinband@bitbucket.org/gavinband/qctool &amp;&amp; cd 
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="SLURM-commands">SLURM commands<a class="anchor-link" href="#SLURM-commands">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Submit a submission script</p>
+<h2 id="SLURM-commands-on-Yale's-cluster">SLURM commands on Yale's cluster<a class="anchor-link" href="#SLURM-commands-on-Yale's-cluster">&#182;</a></h2><p>Submit a submission script</p>
 
 <pre><code>$ sbatch &lt;script&gt;</code></pre>
 <p>List queued and running jobs</p>
@@ -771,7 +610,7 @@ sacct -S start-date -u user-name</code></pre>
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Accessing-an-interactive-node">Accessing an interactive node<a class="anchor-link" href="#Accessing-an-interactive-node">&#182;</a></h2><p>Interactive jobs can be used for testing and troubleshooting code. By requesting an interactive job, you will be allocated resources and logged onto the node in a shell.</p>
 
-<pre><code>srun --pty -p interactive --mem-per-cpu=5000 --cpus-per-task=1 --time=02:00:00 bash</code></pre>
+<pre><code>srun --pty -p interactive --mem-per-cpu=48G --cpus-per-task=1 --time=1-00:00:00 bash</code></pre>
 
 </div>
 </div>
@@ -823,7 +662,7 @@ sacct -S start-date -u user-name</code></pre>
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/8620a3a34645e33bb396efd48ae6f36dd7146b30/workflow/setup.ipynb"><code>workflow/setup.ipynb</code></a> committed by dianacornejo on Mon Jun 8 12:35:43 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/8620a3a34645e33bb396efd48ae6f36dd7146b30">revision 7, 8620a3a</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/5a78e5df8c583940b2c4d489864a9581d51d4acd/workflow/setup.ipynb"><code>workflow/setup.ipynb</code></a> committed by dianacornejo on Wed Jun 10 17:06:02 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/5a78e5df8c583940b2c4d489864a9581d51d4acd">revision 13, 5a78e5d</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
