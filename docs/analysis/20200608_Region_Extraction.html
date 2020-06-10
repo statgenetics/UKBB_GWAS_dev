@@ -269,7 +269,36 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="06/08/2020">06/08/2020<a class="anchor-link" href="#06/08/2020">&#182;</a></h2>
+<h2 id="Minimal-working-example-tested-on-local-computer">Minimal working example tested on local computer<a class="anchor-link" href="#Minimal-working-example-tested-on-local-computer">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Some bash variables for paths,</p>
+
+<pre><code>output=output
+region=data/
+geno=data/
+pheno=data/
+samples=data/
+JOB_OPT='-j 7'</code></pre>
+<p><code>BoltLMM</code> result,</p>
+
+<pre><code>sumstats=output/
+sos run workflow/Region_Extraction.ipynb plink \
+    --region-file $region --geno-path $geno \
+    --sumstat-path $sumstats --unrelated-samples $samples \
+    --cwd $output $JOB_OPT</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Runs-on-Yale-cluster-compute-node">Runs on Yale cluster compute node<a class="anchor-link" href="#Runs-on-Yale-cluster-compute-node">&#182;</a></h2>
 </div>
 </div>
 </div>
@@ -303,6 +332,94 @@ sos run workflow/Region_Extraction.ipynb plink \
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">test</span><span class="o">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">f</span>
+
+<span class="n">These</span> <span class="n">words</span> <span class="n">are</span> <span class="n">saved</span> <span class="n">to</span> <span class="n">a</span> <span class="n">file</span> <span class="n">called</span> <span class="n">text</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="test.txt" target="_blank">test.txt</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">preview</span> <span class="n">test</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">> test.txt (48 B):</div>
+</div>
+
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">1 line</div>
+</div>
+
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>These words are saved to a file called text.txt</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
@@ -316,7 +433,7 @@ sos run workflow/Region_Extraction.ipynb plink \
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/128f20a37eeb376c09c74941c62b26f33fa2982a/analysis/20200608_Region_Extraction.ipynb"><code>analysis/20200608_Region_Extraction.ipynb</code></a> committed by dianacornejo on Mon Jun 8 16:49:41 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/128f20a37eeb376c09c74941c62b26f33fa2982a">revision 2, 128f20a</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/c15372e407483501881702604b7b1f162cd76fca/analysis/20200608_Region_Extraction.ipynb"><code>analysis/20200608_Region_Extraction.ipynb</code></a> committed by Gao Wang on Mon Jun 8 20:27:18 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/c15372e407483501881702604b7b1f162cd76fca">revision 4, c15372e</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
