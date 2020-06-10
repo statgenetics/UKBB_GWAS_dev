@@ -253,7 +253,7 @@ body {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">MWE</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
@@ -262,6 +262,7 @@ body {
 
 <span class="c1">#Defining bash variables for the different paths</span>
 
+<span class="n">cwd</span><span class="o">=~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">plink</span><span class="o">-</span><span class="n">clumping</span><span class="o">/</span><span class="n">MWE</span>
 <span class="n">output</span><span class="o">=</span><span class="n">output</span>
 <span class="n">bfile</span><span class="o">=~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">plink</span><span class="o">-</span><span class="n">clumping</span><span class="o">/</span><span class="n">MWE</span><span class="o">/</span><span class="n">UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv</span><span class="o">.</span><span class="n">MWE_data</span>
 <span class="n">sampleFile</span><span class="o">=~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">plink</span><span class="o">-</span><span class="n">clumping</span><span class="o">/</span><span class="n">MWE</span><span class="o">/</span><span class="n">ukb_imp_chr1_v3</span><span class="o">.</span><span class="n">filtered</span><span class="o">.</span><span class="n">sample</span>
@@ -280,55 +281,7 @@ body {
 
 <span class="c1">#Running the workflow for the MWE</span>
 
-<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">pleiotropy_UKB</span><span class="o">/</span><span class="n">worfkflow</span><span class="o">/</span><span class="n">BoltLMM</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">bolt</span> <span class="o">-</span><span class="n">q</span> <span class="n">localhost</span> <span class="o">-</span><span class="n">j</span> <span class="mi">8</span> \
-    <span class="o">--</span><span class="n">cwd</span> <span class="err">$</span><span class="n">output</span> \
-    <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="n">bfile</span> \
-    <span class="o">--</span><span class="n">sampleFile</span> <span class="err">$</span><span class="n">sampleFile</span> 
-    <span class="o">--</span><span class="n">bgenFile</span> <span class="err">$</span><span class="n">bgenFile</span> \
-    <span class="o">--</span><span class="n">phenoFile</span> <span class="err">$</span><span class="n">phenoFile</span> \
-    <span class="o">--</span><span class="n">covarFile</span> <span class="err">$</span><span class="n">covarFile</span> \
-    <span class="o">--</span><span class="n">LDscoresFile</span> <span class="err">$</span><span class="n">LDscoresFile</span> \
-    <span class="o">--</span><span class="n">geneticMapFile</span> <span class="err">$</span><span class="n">geneticMapFile</span> \
-    <span class="o">--</span><span class="n">phenoCol</span> <span class="err">$</span><span class="n">phenoCol</span> \
-    <span class="o">--</span><span class="n">covarCol1</span> <span class="err">$</span><span class="n">covarCol1</span> \
-    <span class="o">--</span><span class="n">covarMaxLevels</span> <span class="err">$</span><span class="n">covarMaxLevels</span> \
-    <span class="o">--</span><span class="n">qCovarCol2</span> <span class="err">$</span><span class="n">qCovarCol2</span> \
-    <span class="o">--</span><span class="n">numThreads</span> <span class="err">$</span><span class="n">numThreads</span> \
-    <span class="o">--</span><span class="n">bgenMinMAF</span> <span class="err">$</span><span class="n">bgenMinMAF</span> \
-    <span class="o">--</span><span class="n">bgenMinINFO</span> <span class="err">$</span><span class="n">bgenMinINFO</span> \
-    <span class="o">&amp;&gt;</span> <span class="n">sos</span><span class="o">-</span><span class="n">MWE</span><span class="o">-</span><span class="mf">060820.</span><span class="n">log</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<div class="sos_hint">Cell content saved to <a href="MWE.sh" target="_blank">MWE.sh</a>, use option -r to also execute the cell.</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span>
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">pleiotropy_UKB</span><span class="o">/</span><span class="n">worfkflow</span><span class="o">/</span><span class="n">BoltLMM</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">bolt</span> <span class="o">-</span><span class="n">q</span> <span class="n">localhost</span> <span class="o">-</span><span class="n">j</span> <span class="mi">8</span> <span class="o">&amp;&gt;</span> <span class="n">sos</span><span class="o">-</span><span class="n">MWE</span><span class="o">-</span><span class="mf">060820.</span><span class="n">log</span>
 </pre></div>
 
     </div>
@@ -338,7 +291,7 @@ body {
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/85b3089de1b7dcff13c085a53b242746e4fc0917/analysis/minimal_working_example.ipynb"><code>analysis/minimal_working_example.ipynb</code></a> committed by dianacornejo on Mon Jun 8 17:58:28 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/85b3089de1b7dcff13c085a53b242746e4fc0917">revision 2, 85b3089</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/a899be554bd86ce088282f06e17f5ea83bee8498/analysis/minimal_working_example.ipynb"><code>analysis/minimal_working_example.ipynb</code></a> committed by dianacornejo on Mon Jun 8 17:37:47 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/a899be554bd86ce088282f06e17f5ea83bee8498">revision 1, a899be5</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
