@@ -342,13 +342,88 @@ body {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="n">sos</span> <span class="n">run</span> <span class="n">BoltLMM</span><span class="o">.</span><span class="n">ipynb</span> <span class="o">-</span><span class="n">h</span>
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>usage: sos run BoltLMM.ipynb [workflow_name | -t targets] [options] [workflow_options]
+  workflow_name:        Single or combined workflows defined in this script
+  targets:              One or more targets to generate
+  options:              Single-hyphen sos parameters (see &#34;sos run -h&#34; for details)
+  workflow_options:     Double-hyphen workflow-specific parameters
+
+Workflows:
+  bolt
+
+Global Workflow Options:
+  --cwd VAL (as path, required)
+                        the output directory for generated files
+  --sampleFile VAL (as path, required)
+                        Path to sample file
+  --bfile VAL (as path, required)
+                        Genotype files in plink binary this is used for
+                        computing the GRM
+  --bgenFile  paths
+
+                        Path to bgen files
+  --phenoFile VAL (as path, required)
+                        Phenotype file for quantitative trait (BMI)
+  --phenoCol VAL (as str, required)
+                        Phenotype to be analyzed (specify the column)
+  --covarFile . (as path)
+                        Covariate file path. Will use phenoFile if empty
+  --covarCol  (as list)
+                        Qualitative covariates to be used in the analysis
+  --qCovarCol  (as list)
+                        Quantitative covariates to be used in the analysis
+  --numThreads VAL (as int, required)
+                        Specific number of threads to use
+  --bgenMinMAF VAL (as float, required)
+                        Minimum MAF to be used
+  --bgenMinINFO VAL (as float, required)
+                        Mimimum info score to be used
+  --job-size 1 (as int)
+                        For cluster jobs, number commands to run per job
+
+Sections
+  bolt_1:               Run BOLT analysis
+    Workflow Options:
+      --covarMaxLevels VAL (as int, required)
+                        Maximum categories of covariates allowed
+      --LDscoresFile VAL (as path, required)
+                        Path to LDscore file for reference population
+      --geneticMapFile VAL (as path, required)
+                        Path to genetic map file used to interpolate genetic map
+                        coordinates from SNP physical (base pair) positions
+      --lmm-option lmm
+                        LMM option: lmm, lmmInfOnly, and lmmForceNonInf
+  bolt_2:               Merge results and log files
+  bolt_3:               Manhattan and QQ plots using `qqman`
+    Workflow Options:
+      --pval P
+                        Column name of p-value
+      --p-filter &#39;0.05&#39;
+                        Plot only on p-values smaller than this
+</pre>
+</div>
+</div>
+
 </div>
 </div>
 
@@ -382,22 +457,14 @@ body {
 <span class="kn">parameter:</span> <span class="n">covarFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
 <span class="c1"># Qualitative covariates to be used in the analysis</span>
 <span class="kn">parameter:</span> <span class="n">covarCol</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="c1"># Maximum categories of covariates allowed </span>
-<span class="kn">parameter:</span> <span class="n">covarMaxLevels</span> <span class="o">=</span> <span class="nb">int</span>
 <span class="c1"># Quantitative covariates to be used in the analysis</span>
-<span class="kn">parameter:</span> <span class="n">qCovarCol</span> <span class="o">=</span> <span class="nb">list</span>
-<span class="c1"># Path to LDscore file for reference population</span>
-<span class="kn">parameter:</span> <span class="n">LDscoresFile</span> <span class="o">=</span> <span class="n">path</span>
-<span class="c1"># Path to genetic map file used to interpolate genetic map coordinates from SNP physical (base pair) positions</span>
-<span class="kn">parameter:</span> <span class="n">geneticMapFile</span> <span class="o">=</span> <span class="n">path</span>
+<span class="kn">parameter:</span> <span class="n">qCovarCol</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="c1"># Specific number of threads to use</span>
 <span class="kn">parameter:</span> <span class="n">numThreads</span> <span class="o">=</span> <span class="nb">int</span>
 <span class="c1"># Minimum MAF to be used</span>
 <span class="kn">parameter:</span> <span class="n">bgenMinMAF</span> <span class="o">=</span> <span class="nb">float</span>
 <span class="c1"># Mimimum info score to be used</span>
 <span class="kn">parameter:</span> <span class="n">bgenMinINFO</span> <span class="o">=</span> <span class="nb">float</span>
-<span class="c1"># LMM option: lmm, lmmInfOnly, and lmmForceNonInf</span>
-<span class="kn">parameter:</span> <span class="n">lmm_option</span> <span class="o">=</span> <span class="s1">&#39;lmm&#39;</span>
 <span class="c1"># For cluster jobs, number commands to run per job</span>
 <span class="kn">parameter:</span> <span class="n">job_size</span> <span class="o">=</span> <span class="mi">1</span>
 
@@ -433,8 +500,10 @@ body {
     --bgenMinMAF 0.001 \
     --bgenMinINFO 0.1 \
     --lmm-option none \
+    --pval P_LINREG \
+    --p-filter 1 \
     $JOB_OPT</code></pre>
-<p>Please note that the command above is only meant to demonstrate the usage of the pipeline. Data will be generated to a folder called <code>output</code>. We set <code>--lmm-option</code> to <code>none</code> to not run LMM on this minimal data-set. In practice we will definitely want to use one of the LMM options in BoltLMM. Default is <code>lmm</code> switch in <code>bolt</code> if you don't specify <code>--lmm-option</code>.</p>
+<p>Please note that the command above is only meant to demonstrate the usage of the pipeline. Data will be generated to a folder called <code>output</code>. We set <code>--lmm-option</code> to <code>none</code> to not run LMM on this minimal data-set. The <code>--pval</code> column name <code>P_LINREG</code> for QQ/Manhattan plot is also p-value from conventional linear regression. In practice we will definitely want to use one of the LMM options in BoltLMM. Default is <code>lmm</code> switch in <code>bolt</code> if you don't specify <code>--lmm-option</code>.</p>
 <h3 id="Run-workflow-on-a-cluster">Run workflow on a cluster<a class="anchor-link" href="#Run-workflow-on-a-cluster">&#182;</a></h3><p>The shell variable <code>JOB_OPT</code> was set to <code>-j 2</code>. That is, run 2 jobs in parallel on a local computer (each using 5 threads due to <code>--numThreads 5</code>).</p>
 <p>On cluster we use a job template, and configure <code>JOB_OPT</code> as follows:</p>
 
@@ -481,9 +550,17 @@ body {
 <div class=" highlight hl-sos"><pre><span></span><span class="c1"># Run BOLT analysis</span>
 <span class="p">[</span><span class="n">bolt_1</span><span class="p">]</span>
 <span class="kn">depends:</span> <span class="n">executable</span><span class="p">(</span><span class="s2">&quot;bolt&quot;</span><span class="p">)</span>
+<span class="c1"># Maximum categories of covariates allowed </span>
+<span class="kn">parameter:</span> <span class="n">covarMaxLevels</span> <span class="o">=</span> <span class="nb">int</span>
+<span class="c1"># Path to LDscore file for reference population</span>
+<span class="kn">parameter:</span> <span class="n">LDscoresFile</span> <span class="o">=</span> <span class="n">path</span>
+<span class="c1"># Path to genetic map file used to interpolate genetic map coordinates from SNP physical (base pair) positions</span>
+<span class="kn">parameter:</span> <span class="n">geneticMapFile</span> <span class="o">=</span> <span class="n">path</span>
+<span class="c1"># LMM option: lmm, lmmInfOnly, and lmmForceNonInf</span>
+<span class="kn">parameter:</span> <span class="n">lmm_option</span> <span class="o">=</span> <span class="s1">&#39;lmm&#39;</span>
 <span class="kn">input:</span> <span class="n">bgenFile</span><span class="p">,</span> <span class="n">group_by</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">phenoCol</span><span class="si">}</span><span class="s1">.boltlmm.snp_stats.gz&#39;</span>
-<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span>
     <span class="n">bolt</span> \
     <span class="o">--</span><span class="n">bfile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">bfile</span><span class="p">}</span> \
@@ -529,7 +606,7 @@ body {
 <span class="kn">input:</span> <span class="n">group_by</span> <span class="o">=</span> <span class="s1">&#39;all&#39;</span>
 <span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">phenoCol</span><span class="si">}</span><span class="s1">.boltlmm.snp_stats.gz&#39;</span><span class="p">,</span> 
         <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">phenoCol</span><span class="si">}</span><span class="s1">.boltlmm.snp_counts.txt&#39;</span>
-<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;30m&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;6G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;30m&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;6G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="kn">python:</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span>
     <span class="kn">import</span> <span class="nn">gzip</span>
     <span class="n">n_lines</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
@@ -556,7 +633,7 @@ body {
         <span class="n">done</span>
     <span class="n">done</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">(</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">nn</span><span class="p">)</span><span class="o">.</span><span class="n">log</span>
     <span class="c1"># remove files before merger</span>
-    <span class="n">rm</span> <span class="o">-</span><span class="n">f</span> <span class="err">$</span><span class="p">(</span><span class="n">_input</span><span class="p">)</span>
+    <span class="c1"># rm -f $(_input)</span>
 </pre></div>
 
     </div>
@@ -567,16 +644,128 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Result">Result<a class="anchor-link" href="#Result">&#182;</a></h2>
+<h2 id="Manhattan-and-QQ-plots">Manhattan and QQ plots<a class="anchor-link" href="#Manhattan-and-QQ-plots">&#182;</a></h2><p>We use the <code>qqman</code> package from R: <a href="https://www.r-graph-gallery.com/101_Manhattan_plot.html">https://www.r-graph-gallery.com/101_Manhattan_plot.html</a></p>
+
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">ls</span> <span class="n">output</span><span class="o">/</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Manhattan and QQ plots using `qqman`</span>
+<span class="p">[</span><span class="n">bolt_3</span><span class="p">]</span>
+<span class="kn">depends:</span> <span class="n">R_library</span><span class="p">(</span><span class="s1">&#39;qqman&#39;</span><span class="p">,</span> <span class="n">autoinstall</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">R_library</span><span class="p">(</span><span class="s1">&#39;tidyverse&#39;</span><span class="p">,</span> <span class="n">autoinstall</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">R_library</span><span class="p">(</span><span class="s1">&#39;ggrepel&#39;</span><span class="p">,</span> <span class="n">autoinstall</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Column name of p-value</span>
+<span class="kn">parameter:</span> <span class="n">pval</span> <span class="o">=</span> <span class="s1">&#39;P&#39;</span>
+<span class="c1"># Plot only on p-values smaller than this</span>
+<span class="kn">parameter:</span> <span class="n">p_filter</span> <span class="o">=</span> <span class="s1">&#39;0.05&#39;</span>
+<span class="kn">parameter:</span> 
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">nn</span><span class="si">}</span><span class="s1">.manhattan.pdf&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">nn</span><span class="si">}</span><span class="s1">.qq.pdf&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">nn</span><span class="si">}</span><span class="s1">.manhattan_annotated.pdf&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;1h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;6G&#39;</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="kn">R:</span> <span class="n">expand</span><span class="o">=</span><span class="s1">&#39;${ }&#39;</span>
+    <span class="n">library</span><span class="p">(</span><span class="s1">&#39;qqman&#39;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">&lt;-</span> <span class="n">read</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">gzfile</span><span class="p">(</span><span class="s1">&#39;$</span><span class="si">{_input[0]}</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
+    <span class="c1"># Creating manhattan plot</span>
+    <span class="n">pdf</span><span class="p">(</span><span class="s1">&#39;$</span><span class="si">{_output[0]}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">manhattan_plot</span> <span class="o">&lt;-</span> <span class="n">manhattan</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">chr</span><span class="o">=</span><span class="s1">&#39;CHR&#39;</span><span class="p">,</span> <span class="n">bp</span><span class="o">=</span><span class="s1">&#39;BP&#39;</span><span class="p">,</span> <span class="n">snp</span><span class="o">=</span><span class="s1">&#39;SNP&#39;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s1">&#39;$</span><span class="si">{pval}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">main</span> <span class="o">=</span> <span class="s1">&#39;Manhattan plot for $</span><span class="si">{phenoCol}</span><span class="s1"> (${step_name.rsplit(&quot;_&quot;,1)[0]})&#39;</span><span class="p">,</span> <span class="n">ylim</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">250</span><span class="p">),</span> <span class="n">cex</span> <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span> 
+    <span class="n">cex</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="s2">&quot;blue4&quot;</span><span class="p">,</span> <span class="s2">&quot;orange3&quot;</span><span class="p">),</span> <span class="n">suggestiveline</span> <span class="o">=</span> <span class="n">T</span><span class="p">,</span> <span class="n">genomewideline</span> <span class="o">=</span> <span class="n">T</span><span class="p">,</span> <span class="n">chrlabs</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">22</span><span class="p">))</span>
+    <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
+    <span class="c1"># Creating qqplot</span>
+    <span class="n">pdf</span><span class="p">(</span><span class="s1">&#39;$</span><span class="si">{_output[1]}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">qq_plot</span> <span class="o">&lt;-</span> <span class="n">qq</span><span class="p">(</span><span class="n">data</span><span class="err">$$</span><span class="p">{</span><span class="n">pval</span><span class="p">},</span> <span class="n">main</span> <span class="o">=</span> <span class="s1">&#39;QQ Plot for $</span><span class="si">{phenoCol}</span><span class="s1"> (${step_name.rsplit(&quot;_&quot;,1)[0]})&#39;</span><span class="p">,</span> <span class="n">xlim</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">ylim</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="n">pch</span> <span class="o">=</span> <span class="mi">18</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="s2">&quot;blue4&quot;</span><span class="p">,</span> <span class="n">cex</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">las</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
+  
+<span class="kn">R:</span> <span class="n">expand</span><span class="o">=</span><span class="s1">&#39;${ }&#39;</span>
+    <span class="n">library</span><span class="p">(</span><span class="s1">&#39;tidyverse&#39;</span><span class="p">)</span>
+    <span class="n">library</span><span class="p">(</span><span class="s1">&#39;ggrepel&#39;</span><span class="p">)</span>
+    <span class="c1">#Load your data</span>
+    <span class="n">data</span> <span class="o">&lt;-</span> <span class="n">read</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">gzfile</span><span class="p">(</span><span class="s1">&#39;$</span><span class="si">{_input[0]}</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
+    <span class="c1"># Create a subset of the data with variants with P&lt; 0.05 and arrange by chromosome number</span>
+    <span class="c1"># https://danielroelfs.com/blog/how-i-create-manhattan-plots-using-ggplot/</span>
+    <span class="n">sig</span><span class="o">.</span><span class="n">dat</span> <span class="o">&lt;-</span> <span class="n">data</span> <span class="o">%&gt;%</span> 
+      <span class="n">subset</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">pval</span><span class="p">}</span> <span class="o">&lt;</span> <span class="err">$</span><span class="p">{</span><span class="n">p_filter</span><span class="p">})</span> <span class="o">%&gt;%</span>
+      <span class="n">arrange</span> <span class="p">(</span><span class="n">CHR</span><span class="p">,</span> <span class="o">.</span><span class="n">by_group</span><span class="o">=</span><span class="n">TRUE</span><span class="p">)</span>
+    <span class="c1"># Add highlight and annotation information</span>
+    <span class="c1">#mutate( is_highlight=ifelse(SNP %in% index_snps, &quot;yes&quot;, &quot;no&quot;)) %&gt;%</span>
+    <span class="c1">#mutate( is_annotate=ifelse(-log10(P_BOLT_LMM)&gt;6, &quot;yes&quot;, &quot;no&quot;)) </span>
+    <span class="c1"># Check the list of chromosomes (make sure the sex chr are at the end of the list)</span>
+    <span class="c1"># Get the cumulative base pair position for each variant</span>
+    <span class="n">nCHR</span> <span class="o">&lt;-</span> <span class="n">length</span><span class="p">(</span><span class="n">unique</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="n">CHR</span><span class="p">))</span>
+    <span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="n">BPcum</span> <span class="o">&lt;-</span> <span class="n">NA</span>
+    <span class="n">s</span> <span class="o">&lt;-</span> <span class="mi">0</span>
+    <span class="n">nbp</span> <span class="o">&lt;-</span> <span class="n">c</span><span class="p">()</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">unique</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="n">CHR</span><span class="p">)){</span>
+      <span class="n">nbp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="nb">max</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="p">[</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="n">CHR</span> <span class="o">==</span> <span class="n">i</span><span class="p">,]</span><span class="err">$</span><span class="n">BP</span><span class="p">)</span>
+      <span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="p">[</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="n">CHR</span> <span class="o">==</span> <span class="n">i</span><span class="p">,</span><span class="s2">&quot;BPcum&quot;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="p">[</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="n">CHR</span> <span class="o">==</span> <span class="n">i</span><span class="p">,</span><span class="s2">&quot;BP&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">s</span>
+      <span class="n">s</span> <span class="o">&lt;-</span> <span class="n">s</span> <span class="o">+</span> <span class="n">nbp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Calculate the mid point for each chromosome for plotting the x-axis</span>
+    <span class="c1"># Calculate the y-lim </span>
+
+    <span class="n">axis</span><span class="o">.</span><span class="n">set</span> <span class="o">&lt;-</span> <span class="n">sig</span><span class="o">.</span><span class="n">dat</span> <span class="o">%&gt;%</span> 
+      <span class="n">group_by</span><span class="p">(</span><span class="n">CHR</span><span class="p">)</span> <span class="o">%&gt;%</span> 
+      <span class="n">summarize</span><span class="p">(</span><span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">BPcum</span><span class="p">)</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">BPcum</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">ylim</span> <span class="o">&lt;-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">log10</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$$</span><span class="p">{</span><span class="n">pval</span><span class="p">}))))</span> <span class="o">+</span> <span class="mi">2</span> 
+    <span class="n">sig</span> <span class="o">&lt;-</span> <span class="mf">5e-8</span>
+
+    <span class="c1"># Now time to draw the manhattan plot without filtering the most significant signals</span>
+    <span class="n">manhplot</span> <span class="o">&lt;-</span> <span class="n">ggplot</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">BPcum</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">pval</span><span class="p">}),</span> 
+                                 <span class="n">color</span> <span class="o">=</span> <span class="k">as</span><span class="o">.</span><span class="n">factor</span><span class="p">(</span><span class="n">CHR</span><span class="p">),</span> <span class="n">size</span> <span class="o">=</span> <span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">pval</span><span class="p">})))</span> <span class="o">+</span>
+      <span class="n">geom_point</span><span class="p">(</span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">)</span> <span class="o">+</span>
+      <span class="n">geom_hline</span><span class="p">(</span><span class="n">yintercept</span> <span class="o">=</span> <span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="n">sig</span><span class="p">),</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;red1&quot;</span><span class="p">,</span> <span class="n">linetype</span> <span class="o">=</span> <span class="s2">&quot;dashed&quot;</span><span class="p">)</span> <span class="o">+</span> 
+      <span class="n">scale_x_continuous</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">set</span><span class="err">$</span><span class="n">CHR</span><span class="p">,</span> <span class="n">breaks</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">set</span><span class="err">$</span><span class="n">center</span><span class="p">)</span> <span class="o">+</span>
+      <span class="n">scale_y_continuous</span><span class="p">(</span><span class="n">expand</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">limits</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span> <span class="o">+</span>
+      <span class="n">scale_color_manual</span><span class="p">(</span><span class="n">values</span> <span class="o">=</span> <span class="n">rep</span><span class="p">(</span><span class="n">c</span><span class="p">(</span><span class="s2">&quot;#276FBF&quot;</span><span class="p">,</span> <span class="s2">&quot;#183059&quot;</span><span class="p">),</span> <span class="n">nCHR</span><span class="p">))</span> <span class="o">+</span>
+      <span class="n">scale_size_continuous</span><span class="p">(</span><span class="nb">range</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span> <span class="o">+</span>
+      <span class="c1"># Add highlighted points</span>
+      <span class="c1"># geom_point(data=subset(sig.dat, is_highlight==&quot;yes&quot;), color=&quot;orange&quot;, alpha=0.75) +</span>
+      <span class="n">labs</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s2">&quot;Chromosome&quot;</span><span class="p">,</span> 
+           <span class="n">y</span> <span class="o">=</span> <span class="s2">&quot;-log10(p)&quot;</span><span class="p">,</span>
+           <span class="n">title</span> <span class="o">=</span><span class="s1">&#39;Manhattan plot for $</span><span class="si">{phenoCol}</span><span class="s1"> (${step_name.rsplit(&quot;_&quot;,1)[0]})&#39;</span><span class="p">)</span> <span class="o">+</span> 
+      <span class="n">theme_classic</span><span class="p">()</span> <span class="o">+</span>
+      <span class="n">theme</span><span class="p">(</span> 
+        <span class="n">legend</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+        <span class="n">panel</span><span class="o">.</span><span class="n">border</span> <span class="o">=</span> <span class="n">element_blank</span><span class="p">(),</span>
+        <span class="n">panel</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">major</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">element_blank</span><span class="p">(),</span>
+        <span class="n">panel</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">minor</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">element_blank</span><span class="p">(),</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">element_text</span><span class="p">(</span><span class="n">angle</span> <span class="o">=</span> <span class="mi">90</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">vjust</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+      <span class="p">)</span>
+
+    <span class="c1"># To save a plot created with ggplot2 you have to use to print() function</span>
+
+    <span class="n">pdf</span><span class="p">(</span><span class="s1">&#39;$</span><span class="si">{_output[2]}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">manhplot</span><span class="p">)</span>
+    <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Results-demonstration">Results demonstration<a class="anchor-link" href="#Results-demonstration">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="BoltLMM">BoltLMM<a class="anchor-link" href="#BoltLMM">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">ls</span> <span class="n">output</span><span class="o">/*.</span><span class="n">boltlmm</span><span class="o">.*</span>
 </pre></div>
 
     </div>
@@ -593,8 +782,15 @@ body {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>phenotypes_BMI.boltlmm.log           phenotypes_BMI.boltlmm.snp_counts.txt
-<span class="ansi-red-intense-fg ansi-bold">phenotypes_BMI.boltlmm.ref_stats.gz</span>  <span class="ansi-red-intense-fg ansi-bold">phenotypes_BMI.boltlmm.snp_stats.gz</span>
+<pre><span class="ansi-red-intense-fg ansi-bold">output/imputed_genotypes_chr21.phenotypes_BMI.boltlmm.snp_stats.gz</span>
+<span class="ansi-red-intense-fg ansi-bold">output/imputed_genotypes_chr22.phenotypes_BMI.boltlmm.snp_stats.gz</span>
+output/phenotypes_BMI.boltlmm.log
+output/phenotypes_BMI.boltlmm.manhattan_annotated.pdf
+output/phenotypes_BMI.boltlmm.manhattan.pdf
+output/phenotypes_BMI.boltlmm.qq.pdf
+<span class="ansi-red-intense-fg ansi-bold">output/phenotypes_BMI.boltlmm.ref_stats.gz</span>
+output/phenotypes_BMI.boltlmm.snp_counts.txt
+<span class="ansi-red-intense-fg ansi-bold">output/phenotypes_BMI.boltlmm.snp_stats.gz</span>
 </pre>
 </div>
 </div>
@@ -810,9 +1006,147 @@ NOTE: Using all-1s vector (constant term) in addition to specified covariates</p
 </div>
 
 </div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">preview</span> <span class="n">output</span><span class="o">/</span><span class="n">phenotypes_BMI</span><span class="o">.</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">manhattan</span><span class="o">.</span><span class="n">pdf</span> <span class="o">-</span><span class="n">s</span> <span class="n">png</span> <span class="o">--</span><span class="n">dpi</span> <span class="mi">150</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">> /home/gw/tmp/10-Jun-2020/MWE_test/output/phenotypes_BMI.boltlmm.manhattan.pdf (5.0 KiB):</div>
+</div>
+
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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"
+>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">preview</span> <span class="n">output</span><span class="o">/</span><span class="n">phenotypes_BMI</span><span class="o">.</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">qq</span><span class="o">.</span><span class="n">pdf</span> <span class="o">-</span><span class="n">s</span> <span class="n">png</span> <span class="o">--</span><span class="n">dpi</span> <span class="mi">150</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">> /home/gw/tmp/10-Jun-2020/MWE_test/output/phenotypes_BMI.boltlmm.qq.pdf (5.8 KiB):</div>
+</div>
+
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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"
+>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">preview</span> <span class="n">output</span><span class="o">/</span><span class="n">phenotypes_BMI</span><span class="o">.</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">manhattan_annotated</span><span class="o">.</span><span class="n">pdf</span> <span class="o">-</span><span class="n">s</span> <span class="n">png</span> <span class="o">--</span><span class="n">dpi</span> <span class="mi">150</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">> /home/gw/tmp/10-Jun-2020/MWE_test/output/phenotypes_BMI.boltlmm.manhattan_annotated.pdf (6.9 KiB):</div>
+</div>
+
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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"
+>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/822559d5dcb721f1ae9fdc686697095295dd884a/workflow/BoltLMM.ipynb"><code>workflow/BoltLMM.ipynb</code></a> committed by Gao Wang on Wed Jun 10 22:09:31 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/822559d5dcb721f1ae9fdc686697095295dd884a">revision 22, 822559d</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/c175f95b27024176b40e8b35600f5ef847a6b190/workflow/BoltLMM.ipynb"><code>workflow/BoltLMM.ipynb</code></a> committed by Gao Wang on Wed Jun 10 23:06:59 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/c175f95b27024176b40e8b35600f5ef847a6b190">revision 24, c175f95</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

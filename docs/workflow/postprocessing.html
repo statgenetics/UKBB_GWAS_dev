@@ -239,7 +239,8 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Data-analysis">Data analysis<a class="anchor-link" href="#Data-analysis">&#182;</a></h2>
+<h2 id="Data-analysis">Data analysis<a class="anchor-link" href="#Data-analysis">&#182;</a></h2><p><strong>FIXME: Diana, I have moved / rewritten most of the useful codes to the actual LMM analysis pipeline. Please salvage what you need here and try to build them to the pipeline -- after you complete MWE for fastGWA and SAIGE</strong></p>
+
 </div>
 </div>
 </div>
@@ -281,41 +282,6 @@ body {
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[91]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="k">global</span><span class="p">]</span>
-<span class="c1"># Working directory: change accordingly</span>
-<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/scratch60/&#39;</span><span class="p">)</span>
-<span class="c1"># Association files patterns</span>
-<span class="kn">parameter:</span> <span class="n">pattern1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;fastGWA&#39;</span><span class="p">,</span> <span class="s1">&#39;boltlmm.snp_stats.gz&#39;</span><span class="p">,</span><span class="s1">&#39;boltlmm.stats.gz&#39;</span><span class="p">]</span>
-<span class="c1"># Patterns for the log, stderr and stdout files</span>
-<span class="kn">parameter:</span> <span class="n">pattern2</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;fastGWA.log&#39;</span><span class="p">,</span> <span class="s1">&#39;boltlmm.snp_stats.stderr&#39;</span><span class="p">,</span> <span class="s1">&#39;boltlmm.snp_stats.stdout&#39;</span><span class="p">]</span>
-<span class="c1"># Association files for imputed data</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="n">snp_stats_file</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">({</span><span class="n">_pattern1</span><span class="p">[</span><span class="mi">0</span><span class="p">]}))</span>
-<span class="n">fail_if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">snp_stats_file</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Input pattern ``</span><span class="si">{</span><span class="n">_pattern1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">`` failed to match any files.&quot;</span><span class="p">)</span>
-<span class="c1"># Output name merged summary stats file for bgen files</span>
-<span class="kn">parameter:</span> <span class="n">bgen_sumstats</span> <span class="o">=</span> <span class="s1">&#39;ukb_imp_v3.Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols.fastGWA.snp_stats.all_chr&#39;</span>
-<span class="c1"># Input plink genotypes summary stats - this only applies to Bolt-LMM</span>
-<span class="kn">parameter:</span> <span class="n">stats_file</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/scratch60/&#39;</span><span class="p">)</span>
-<span class="c1"># Output plink genotypes summary stats - this only applies for Bolt-LMM</span>
-<span class="kn">parameter:</span> <span class="n">plink_sumstats</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/scratch60/&#39;</span><span class="p">)</span>
-<span class="c1"># Title of the manhattan plot</span>
-<span class="kn">parameter:</span> <span class="n">manplot</span><span class="o">=</span> <span class="s1">&#39;Asthma Manhattan Plot fastGWA&#39;</span>
-<span class="c1"># Title of the q-q plot</span>
-<span class="kn">parameter:</span> <span class="n">qq_plot</span><span class="o">=</span> <span class="s1">&#39;Asthma Q-Q plot fastGWA&#39;</span>
-<span class="c1"># P-value from summary stats</span>
-<span class="kn">parameter:</span> <span class="n">pval</span><span class="o">=</span><span class="s1">&#39;P&#39;</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -344,143 +310,6 @@ body {
                         <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;SNP&#39;</span><span class="p">):</span>
                             <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
     <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{_output}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Step-4:-Creating-the-Manhattan-and-Q-Q-plots">Step 4: Creating the Manhattan and Q-Q plots<a class="anchor-link" href="#Step-4:-Creating-the-Manhattan-and-Q-Q-plots">&#182;</a></h3>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The simplest way to create a manhattan plot is to use the qqman package from R: <a href="https://www.r-graph-gallery.com/101_Manhattan_plot.html">https://www.r-graph-gallery.com/101_Manhattan_plot.html</a></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[89]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">plot_1</span><span class="p">]</span>
-<span class="kn">input:</span> <span class="n">output_from</span><span class="p">(</span><span class="s1">&#39;merge_imputed&#39;</span><span class="p">)</span>
-<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bnn</span><span class="si">}</span><span class="s1">.manhattan.png&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bnn</span><span class="si">}</span><span class="s1">.qqplot.png&#39;</span>
-<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;12h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
-<span class="kn">R:</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span>
-    <span class="k">if</span> <span class="p">(</span><span class="err">!</span><span class="n">require</span><span class="p">(</span><span class="s1">&#39;qqman&#39;</span><span class="p">))</span> <span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s1">&#39;qqman&#39;</span><span class="p">);</span> <span class="n">library</span><span class="p">(</span><span class="s1">&#39;qqman&#39;</span><span class="p">)</span>
-    <span class="n">data</span> <span class="o">&lt;-</span> <span class="n">read</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">gzfile</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{_input}</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
-    <span class="c1"># Creating manhattan plot</span>
-    <span class="n">png</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{_output[0]}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-    <span class="n">manhattan_plot</span> <span class="o">&lt;-</span> <span class="n">manhattan</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">chr</span><span class="o">=</span><span class="s1">&#39;CHR&#39;</span><span class="p">,</span> <span class="n">bp</span><span class="o">=</span><span class="s1">&#39;BP&#39;</span><span class="p">,</span> <span class="n">snp</span><span class="o">=</span><span class="s1">&#39;SNP&#39;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">{</span><span class="n">pval</span><span class="p">},</span> <span class="n">main</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{manplot}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">ylim</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">250</span><span class="p">),</span> <span class="n">cex</span> <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span> 
-    <span class="n">cex</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="s2">&quot;blue4&quot;</span><span class="p">,</span> <span class="s2">&quot;orange3&quot;</span><span class="p">),</span> <span class="n">suggestiveline</span> <span class="o">=</span> <span class="n">T</span><span class="p">,</span> <span class="n">genomewideline</span> <span class="o">=</span> <span class="n">T</span><span class="p">,</span> <span class="n">chrlabs</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">22</span><span class="p">))</span>
-    <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
-    <span class="c1"># Creating qqplot</span>
-    <span class="n">png</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{_output[1]}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-    <span class="n">qq_plot</span> <span class="o">&lt;-</span> <span class="n">qq</span><span class="p">(</span><span class="n">data</span><span class="err">$</span><span class="n">P_BOLT_LMM</span><span class="p">,</span> <span class="n">main</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{qq_plot}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">xlim</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">ylim</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="n">pch</span> <span class="o">=</span> <span class="mi">18</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="s2">&quot;blue4&quot;</span><span class="p">,</span> <span class="n">cex</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">las</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Step-5:-Creating-flexibility-for-Manhattan-plots">Step 5: Creating flexibility for Manhattan plots<a class="anchor-link" href="#Step-5:-Creating-flexibility-for-Manhattan-plots">&#182;</a></h3>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="c1"># For more flexibility when creating manhattan plots and adding highlighted SNPs</span>
-<span class="p">[</span><span class="n">plot_2</span><span class="p">]</span>
-<span class="kn">input:</span> <span class="n">output_from</span><span class="p">(</span><span class="s1">&#39;step_1&#39;</span><span class="p">)</span>
-<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bnn</span><span class="si">}</span><span class="s1">.manhattan.png&#39;</span>
-<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;12h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
-<span class="kn">R:</span> <span class="n">expand</span><span class="o">=</span><span class="s2">&quot;${ }&quot;</span>
-    <span class="k">if</span> <span class="p">(</span><span class="err">!</span><span class="n">require</span><span class="p">(</span><span class="s1">&#39;tidyverse&#39;</span><span class="p">))</span> <span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s1">&#39;tidyverse&#39;</span><span class="p">);</span> <span class="n">library</span><span class="p">(</span><span class="s1">&#39;tidyverse&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="p">(</span><span class="err">!</span><span class="n">require</span><span class="p">(</span><span class="s1">&#39;ggrepel&#39;</span><span class="p">))</span> <span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s1">&#39;ggrepel&#39;</span><span class="p">);</span> <span class="n">library</span><span class="p">(</span><span class="s1">&#39;ggrepel&#39;</span><span class="p">)</span>
-  <span class="c1">#Load your data</span>
-    <span class="n">data</span> <span class="o">&lt;-</span> <span class="n">read</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">gzfile</span><span class="p">(</span><span class="s1">&#39;$</span><span class="si">{_input}</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
-  <span class="c1"># Create a subset of the data with variants with P&lt; 0.05 and arrange by chromosome number</span>
-  <span class="c1"># https://danielroelfs.com/blog/how-i-create-manhattan-plots-using-ggplot/</span>
-
-    <span class="n">sig</span><span class="o">.</span><span class="n">dat</span> <span class="o">&lt;-</span> <span class="n">data</span> <span class="o">%&gt;%</span> 
-      <span class="n">subset</span><span class="p">(</span><span class="s1">&#39;$</span><span class="si">{pval}</span><span class="s1">&#39;</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">%&gt;%</span>
-      <span class="n">arrange</span> <span class="p">(</span><span class="n">CHR</span><span class="p">,</span> <span class="o">.</span><span class="n">by_group</span><span class="o">=</span><span class="n">TRUE</span><span class="p">)</span>
-
-  <span class="c1"># Add highlight and annotation information</span>
-    <span class="c1">#mutate( is_highlight=ifelse(SNP %in% index_snps, &quot;yes&quot;, &quot;no&quot;)) %&gt;%</span>
-    <span class="c1">#mutate( is_annotate=ifelse(-log10(P_BOLT_LMM)&gt;6, &quot;yes&quot;, &quot;no&quot;)) </span>
-
-  <span class="c1"># Check the list of chromosomes (make sure the sex chr are at the end of the list)</span>
-
-    <span class="n">unique</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="n">CHR</span><span class="p">)</span>
-
-    <span class="c1"># Get the cumulative base pair position for each variant</span>
-
-    <span class="n">nCHR</span> <span class="o">&lt;-</span> <span class="n">length</span><span class="p">(</span><span class="n">unique</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="n">CHR</span><span class="p">))</span>
-    <span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="n">BPcum</span> <span class="o">&lt;-</span> <span class="n">NA</span>
-    <span class="n">s</span> <span class="o">&lt;-</span> <span class="mi">0</span>
-    <span class="n">nbp</span> <span class="o">&lt;-</span> <span class="n">c</span><span class="p">()</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">unique</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="n">CHR</span><span class="p">)){</span>
-      <span class="n">nbp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="nb">max</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="p">[</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="n">CHR</span> <span class="o">==</span> <span class="n">i</span><span class="p">,]</span><span class="err">$</span><span class="n">BP</span><span class="p">)</span>
-      <span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="p">[</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="n">CHR</span> <span class="o">==</span> <span class="n">i</span><span class="p">,</span><span class="s2">&quot;BPcum&quot;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="p">[</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="n">CHR</span> <span class="o">==</span> <span class="n">i</span><span class="p">,</span><span class="s2">&quot;BP&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">s</span>
-      <span class="n">s</span> <span class="o">&lt;-</span> <span class="n">s</span> <span class="o">+</span> <span class="n">nbp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-    <span class="p">}</span>
-
-    <span class="c1"># Calculate the mid point for each chromosome for plotting the x-axis</span>
-    <span class="c1"># Calculate the y-lim </span>
-
-    <span class="n">axis</span><span class="o">.</span><span class="n">set</span> <span class="o">&lt;-</span> <span class="n">sig</span><span class="o">.</span><span class="n">dat</span> <span class="o">%&gt;%</span> 
-      <span class="n">group_by</span><span class="p">(</span><span class="n">CHR</span><span class="p">)</span> <span class="o">%&gt;%</span> 
-      <span class="n">summarize</span><span class="p">(</span><span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">BPcum</span><span class="p">)</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">BPcum</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">ylim</span> <span class="o">&lt;-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">log10</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="s1">&#39;$</span><span class="si">{pval}</span><span class="s1">&#39;</span><span class="p">))))</span> <span class="o">+</span> <span class="mi">2</span> 
-    <span class="n">sig</span> <span class="o">&lt;-</span> <span class="mf">5e-8</span>
-
-    <span class="c1"># Now time to draw the manhattan plot without filtering the most significant signals</span>
-
-    <span class="n">manhplot</span> <span class="o">&lt;-</span> <span class="n">ggplot</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">BPcum</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="s1">&#39;$</span><span class="si">{pval}</span><span class="s1">&#39;</span><span class="p">),</span> 
-                                 <span class="n">color</span> <span class="o">=</span> <span class="k">as</span><span class="o">.</span><span class="n">factor</span><span class="p">(</span><span class="n">CHR</span><span class="p">),</span> <span class="n">size</span> <span class="o">=</span> <span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="s1">&#39;$</span><span class="si">{pval}</span><span class="s1">&#39;</span><span class="p">)))</span> <span class="o">+</span>
-      <span class="n">geom_point</span><span class="p">(</span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">)</span> <span class="o">+</span>
-      <span class="n">geom_hline</span><span class="p">(</span><span class="n">yintercept</span> <span class="o">=</span> <span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="n">sig</span><span class="p">),</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;red1&quot;</span><span class="p">,</span> <span class="n">linetype</span> <span class="o">=</span> <span class="s2">&quot;dashed&quot;</span><span class="p">)</span> <span class="o">+</span> 
-      <span class="n">scale_x_continuous</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">set</span><span class="err">$</span><span class="n">CHR</span><span class="p">,</span> <span class="n">breaks</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">set</span><span class="err">$</span><span class="n">center</span><span class="p">)</span> <span class="o">+</span>
-      <span class="n">scale_y_continuous</span><span class="p">(</span><span class="n">expand</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">limits</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span> <span class="o">+</span>
-      <span class="n">scale_color_manual</span><span class="p">(</span><span class="n">values</span> <span class="o">=</span> <span class="n">rep</span><span class="p">(</span><span class="n">c</span><span class="p">(</span><span class="s2">&quot;#276FBF&quot;</span><span class="p">,</span> <span class="s2">&quot;#183059&quot;</span><span class="p">),</span> <span class="n">nCHR</span><span class="p">))</span> <span class="o">+</span>
-      <span class="n">scale_size_continuous</span><span class="p">(</span><span class="nb">range</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span> <span class="o">+</span>
-      <span class="c1"># Add highlighted points</span>
-      <span class="c1"># geom_point(data=subset(sig.dat, is_highlight==&quot;yes&quot;), color=&quot;orange&quot;, alpha=0.75) +</span>
-      <span class="n">labs</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s2">&quot;Chromosome&quot;</span><span class="p">,</span> 
-           <span class="n">y</span> <span class="o">=</span> <span class="s2">&quot;-log10(p)&quot;</span><span class="p">,</span>
-           <span class="n">title</span> <span class="o">=</span><span class="s2">&quot;</span><span class="si">{manplot}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">+</span> 
-      <span class="n">theme_classic</span><span class="p">()</span> <span class="o">+</span>
-      <span class="n">theme</span><span class="p">(</span> 
-        <span class="n">legend</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-        <span class="n">panel</span><span class="o">.</span><span class="n">border</span> <span class="o">=</span> <span class="n">element_blank</span><span class="p">(),</span>
-        <span class="n">panel</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">major</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">element_blank</span><span class="p">(),</span>
-        <span class="n">panel</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">minor</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">element_blank</span><span class="p">(),</span>
-        <span class="n">axis</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">element_text</span><span class="p">(</span><span class="n">angle</span> <span class="o">=</span> <span class="mi">90</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">vjust</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
-      <span class="p">)</span>
-
-    <span class="c1"># To save a plot created with ggplot2 you have to use to print() function</span>
-
-    <span class="n">png</span><span class="p">(</span><span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;$</span><span class="si">{_output}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">manhplot</span><span class="p">)</span>
-    <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -603,7 +432,7 @@ Test_INT-BMI.txt.clumped \
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/822559d5dcb721f1ae9fdc686697095295dd884a/workflow/postprocessing.ipynb"><code>workflow/postprocessing.ipynb</code></a> committed by Gao Wang on Wed Jun 10 22:09:31 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/822559d5dcb721f1ae9fdc686697095295dd884a">revision 12, 822559d</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/c175f95b27024176b40e8b35600f5ef847a6b190/workflow/postprocessing.ipynb"><code>workflow/postprocessing.ipynb</code></a> committed by Gao Wang on Wed Jun 10 23:06:59 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/c175f95b27024176b40e8b35600f5ef847a6b190">revision 13, c175f95</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
