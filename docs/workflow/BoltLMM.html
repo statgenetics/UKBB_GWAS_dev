@@ -239,7 +239,7 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="BOLT-LMM-analyses-for-UK-Biobank-data">BOLT-LMM analyses for UK Biobank data<a class="anchor-link" href="#BOLT-LMM-analyses-for-UK-Biobank-data">&#182;</a></h1><p>For binary and quantitative traits.</p>
+<h1 id="BOLT-LMM-analyses-for-UK-Biobank-data">BOLT-LMM analyses for UK Biobank data<a class="anchor-link" href="#BOLT-LMM-analyses-for-UK-Biobank-data">&#182;</a></h1><p>For binary and quantitative traits, works with BOLT-LMM version 2.3.4.</p>
 
 </div>
 </div>
@@ -254,7 +254,7 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>To perfom genetic association analysis for quantitative traits (waist-to-hip ratio, waist circumference, BMI, blood lipids) using BOLT-LMM software and UK Biobank imputed data of ~500K invidivuals</p>
+<p>This pipeline was initially developed to perfom genetic association analysis using BOLT-LMM software and UK Biobank imputed data of ~500K invidivuals, although it can be used to analyze other phenotypes.</p>
 
 </div>
 </div>
@@ -271,8 +271,11 @@ body {
 <div class="text_cell_render border-box-sizing rendered_html">
 <ol>
 <li>Download data from UKB: phenotype, genotypes files (<code>.fam</code>,<code>.bed</code>, <code>.bim</code>) and imputed genotypes (<code>.bgen</code>, <code>.bgi</code>, <code>.sample</code>)</li>
-<li>Install BOLT-LMM. To install from source code follow instructions here: <a href="https://data.broadinstitute.org/alkesgroup/BOLT-LMM/#x1-70002.2">https://data.broadinstitute.org/alkesgroup/BOLT-LMM/#x1-70002.2</a></li>
-<li>Run BOLT-LMM analysis to obtain summary statistics for association analysis</li>
+<li>Install BOLT-LMM. To install from source code follow instructions here: <a href="https://data.broadinstitute.org/alkesgroup/BOLT-LMM/#x1-70002.2">https://data.broadinstitute.org/alkesgroup/BOLT-LMM/#x1-70002.2</a><ul>
+<li>Supporting files such as LD score file and genetic map file can be found <a href="https://data.broadinstitute.org/alkesgroup/BOLT-LMM/downloads/BOLT-LMM_v2.3.4.tar.gz">in the installation bundle</a>.</li>
+</ul>
+</li>
+<li>Run BOLT-LMM analysis to obtain summary statistics for association analysis.</li>
 </ol>
 
 </div>
@@ -302,7 +305,7 @@ body {
 </ul>
 </li>
 <li>Phenotype file (white space delimited file with column headers, first two columns should be FID and IID) specify files by options <code>--phenoFile</code> and the phenotype to be analized by <code>--phenoCol</code></li>
-<li>Covariates file (same format as phenoFile) specify them by <code>--covarFile</code> for qualitative covariates use <code>--covarCol</code> and for quantitative <code>--qCovarCol</code>. Use <code>--covarMaxLevels</code> to specify the number of categories of a qualitative covariate. To specify an array of quantitative covariates use <code>--qCovarCol=PC{1:20}</code></li>
+<li>Covariates file (same format as phenoFile) specify them by <code>--covarFile</code> for qualitative covariates use <code>--covarCol</code> and for quantitative <code>--qCovarCol</code>. If <code>--covarFile</code> is not specified then phenotype file will be used as covariate file. Use <code>--covarMaxLevels</code> to specify the number of categories of a qualitative covariate. To specify an array of quantitative covariates use <code>--qCovarCol PC{1:20}</code></li>
 </ol>
 <p>Note: reference genome used <strong>GRCh37/hg19</strong></p>
 
@@ -333,13 +336,100 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Command-interface">Command interface<a class="anchor-link" href="#Command-interface">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">sos</span> <span class="n">run</span> <span class="n">BoltLMM</span><span class="o">.</span><span class="n">ipynb</span> <span class="o">-</span><span class="n">h</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>usage: sos run BoltLMM.ipynb [workflow_name | -t targets] [options] [workflow_options]
+  workflow_name:        Single or combined workflows defined in this script
+  targets:              One or more targets to generate
+  options:              Single-hyphen sos parameters (see &#34;sos run -h&#34; for details)
+  workflow_options:     Double-hyphen workflow-specific parameters
+
+Workflows:
+  bolt
+
+Global Workflow Options:
+  --cwd VAL (as path, required)
+                        the output directory for generated files
+  --sampleFile VAL (as path, required)
+                        Path to sample file
+  --bfile VAL (as path, required)
+                        Genotype files in plink binary this is used for
+                        computing the GRM
+  --bgenFile  paths
+
+                        Path to bgen files
+  --phenoFile VAL (as path, required)
+                        Phenotype file for quantitative trait (BMI)
+  --phenoCol VAL (as str, required)
+                        Phenotype to be analyzed (specify the column)
+  --covarFile . (as path)
+                        Covariate file path. Will use phenoFile if empty
+  --covarCol  (as list)
+                        Qualitative covariates to be used in the analysis
+  --covarMaxLevels VAL (as int, required)
+                        Maximum categories of covariates allowed
+  --qCovarCol VAL VAL ... (as type, required)
+                        Quantitative covariates to be used in the analysis
+  --LDscoresFile VAL (as path, required)
+                        Path to LDscore file for european population
+  --geneticMapFile VAL (as path, required)
+                        Path to genetic map file used to interpolate genetic map
+                        coordinates from SNP physical (base pair) positions
+  --numThreads VAL (as int, required)
+                        Specific number of threads to use
+  --bgenMinMAF VAL (as float, required)
+                        Minimum MAF to be used
+  --bgenMinINFO VAL (as float, required)
+                        Mimimum info score to be used
+  --lmm-option lmm
+                        LMM option: lmm, lmmInfOnly, and lmmForceNonInf
+  --job-size 1 (as int)
+                        For cluster jobs, number commands to run per job
+
+Sections
+  bolt:
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Global-parameter-setting">Global parameter setting<a class="anchor-link" href="#Global-parameter-setting">&#182;</a></h2>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="k">global</span><span class="p">]</span>
@@ -355,15 +445,15 @@ body {
 <span class="kn">parameter:</span> <span class="n">phenoFile</span> <span class="o">=</span> <span class="n">path</span>
 <span class="c1"># Phenotype to be analyzed (specify the column)</span>
 <span class="kn">parameter:</span> <span class="n">phenoCol</span> <span class="o">=</span> <span class="nb">str</span>
-<span class="c1"># Covariate file path</span>
-<span class="kn">parameter:</span> <span class="n">covarFile</span> <span class="o">=</span> <span class="n">path</span>
+<span class="c1"># Covariate file path. Will use phenoFile if empty</span>
+<span class="kn">parameter:</span> <span class="n">covarFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
 <span class="c1"># Qualitative covariates to be used in the analysis</span>
-<span class="kn">parameter:</span> <span class="n">covarCol</span> <span class="o">=</span> <span class="nb">list</span>
+<span class="kn">parameter:</span> <span class="n">covarCol</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="c1"># Maximum categories of covariates allowed </span>
 <span class="kn">parameter:</span> <span class="n">covarMaxLevels</span> <span class="o">=</span> <span class="nb">int</span>
 <span class="c1"># Quantitative covariates to be used in the analysis</span>
 <span class="kn">parameter:</span> <span class="n">qCovarCol</span> <span class="o">=</span> <span class="nb">list</span>
-<span class="c1"># Path to LDscore file for european population</span>
+<span class="c1"># Path to LDscore file for reference population</span>
 <span class="kn">parameter:</span> <span class="n">LDscoresFile</span> <span class="o">=</span> <span class="n">path</span>
 <span class="c1"># Path to genetic map file used to interpolate genetic map coordinates from SNP physical (base pair) positions</span>
 <span class="kn">parameter:</span> <span class="n">geneticMapFile</span> <span class="o">=</span> <span class="n">path</span>
@@ -377,6 +467,9 @@ body {
 <span class="kn">parameter:</span> <span class="n">lmm_option</span> <span class="o">=</span> <span class="s1">&#39;lmm&#39;</span>
 <span class="c1"># For cluster jobs, number commands to run per job</span>
 <span class="kn">parameter:</span> <span class="n">job_size</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">covarFile</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+    <span class="n">covarFile</span> <span class="o">=</span> <span class="n">phenoFile</span>
 </pre></div>
 
     </div>
@@ -387,43 +480,33 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Running-BOLT-LMM">Running BOLT-LMM<a class="anchor-link" href="#Running-BOLT-LMM">&#182;</a></h2><p>On Yale Farnam cluster,</p>
-<ul>
-<li>INT-BMI with age and sex as covariates</li>
-</ul>
+<h2 id="Running-BOLT-LMM">Running BOLT-LMM<a class="anchor-link" href="#Running-BOLT-LMM">&#182;</a></h2>
+<pre><code>JOB_OPT='-j 2'</code></pre>
+<p>On a minimal working example (MWE) dataset,</p>
 
-<pre><code>PHEN_DIR=~/project/phenotypes_UKB/
-sos run ~/project/pleiotropy_UKB/workflow/BoltLMM.ipynb bolt -c ~/project/pleiotropy_UKB/farnam.yml -q farnam -J 40 \
-   --phenoFile $PHEN_DIR/UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720 -s build &amp;&gt; sos-submission-INT-BMI.log</code></pre>
-<ul>
-<li>INT-WAIST with age, sex and BMI as covariates</li>
-</ul>
+<pre><code>sos run BoltLMM.ipynb bolt \
+    --cwd output \
+    --bfile data/genotypes \
+    --sampleFile data/imputed_genotypes.sample \
+    --bgenFile data/imputed_genotypes_chr*.bgen \
+    --phenoFile data/phenotypes.txt \
+    --LDscoresFile BOLT-LMM_v2.3.4/tables/LDSCORE.1000G_EUR.tab.gz \
+    --geneticMapFile BOLT-LMM_v2.3.4/tables/genetic_map_hg19_withX.txt.gz \
+    --phenoCol BMI \
+    --covarCol SEX \
+    --covarMaxLevels 10 \
+    --qCovarCol AGE \
+    --numThreads 5 \
+    --bgenMinMAF 0.001 \
+    --bgenMinINFO 0.1 \
+    --lmm-option none \
+    $JOB_OPT</code></pre>
+<p>Please note that the command above is only meant to demonstrate the usage of the pipeline. Data will be generated to a folder called <code>output</code>. We set <code>--lmm-option</code> to <code>none</code> to not run LMM on this minimal data-set. In practice we will definitely want to use one of the LMM options in BoltLMM. Default is <code>lmm</code> switch in <code>bolt</code> if you don't specify <code>--lmm-option</code>.</p>
+<h3 id="Run-workflow-on-a-cluster">Run workflow on a cluster<a class="anchor-link" href="#Run-workflow-on-a-cluster">&#182;</a></h3><p>The shell variable <code>JOB_OPT</code> was set to <code>-j 2</code>. That is, run 2 jobs in parallel on a local computer (each using 5 threads due to <code>--numThreads 5</code>).</p>
+<p>On cluster we use a job template, and configure <code>JOB_OPT</code> as follows:</p>
 
-<pre><code>PHEN_DIR=~/project/phenotypes_UKB/
-sos run ~/project/pleiotropy_UKB/workflow/BoltLMM.ipynb bolt -c ~/project/pleiotropy_UKB/farnam.yml -q farnam -J 40 \
-   --phenoFile $PHEN_DIR/UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WAIST_withagesex_042020 -s build &amp;&gt; sos-submission-INT-WAIST.log</code></pre>
-<ul>
-<li>INT-WHR with age, sex and BMI as covariates</li>
-</ul>
-
-<pre><code>PHEN_DIR=~/project/phenotypes_UKB/
-sos run ~/project/pleiotropy_UKB/workflow/BoltLMM.ipynb bolt -c ~/project/pleiotropy_UKB/farnam.yml -q farnam -J 40 \
-   --phenoFile $PHEN_DIR/UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WHR_withagesex_042020 -s build &amp;&gt; sos-submission-INT-WHR.log</code></pre>
-<p>On a local computer with for example 8 threads,</p>
-
-<pre><code>sos run BoltLMM.ipynb bolt -q none -j 8</code></pre>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Notes-about-how-the-analyses-where-done">Notes about how the analyses where done<a class="anchor-link" href="#Notes-about-how-the-analyses-where-done">&#182;</a></h3><ol>
-<li>Run INT-BMI with covariates AGE and SEX</li>
-<li>Run INT-WHR with covariates AGE and SEX, repeated on 05-07-2020 with BMI as covariate</li>
-<li>Run INT-WAIST with covariates AGE, SEX and BMI</li>
-</ol>
+<pre><code>JOB_OPT="-c farnam.yml -q farnam -J 40"</code></pre>
+<p>Here we use task queue <code>farnam</code> configured in file <code>farnam.yml</code>. We allow for at most 40 jobs in the cluster job queue.</p>
 
 </div>
 </div>
@@ -467,7 +550,7 @@ sos run ~/project/pleiotropy_UKB/workflow/BoltLMM.ipynb bolt -c ~/project/pleiot
 <span class="kn">input:</span> <span class="n">bgenFile</span><span class="p">,</span> <span class="n">group_by</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.boltlmm.snp_stats.gz&#39;</span>
 <span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
-<span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span>
     <span class="n">bolt</span> \
     <span class="o">--</span><span class="n">bfile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">bfile</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">phenoFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">phenoFile</span><span class="p">}</span> \
@@ -475,7 +558,7 @@ sos run ~/project/pleiotropy_UKB/workflow/BoltLMM.ipynb bolt -c ~/project/pleiot
     <span class="o">--</span><span class="n">covarFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">covarFile</span><span class="p">}</span> \
     <span class="err">$</span><span class="p">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;--covarCol=</span><span class="si">%s</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">covarCol</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">])}</span> \
     <span class="o">--</span><span class="n">covarMaxLevels</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">covarMaxLevels</span><span class="p">}</span> \
-    <span class="err">$</span><span class="p">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;--qCovarCol=</span><span class="si">%s</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">covarCol</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">])}</span> \
+    <span class="err">$</span><span class="p">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;--qCovarCol=</span><span class="si">%s</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">qCovarCol</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">])}</span> \
     <span class="o">--</span><span class="n">LDscoresFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">LDscoresFile</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">geneticMapFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">geneticMapFile</span><span class="p">}</span> \
     <span class="err">$</span><span class="p">{(</span><span class="s1">&#39;--&#39;</span> <span class="o">+</span> <span class="n">lmm_option</span><span class="p">)</span> <span class="k">if</span> <span class="n">lmm_option</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lmm&#39;</span><span class="p">,</span> <span class="s1">&#39;lmmInfOnly&#39;</span><span class="p">,</span> <span class="s1">&#39;lmmForceNonInf&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">}</span> \
@@ -497,26 +580,60 @@ sos run ~/project/pleiotropy_UKB/workflow/BoltLMM.ipynb bolt -c ~/project/pleiot
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Results">Results<a class="anchor-link" href="#Results">&#182;</a></h2>
+<h2 id="Result">Result<a class="anchor-link" href="#Result">&#182;</a></h2>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">cd</span> <span class="o">~/</span><span class="n">scratch60</span><span class="o">/</span><span class="mi">2020</span><span class="o">-</span><span class="mi">04</span><span class="n">_bolt</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">preview</span> <span class="n">output</span><span class="o">/</span><span class="n">imputed_genotypes_chr21</span><span class="o">.</span><span class="n">phenotypes</span><span class="o">.</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">> /home/gw/tmp/10-Jun-2020/MWE_test/output/imputed_genotypes_chr21.phenotypes.boltlmm.snp_stats.gz (759 B):</div>
+</div>
+
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>SNP	CHR	BP	GENPOS	ALLELE1	ALLELE0	A1FREQ	INFO	CHISQ_LINREG	P_LINREG
+rs79945276	21	48096251	0.646473	T	G	0.0640784	0.96222	4.23679	4.0E-02
+rs12481825	21	48096617	0.646484	A	C	0.0153529	0.977965	0.712511	4.0E-01
+rs61504104	21	48096920	0.646493	C	T	0.0887647	0.975897	0.0796273	7.8E-01
+rs55777714	21	48097101	0.646499	T	C	0.169882	0.959507	0.128473	7.2E-01
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/d9a393feef613f5a944decdcf1194a554a26f8b9/workflow/BoltLMM.ipynb"><code>workflow/BoltLMM.ipynb</code></a> committed by Gao Wang on Wed Jun 10 19:02:56 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/d9a393feef613f5a944decdcf1194a554a26f8b9">revision 20, d9a393f</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/8d4c2ac7ed6bcc99ce93febfc762bf40e30128a2/workflow/BoltLMM.ipynb"><code>workflow/BoltLMM.ipynb</code></a> committed by Gao Wang on Wed Jun 10 21:09:16 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/8d4c2ac7ed6bcc99ce93febfc762bf40e30128a2">revision 21, 8d4c2ac</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
