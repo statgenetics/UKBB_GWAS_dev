@@ -271,7 +271,6 @@ body {
 <div class="text_cell_render border-box-sizing rendered_html">
 <ol>
 <li>Download data from UKB: phenotype, genotypes files (<code>.fam</code>,<code>.bed</code>, <code>.bim</code>) and imputed genotypes (<code>.bgen</code>, <code>.bgi</code>, <code>.sample</code>)</li>
-<li>Create a conda enviroment for the installation of SAIGE in Yale's HRC cluster. Instructions in <a href="https://github.com/weizhouUMICH/SAIGE">https://github.com/weizhouUMICH/SAIGE</a></li>
 <li>Run SAIGE analysis to obtain summary statistics for association analysis</li>
 </ol>
 
@@ -300,26 +299,6 @@ body {
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Ouput-files">Ouput files<a class="anchor-link" href="#Ouput-files">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>From step 1</strong></p>
-<ol>
-<li><p>Model file: <code>${_output}.rda</code></p>
-</li>
-<li><p>Association result file for the subset of randomly selected markers: <code>${_output}.results.txt</code></p>
-</li>
-<li><p>Variance ratio file: <code>${_output}.varianceRatio.txt</code></p>
-</li>
-</ol>
-<p><strong>From step 2</strong></p>
-<ol>
-<li>A file with association results for each chromosome (Note: this are given in regard to Allele 2)</li>
-</ol>
-
 </div>
 </div>
 </div>
@@ -399,76 +378,6 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Step-1:-fitting-the-null">Step 1: fitting the null<a class="anchor-link" href="#Step-1:-fitting-the-null">&#182;</a></h3>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">saige_1</span><span class="p">]</span>
-<span class="kn">input:</span> <span class="n">genoFile</span><span class="p">,</span> <span class="n">phenoFile</span>
-<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">genoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.SAIGE.rda&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">genoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">b</span><span class="si">}</span><span class="s1">.SAIGE.varianceRatio.txt&#39;</span>
-<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
-<span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span><span class="p">,</span> <span class="n">template_name</span><span class="o">=</span><span class="s1">&#39;conda&#39;</span><span class="p">,</span> <span class="n">env_name</span><span class="o">=</span><span class="s1">&#39;RSAIGE&#39;</span>
-    <span class="n">Rscript</span> <span class="o">~/</span><span class="n">software</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">step1_fitNULLGLMM</span><span class="o">.</span><span class="n">R</span> \
-        <span class="o">--</span><span class="n">plinkFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">n</span><span class="p">}</span> \
-        <span class="o">--</span><span class="n">phenoFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> \
-        <span class="o">--</span><span class="n">phenoCol</span><span class="o">=</span><span class="n">ASTHMA</span> \
-        <span class="o">--</span><span class="n">covarColList</span><span class="o">=</span><span class="n">AGE</span><span class="p">,</span><span class="n">SEX</span> \
-        <span class="o">--</span><span class="n">sampleIDColinphenoFile</span><span class="o">=</span><span class="n">IID</span> \
-        <span class="o">--</span><span class="n">traitType</span><span class="o">=</span><span class="n">binary</span> \
-        <span class="o">--</span><span class="n">outputPrefix</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">n</span><span class="p">}</span> \
-        <span class="o">--</span><span class="n">nThreads</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">numThreads</span><span class="p">}</span> \
-        <span class="o">--</span><span class="n">LOCO</span><span class="o">=</span><span class="n">TRUE</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Step-2:-perform-single-variant-association-test">Step 2: perform single variant association test<a class="anchor-link" href="#Step-2:-perform-single-variant-association-test">&#182;</a></h3>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">saige_2</span><span class="p">]</span>
-<span class="kn">input:</span> <span class="n">for_each</span><span class="o">=</span><span class="s1">&#39;bgenFile&#39;</span>
-<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_bgenFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">b</span><span class="si">}</span><span class="s1">.SAIGE.txt&#39;</span>
-<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
-<span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span><span class="p">,</span> <span class="n">template_name</span><span class="o">=</span><span class="s1">&#39;conda&#39;</span><span class="p">,</span> <span class="n">env_name</span><span class="o">=</span><span class="s1">&#39;RSAIGE&#39;</span>
-    <span class="n">Rscript</span> <span class="o">~/</span><span class="n">software</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">step2_SPAtests</span><span class="o">.</span><span class="n">R</span> \
-        <span class="o">--</span><span class="n">bgenFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_bgenFile</span><span class="p">}</span> \
-        <span class="o">--</span><span class="n">bgenFileIndex</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_bgenFile</span><span class="p">}</span><span class="o">.</span><span class="n">bgi</span> \
-        <span class="o">--</span><span class="n">minMAF</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">minMAF</span><span class="p">}</span> \
-        <span class="o">--</span><span class="n">minMAC</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">minMAC</span><span class="p">}</span> \
-        <span class="o">--</span><span class="n">minInfo</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">minInfo</span><span class="p">}</span> \
-        <span class="o">--</span><span class="n">sampleFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">sampleFile</span><span class="p">}</span> \
-        <span class="o">--</span><span class="n">GMMATmodelFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> \
-        <span class="o">--</span><span class="n">varianceRatioFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> \
-        <span class="o">--</span><span class="n">SAIGEOutputFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span> \
-        <span class="o">--</span><span class="n">numLinesOutput</span><span class="o">=</span><span class="mi">2</span> \
-        <span class="o">--</span><span class="n">IsOutputAFinCaseCtrl</span><span class="o">=</span><span class="n">TRUE</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Results">Results<a class="anchor-link" href="#Results">&#182;</a></h3>
 </div>
 </div>
@@ -496,7 +405,7 @@ body {
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/25f24220841197b5b81a5005c8e3cce7ace94552/workflow/SAIGE.ipynb"><code>workflow/SAIGE.ipynb</code></a> committed by dianacornejo on Wed May 20 09:38:50 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/25f24220841197b5b81a5005c8e3cce7ace94552">revision 2, 25f2422</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/c4cb9c3b6bd5cde6ec6d4fac320b7b716d0a94ba/workflow/SAIGE.ipynb"><code>workflow/SAIGE.ipynb</code></a> committed by Gao Wang on Thu Jun 11 11:10:56 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/c4cb9c3b6bd5cde6ec6d4fac320b7b716d0a94ba">revision 3, c4cb9c3</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

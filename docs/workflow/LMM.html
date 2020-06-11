@@ -672,9 +672,9 @@ Sections
 <span class="kn">parameter:</span> <span class="n">parts</span> <span class="o">=</span> <span class="mi">100</span>
 <span class="n">part_number</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">parts</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="nb">format</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">parts</span><span class="p">))))</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">parts</span><span class="p">)]</span>
 <span class="kn">input:</span> <span class="n">bfile</span><span class="p">,</span> <span class="n">for_each</span> <span class="o">=</span> <span class="s1">&#39;part_number&#39;</span>
-<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.part_</span><span class="si">{</span><span class="n">_part_number</span><span class="si">}</span><span class="s1">.grm.bin&#39;</span><span class="p">,</span> 
-        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.part_</span><span class="si">{</span><span class="n">_part_number</span><span class="si">}</span><span class="s1">.grm.N.bin&#39;</span><span class="p">,</span> 
-        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.part_</span><span class="si">{</span><span class="n">_part_number</span><span class="si">}</span><span class="s1">.grm.id&#39;</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/cache/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.part_</span><span class="si">{</span><span class="n">_part_number</span><span class="si">}</span><span class="s1">.grm.bin&#39;</span><span class="p">,</span> 
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/cache/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.part_</span><span class="si">{</span><span class="n">_part_number</span><span class="si">}</span><span class="s1">.grm.N.bin&#39;</span><span class="p">,</span> 
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/cache/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.part_</span><span class="si">{</span><span class="n">_part_number</span><span class="si">}</span><span class="s1">.grm.id&#39;</span>
 <span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;48G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span>
     <span class="n">gcta64</span> \
@@ -843,7 +843,116 @@ Sections
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="SAIGE-workflow-implementation">SAIGE workflow implementation<a class="anchor-link" href="#SAIGE-workflow-implementation">&#182;</a></h2>
+<h2 id="SAIGE-workflow-implementation">SAIGE workflow implementation<a class="anchor-link" href="#SAIGE-workflow-implementation">&#182;</a></h2><p>We need to create a conda enviroment for the installation of SAIGE in Yale's HRC cluster. Instructions in <a href="https://github.com/weizhouUMICH/SAIGE">https://github.com/weizhouUMICH/SAIGE</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Step-1:-fitting-the-null">Step 1: fitting the null<a class="anchor-link" href="#Step-1:-fitting-the-null">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Fit SAIGE null model</span>
+<span class="p">[</span><span class="n">SAIGE_1</span><span class="p">]</span>
+<span class="c1"># trait type, eg &#39;binary&#39;</span>
+<span class="kn">parameter:</span> <span class="n">trait_type</span> <span class="o">=</span> <span class="nb">str</span>
+<span class="kn">parameter:</span> <span class="n">loco</span> <span class="o">=</span> <span class="s1">&#39;TRUE&#39;</span>
+<span class="kn">input:</span> <span class="n">bfile</span><span class="p">,</span> <span class="n">phenoFile</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">bfile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.SAIGE.rda&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">bfile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">b</span><span class="si">}</span><span class="s1">.SAIGE.varianceRatio.txt&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span><span class="p">,</span> <span class="n">template_name</span><span class="o">=</span><span class="s1">&#39;conda&#39;</span><span class="p">,</span> <span class="n">env_name</span><span class="o">=</span><span class="s1">&#39;RSAIGE&#39;</span>
+    <span class="n">Rscript</span> <span class="o">~/</span><span class="n">software</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">step1_fitNULLGLMM</span><span class="o">.</span><span class="n">R</span> \
+        <span class="o">--</span><span class="n">plinkFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">n</span><span class="p">}</span> \
+        <span class="o">--</span><span class="n">phenoFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> \
+        <span class="o">--</span><span class="n">phenoCol</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">phenoCol</span><span class="p">}</span> \
+        <span class="err">$</span><span class="p">{(</span><span class="s1">&#39;--covarColList=&#39;</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">covarCol</span> <span class="o">+</span> <span class="n">qCovarCol</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">covarCol</span> <span class="o">+</span> <span class="n">qCovarCol</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">}</span> \
+        <span class="o">--</span><span class="n">sampleIDColinphenoFile</span><span class="o">=</span><span class="n">IID</span> \
+        <span class="o">--</span><span class="n">traitType</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">trait_type</span><span class="p">}</span> \
+        <span class="o">--</span><span class="n">outputPrefix</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">n</span><span class="p">}</span> \
+        <span class="o">--</span><span class="n">nThreads</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">numThreads</span><span class="p">}</span> \
+        <span class="o">--</span><span class="n">LOCO</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">LOCO</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Step-2:-perform-single-variant-association-test">Step 2: perform single variant association test<a class="anchor-link" href="#Step-2:-perform-single-variant-association-test">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Compute SAIGE statistics</span>
+<span class="p">[</span><span class="n">SAIGE_2</span><span class="p">]</span>
+<span class="c1"># Mimimum allele count to be sued</span>
+<span class="kn">parameter:</span> <span class="n">bgenMinMAC</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="kn">input:</span> <span class="n">for_each</span><span class="o">=</span><span class="s1">&#39;bgenFile&#39;</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/cache/</span><span class="si">{</span><span class="n">_bgenFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">b</span><span class="si">}</span><span class="s1">.SAIGE.gz&#39;</span>
+<span class="n">fail_if</span><span class="p">(</span><span class="ow">not</span> <span class="n">path</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_bgenFile</span><span class="si">}</span><span class="s1">.bgi&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Cannot find file ``</span><span class="si">{</span><span class="n">_bgenFile</span><span class="si">}</span><span class="s1">.bgi``. Please generate it using command ``bgenix -g </span><span class="si">{</span><span class="n">_bgenFile</span><span class="si">}</span><span class="s1"> -index``.&#39;</span><span class="p">)</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span><span class="p">,</span> <span class="n">template_name</span><span class="o">=</span><span class="s1">&#39;conda&#39;</span><span class="p">,</span> <span class="n">env_name</span><span class="o">=</span><span class="s1">&#39;RSAIGE&#39;</span>
+    <span class="n">Rscript</span> <span class="o">~/</span><span class="n">software</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">step2_SPAtests</span><span class="o">.</span><span class="n">R</span> \
+        <span class="o">--</span><span class="n">bgenFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_bgenFile</span><span class="p">}</span> \
+        <span class="o">--</span><span class="n">bgenFileIndex</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_bgenFile</span><span class="p">}</span><span class="o">.</span><span class="n">bgi</span> \
+        <span class="o">--</span><span class="n">minMAF</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">bgenMinMAF</span><span class="p">}</span> \
+        <span class="o">--</span><span class="n">minMAC</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">bgenMinMAC</span><span class="p">}</span> \
+        <span class="o">--</span><span class="n">minInfo</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">bgenMinINFO</span><span class="p">}</span> \
+        <span class="o">--</span><span class="n">sampleFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">sampleFile</span><span class="p">}</span> \
+        <span class="o">--</span><span class="n">GMMATmodelFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> \
+        <span class="o">--</span><span class="n">varianceRatioFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> \
+        <span class="o">--</span><span class="n">SAIGEOutputFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span> \
+        <span class="o">--</span><span class="n">numLinesOutput</span><span class="o">=</span><span class="mi">2</span> \
+        <span class="o">--</span><span class="n">IsOutputAFinCaseCtrl</span><span class="o">=</span><span class="n">TRUE</span> \
+        <span class="o">&amp;&amp;</span> <span class="n">gzip</span> <span class="o">-</span><span class="n">f</span> <span class="o">--</span><span class="n">best</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span><span class="o">.</span><span class="n">bgen</span><span class="o">.</span><span class="n">txt</span> \
+        <span class="o">&amp;&amp;</span> <span class="n">mv</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span><span class="o">.</span><span class="n">bgen</span><span class="o">.</span><span class="n">txt</span><span class="o">.</span><span class="n">gz</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Output from each step:</p>
+<p><strong>From step 1</strong></p>
+<ol>
+<li><p>Model file: <code>${_output}.rda</code></p>
+</li>
+<li><p>Association result file for the subset of randomly selected markers: <code>${_output}.results.txt</code></p>
+</li>
+<li><p>Variance ratio file: <code>${_output}.varianceRatio.txt</code></p>
+</li>
+</ol>
+<p><strong>From step 2</strong></p>
+<ol>
+<li>A file with association results for each chromosome (Note: this are given in regard to Allele 2)</li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Merge-results">Merge results<a class="anchor-link" href="#Merge-results">&#182;</a></h2>
 </div>
 </div>
 </div>
@@ -853,7 +962,7 @@ Sections
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="c1"># Merge results and log files</span>
-<span class="p">[</span><span class="n">boltlmm_2</span><span class="p">,</span> <span class="n">fastGWA_2</span><span class="p">,</span> <span class="n">SAIGE_2</span><span class="p">]</span>
+<span class="p">[</span><span class="n">boltlmm_2</span><span class="p">,</span> <span class="n">fastGWA_2</span><span class="p">,</span> <span class="n">SAIGE_3</span><span class="p">]</span>
 <span class="kn">input:</span> <span class="n">group_by</span> <span class="o">=</span> <span class="s1">&#39;all&#39;</span>
 <span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">phenoCol</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">step_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">.snp_stats.gz&#39;</span><span class="p">,</span> 
         <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">phenoCol</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">step_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">.snp_counts.txt&#39;</span>
@@ -907,7 +1016,7 @@ Sections
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="c1"># Manhattan and QQ plots using `qqman`</span>
-<span class="p">[</span><span class="n">boltlmm_3</span><span class="p">,</span> <span class="n">fastGWA_3</span><span class="p">,</span> <span class="n">SAIGE_3</span><span class="p">]</span>
+<span class="p">[</span><span class="n">boltlmm_3</span><span class="p">,</span> <span class="n">fastGWA_3</span><span class="p">,</span> <span class="n">SAIGE_4</span><span class="p">]</span>
 <span class="kn">depends:</span> <span class="n">R_library</span><span class="p">(</span><span class="s1">&#39;qqman&#39;</span><span class="p">,</span> <span class="n">autoinstall</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">R_library</span><span class="p">(</span><span class="s1">&#39;tidyverse&#39;</span><span class="p">,</span> <span class="n">autoinstall</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">R_library</span><span class="p">(</span><span class="s1">&#39;ggrepel&#39;</span><span class="p">,</span> <span class="n">autoinstall</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">executable</span><span class="p">(</span><span class="s1">&#39;convert&#39;</span><span class="p">)</span>
 <span class="c1"># Column name for BP</span>
 <span class="kn">parameter:</span> <span class="n">bp</span> <span class="o">=</span> <span class="s1">&#39;BP&#39;</span>
@@ -1405,7 +1514,7 @@ NOTE: Using all-1s vector (constant term) in addition to specified covariates</p
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/eed21e7561175ff1320712f4f95f4b1884de8fa1/workflow/LMM.ipynb"><code>workflow/LMM.ipynb</code></a> committed by Gao Wang on Thu Jun 11 10:14:00 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/eed21e7561175ff1320712f4f95f4b1884de8fa1">revision 2, eed21e7</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/c4cb9c3b6bd5cde6ec6d4fac320b7b716d0a94ba/workflow/LMM.ipynb"><code>workflow/LMM.ipynb</code></a> committed by Gao Wang on Thu Jun 11 11:10:56 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/c4cb9c3b6bd5cde6ec6d4fac320b7b716d0a94ba">revision 3, c4cb9c3</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
