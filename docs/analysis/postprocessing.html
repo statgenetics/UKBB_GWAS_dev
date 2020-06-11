@@ -140,12 +140,12 @@ $( document ).ready(function(){
             st.toc_index=0;
             // fire the main function with these parameters
             table_of_contents(cfg, st);
-            var file=workflowDict[$("h1:first").attr("id")];
+            var file=analysisDict[$("h1:first").attr("id")];
             $("#toc-level0 a").css("color","#126dce");
             $('a[href="#'+$("h1:first").attr("id")+'"]').hide()
-            var docs=workflowArray;
-            var docs_map=workflowArrayMap;
-            var pos=workflowArray.indexOf(file);
+            var docs=analysisArray;
+            var docs_map=analysisArrayMap;
+            var pos=analysisArray.indexOf(file);
             for (var a=pos;a>=0;a--){
                   $('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>').insertBefore("#toc-level0 li:eq(0)");
             }
@@ -432,7 +432,7 @@ Test_INT-BMI.txt.clumped \
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/c175f95b27024176b40e8b35600f5ef847a6b190/workflow/postprocessing.ipynb"><code>workflow/postprocessing.ipynb</code></a> committed by Gao Wang on Wed Jun 10 23:06:59 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/c175f95b27024176b40e8b35600f5ef847a6b190">revision 13, c175f95</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/d27bda8c8286d3f247da6aba73980a3d6088aff7/analysis/postprocessing.ipynb"><code>analysis/postprocessing.ipynb</code></a> committed by Gao Wang on Thu Jun 11 10:07:32 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/d27bda8c8286d3f247da6aba73980a3d6088aff7">revision 1, d27bda8</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
