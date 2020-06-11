@@ -282,13 +282,6 @@ body {
 <li>Covariates file (same format as phenoFile) specify them by <code>--covarFile</code> for qualitative covariates use <code>--covarCol</code> and for quantitative <code>--qCovarCol</code>. If <code>--covarFile</code> is not specified then phenotype file will be used as covariate file. To specify an array of covariates you can use bash tricks, eg <code>--qCovarCol PC{1:20}</code></li>
 </ol>
 <p>Note: reference genome used <strong>GRCh37/hg19</strong>.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Software-specific-inputs">Software specific inputs<a class="anchor-link" href="#Software-specific-inputs">&#182;</a></h2><h3 id="BoltLMM-additional-input">BoltLMM additional input<a class="anchor-link" href="#BoltLMM-additional-input">&#182;</a></h3><ul>
 <li>Reference genetic maps, provided on BoltLMM website<ul>
 <li><code>--geneticMapFile=tables/genetic_map_hg##.txt.gz</code></li>
@@ -329,7 +322,7 @@ body {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="n">sos</span> <span class="n">run</span> <span class="n">LMM</span><span class="o">.</span><span class="n">ipynb</span> <span class="o">-</span><span class="n">h</span>
@@ -356,7 +349,10 @@ body {
   workflow_options:     Double-hyphen workflow-specific parameters
 
 Workflows:
-  bolt
+  boltlmm
+  gcta
+  fastGWA
+  SAIGE
 
 Global Workflow Options:
   --cwd VAL (as path, required)
@@ -389,7 +385,7 @@ Global Workflow Options:
                         For cluster jobs, number commands to run per job
 
 Sections
-  bolt_1:               Run BOLT analysis
+  boltlmm_1:            Run BOLT analysis
     Workflow Options:
       --covarMaxLevels VAL (as int, required)
                         Maximum categories of covariates allowed
@@ -400,11 +396,22 @@ Sections
                         coordinates from SNP physical (base pair) positions
       --lmm-option lmm
                         LMM option: lmm, lmmInfOnly, and lmmForceNonInf
-  bolt_2:               Merge results and log files
-  bolt_3:               Manhattan and QQ plots using `qqman`
+  gcta_1:               Partition the GRM into 100 parts and allocate 8GB memory
+                        to each job
     Workflow Options:
+      --parts 100 (as int)
+                        Number of parts the GRM calculation is to be partitioned
+  gcta_2:               Merge all the parts together (Linux, Mac)
+  gcta_3:               Make a sparse GRM from the merged full-dense GRM
+  fastGWA_1:            fastGWA mixed model (based on the sparse GRM generated
+                        above)
+  boltlmm_2, fastGWA_2, SAIGE_2: Merge results and log files
+  boltlmm_3, fastGWA_3, SAIGE_3: Manhattan and QQ plots using `qqman`
+    Workflow Options:
+      --bp BP
+                        Column name for BP
       --pval P
-                        Column name of p-value
+                        Column name for p-value
       --p-filter &#39;0.05&#39;
                         Plot only on p-values smaller than this
 </pre>
@@ -1398,7 +1405,7 @@ NOTE: Using all-1s vector (constant term) in addition to specified covariates</p
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/d27bda8c8286d3f247da6aba73980a3d6088aff7/workflow/LMM.ipynb"><code>workflow/LMM.ipynb</code></a> committed by Gao Wang on Thu Jun 11 10:07:32 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/d27bda8c8286d3f247da6aba73980a3d6088aff7">revision 1, d27bda8</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/eed21e7561175ff1320712f4f95f4b1884de8fa1/workflow/LMM.ipynb"><code>workflow/LMM.ipynb</code></a> committed by Gao Wang on Thu Jun 11 10:14:00 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/eed21e7561175ff1320712f4f95f4b1884de8fa1">revision 2, eed21e7</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
