@@ -319,35 +319,6 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Step-0:-Create-summary-stats-for-the-number-of-imputed-and-hard-called-variants-analyzed">Step 0: Create summary stats for the number of imputed and hard called variants analyzed<a class="anchor-link" href="#Step-0:-Create-summary-stats-for-the-number-of-imputed-and-hard-called-variants-analyzed">&#182;</a></h3>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Counts of imputed and genotyped SNPs from raw summary stats (use recursive=True if you want to look</span>
-<span class="c1"># recursively in all the directories)</span>
-<span class="p">[</span><span class="n">snp_counts</span><span class="p">]</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="n">pattern1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;fastGWA&#39;</span><span class="p">,</span> <span class="s1">&#39;boltlmm.snp_stats.gz&#39;</span><span class="p">,</span><span class="s1">&#39;boltlmm.stats.gz&#39;</span><span class="p">]</span>
-<span class="n">cwd</span><span class="o">=</span><span class="s1">&#39;.&#39;</span>
-<span class="kn">input:</span> <span class="n">for_each</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;pattern1&#39;</span><span class="p">]</span>
-<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/numsnps.</span><span class="si">{</span><span class="n">_pattern1</span><span class="si">}</span><span class="s1">&#39;</span>
-<span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="kc">True</span>
-      <span class="n">ls</span> <span class="p">{</span><span class="n">paths</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/**/*.</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="n">_pattern1</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">srt</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span><span class="n">x</span><span class="p">)))))}</span> <span class="o">|</span> <span class="k">while</span> <span class="n">read</span> <span class="o">-</span><span class="n">r</span> <span class="n">file</span><span class="p">;</span> <span class="n">do</span> <span class="n">echo</span> <span class="s2">&quot;$file: `cat $file | wc -l`&quot;</span><span class="p">;</span> <span class="n">done</span> <span class="o">&gt;</span> <span class="p">{</span><span class="n">_output</span><span class="p">}</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Step-1:-Merge-the-summary-statistics-generated-during-the-association-analysis-of-the-imputed-variants">Step 1: Merge the summary statistics generated during the association analysis of the imputed variants<a class="anchor-link" href="#Step-1:-Merge-the-summary-statistics-generated-during-the-association-analysis-of-the-imputed-variants">&#182;</a></h3>
 </div>
 </div>
@@ -373,61 +344,6 @@ body {
                         <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;SNP&#39;</span><span class="p">):</span>
                             <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
     <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{_output}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Step-2:-Keep-only-one-of-the-association-results-files-for-the-hard-called-genotypes">Step 2: Keep only one of the association results files for the hard-called genotypes<a class="anchor-link" href="#Step-2:-Keep-only-one-of-the-association-results-files-for-the-hard-called-genotypes">&#182;</a></h3><p>This only applies to Bolt-LMM</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Leave only one stats.gz file this is for BOLT-LMM</span>
-<span class="p">[</span><span class="n">merge_plink</span><span class="p">]</span>
-<span class="kn">input:</span> <span class="n">stats_file</span>
-<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">plink_sumstats</span><span class="si">}</span><span class="s1">.gz&#39;</span>
-<span class="kn">bash:</span>  <span class="n">expand</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">mv</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span> \
-    <span class="n">echo</span> <span class="n">File</span> <span class="s2">&quot;$</span><span class="si">{_output}</span><span class="s2">&quot;</span> <span class="n">created</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Step-3:-Merge-all-the-.stderr,-stdout-and-log-files-for-each-method">Step 3: Merge all the .stderr, stdout and log files for each method<a class="anchor-link" href="#Step-3:-Merge-all-the-.stderr,-stdout-and-log-files-for-each-method">&#182;</a></h3>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Merge all the .snp_stats.stderr, .snp_stats.stdout and log.gz files and gzip them. Remove unnecessary files</span>
-<span class="p">[</span><span class="n">merge_log</span><span class="p">]</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="n">cwd</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
-<span class="kn">input:</span> <span class="n">for_each</span><span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pattern2&#39;</span><span class="p">]</span>
-<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_pattern2</span><span class="si">}</span><span class="s1">.all_chr&#39;</span>
-<span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="kc">True</span>
-   <span class="n">cat</span> <span class="p">{</span><span class="n">paths</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/**/*.</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="n">_pattern2</span><span class="p">)),</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span><span class="n">x</span><span class="p">)))))}</span> <span class="o">&gt;</span> <span class="p">{</span><span class="n">_output</span><span class="p">}</span> \
-   <span class="c1">#rm *.log *.stderr *.stdout</span>
 </pre></div>
 
     </div>
@@ -495,16 +411,16 @@ body {
 <span class="kn">input:</span> <span class="n">output_from</span><span class="p">(</span><span class="s1">&#39;step_1&#39;</span><span class="p">)</span>
 <span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bnn</span><span class="si">}</span><span class="s1">.manhattan.png&#39;</span>
 <span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;12h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
-<span class="kn">R:</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span>
+<span class="kn">R:</span> <span class="n">expand</span><span class="o">=</span><span class="s2">&quot;${ }&quot;</span>
     <span class="k">if</span> <span class="p">(</span><span class="err">!</span><span class="n">require</span><span class="p">(</span><span class="s1">&#39;tidyverse&#39;</span><span class="p">))</span> <span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s1">&#39;tidyverse&#39;</span><span class="p">);</span> <span class="n">library</span><span class="p">(</span><span class="s1">&#39;tidyverse&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="p">(</span><span class="err">!</span><span class="n">require</span><span class="p">(</span><span class="s1">&#39;ggrepel&#39;</span><span class="p">))</span> <span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s1">&#39;ggrepel&#39;</span><span class="p">);</span> <span class="n">library</span><span class="p">(</span><span class="s1">&#39;ggrepel&#39;</span><span class="p">)</span>
   <span class="c1">#Load your data</span>
-    <span class="n">data</span> <span class="o">&lt;-</span> <span class="n">read</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">gzfile</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{_input}</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">&lt;-</span> <span class="n">read</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">gzfile</span><span class="p">(</span><span class="s1">&#39;$</span><span class="si">{_input}</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
   <span class="c1"># Create a subset of the data with variants with P&lt; 0.05 and arrange by chromosome number</span>
   <span class="c1"># https://danielroelfs.com/blog/how-i-create-manhattan-plots-using-ggplot/</span>
 
     <span class="n">sig</span><span class="o">.</span><span class="n">dat</span> <span class="o">&lt;-</span> <span class="n">data</span> <span class="o">%&gt;%</span> 
-      <span class="n">subset</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{pval}</span><span class="s1">&#39;</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">%&gt;%</span>
+      <span class="n">subset</span><span class="p">(</span><span class="s1">&#39;$</span><span class="si">{pval}</span><span class="s1">&#39;</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">%&gt;%</span>
       <span class="n">arrange</span> <span class="p">(</span><span class="n">CHR</span><span class="p">,</span> <span class="o">.</span><span class="n">by_group</span><span class="o">=</span><span class="n">TRUE</span><span class="p">)</span>
 
   <span class="c1"># Add highlight and annotation information</span>
@@ -533,13 +449,13 @@ body {
     <span class="n">axis</span><span class="o">.</span><span class="n">set</span> <span class="o">&lt;-</span> <span class="n">sig</span><span class="o">.</span><span class="n">dat</span> <span class="o">%&gt;%</span> 
       <span class="n">group_by</span><span class="p">(</span><span class="n">CHR</span><span class="p">)</span> <span class="o">%&gt;%</span> 
       <span class="n">summarize</span><span class="p">(</span><span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">BPcum</span><span class="p">)</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">BPcum</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">ylim</span> <span class="o">&lt;-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">log10</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="s1">&#39;</span><span class="si">{pval}</span><span class="s1">&#39;</span><span class="p">))))</span> <span class="o">+</span> <span class="mi">2</span> 
+    <span class="n">ylim</span> <span class="o">&lt;-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">log10</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="err">$</span><span class="s1">&#39;$</span><span class="si">{pval}</span><span class="s1">&#39;</span><span class="p">))))</span> <span class="o">+</span> <span class="mi">2</span> 
     <span class="n">sig</span> <span class="o">&lt;-</span> <span class="mf">5e-8</span>
 
     <span class="c1"># Now time to draw the manhattan plot without filtering the most significant signals</span>
 
-    <span class="n">manhplot</span> <span class="o">&lt;-</span> <span class="n">ggplot</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">BPcum</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{pval}</span><span class="s1">&#39;</span><span class="p">),</span> 
-                                 <span class="n">color</span> <span class="o">=</span> <span class="k">as</span><span class="o">.</span><span class="n">factor</span><span class="p">(</span><span class="n">CHR</span><span class="p">),</span> <span class="n">size</span> <span class="o">=</span> <span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{pval}</span><span class="s1">&#39;</span><span class="p">)))</span> <span class="o">+</span>
+    <span class="n">manhplot</span> <span class="o">&lt;-</span> <span class="n">ggplot</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">dat</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">BPcum</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="s1">&#39;$</span><span class="si">{pval}</span><span class="s1">&#39;</span><span class="p">),</span> 
+                                 <span class="n">color</span> <span class="o">=</span> <span class="k">as</span><span class="o">.</span><span class="n">factor</span><span class="p">(</span><span class="n">CHR</span><span class="p">),</span> <span class="n">size</span> <span class="o">=</span> <span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="s1">&#39;$</span><span class="si">{pval}</span><span class="s1">&#39;</span><span class="p">)))</span> <span class="o">+</span>
       <span class="n">geom_point</span><span class="p">(</span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">)</span> <span class="o">+</span>
       <span class="n">geom_hline</span><span class="p">(</span><span class="n">yintercept</span> <span class="o">=</span> <span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="n">sig</span><span class="p">),</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;red1&quot;</span><span class="p">,</span> <span class="n">linetype</span> <span class="o">=</span> <span class="s2">&quot;dashed&quot;</span><span class="p">)</span> <span class="o">+</span> 
       <span class="n">scale_x_continuous</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">set</span><span class="err">$</span><span class="n">CHR</span><span class="p">,</span> <span class="n">breaks</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">set</span><span class="err">$</span><span class="n">center</span><span class="p">)</span> <span class="o">+</span>
@@ -562,7 +478,7 @@ body {
 
     <span class="c1"># To save a plot created with ggplot2 you have to use to print() function</span>
 
-    <span class="n">png</span><span class="p">(</span><span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{_output}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">png</span><span class="p">(</span><span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;$</span><span class="si">{_output}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">manhplot</span><span class="p">)</span>
     <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
 </pre></div>
@@ -687,7 +603,7 @@ Test_INT-BMI.txt.clumped \
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/d09b013162f85bf4495b8b5517e9ac03b6ed1861/workflow/postprocessing.ipynb"><code>workflow/postprocessing.ipynb</code></a> committed by dianacornejo on Fri May 29 12:19:24 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/d09b013162f85bf4495b8b5517e9ac03b6ed1861">revision 11, d09b013</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/822559d5dcb721f1ae9fdc686697095295dd884a/workflow/postprocessing.ipynb"><code>workflow/postprocessing.ipynb</code></a> committed by Gao Wang on Wed Jun 10 22:09:31 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/822559d5dcb721f1ae9fdc686697095295dd884a">revision 12, 822559d</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

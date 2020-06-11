@@ -342,80 +342,13 @@ body {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="n">sos</span> <span class="n">run</span> <span class="n">BoltLMM</span><span class="o">.</span><span class="n">ipynb</span> <span class="o">-</span><span class="n">h</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>usage: sos run BoltLMM.ipynb [workflow_name | -t targets] [options] [workflow_options]
-  workflow_name:        Single or combined workflows defined in this script
-  targets:              One or more targets to generate
-  options:              Single-hyphen sos parameters (see &#34;sos run -h&#34; for details)
-  workflow_options:     Double-hyphen workflow-specific parameters
-
-Workflows:
-  bolt
-
-Global Workflow Options:
-  --cwd VAL (as path, required)
-                        the output directory for generated files
-  --sampleFile VAL (as path, required)
-                        Path to sample file
-  --bfile VAL (as path, required)
-                        Genotype files in plink binary this is used for
-                        computing the GRM
-  --bgenFile  paths
-
-                        Path to bgen files
-  --phenoFile VAL (as path, required)
-                        Phenotype file for quantitative trait (BMI)
-  --phenoCol VAL (as str, required)
-                        Phenotype to be analyzed (specify the column)
-  --covarFile . (as path)
-                        Covariate file path. Will use phenoFile if empty
-  --covarCol  (as list)
-                        Qualitative covariates to be used in the analysis
-  --covarMaxLevels VAL (as int, required)
-                        Maximum categories of covariates allowed
-  --qCovarCol VAL VAL ... (as type, required)
-                        Quantitative covariates to be used in the analysis
-  --LDscoresFile VAL (as path, required)
-                        Path to LDscore file for european population
-  --geneticMapFile VAL (as path, required)
-                        Path to genetic map file used to interpolate genetic map
-                        coordinates from SNP physical (base pair) positions
-  --numThreads VAL (as int, required)
-                        Specific number of threads to use
-  --bgenMinMAF VAL (as float, required)
-                        Minimum MAF to be used
-  --bgenMinINFO VAL (as float, required)
-                        Mimimum info score to be used
-  --lmm-option lmm
-                        LMM option: lmm, lmmInfOnly, and lmmForceNonInf
-  --job-size 1 (as int)
-                        For cluster jobs, number commands to run per job
-
-Sections
-  bolt:
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -482,7 +415,7 @@ Sections
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Running-BOLT-LMM">Running BOLT-LMM<a class="anchor-link" href="#Running-BOLT-LMM">&#182;</a></h2>
 <pre><code>JOB_OPT='-j 2'</code></pre>
-<p>On a minimal working example (MWE) dataset,</p>
+<p>On a minimal working example (MWE) dataset (about 1min to complete the analysis),</p>
 
 <pre><code>sos run BoltLMM.ipynb bolt \
     --cwd output \
@@ -545,11 +478,12 @@ Sections
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">bolt</span><span class="p">]</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Run BOLT analysis</span>
+<span class="p">[</span><span class="n">bolt_1</span><span class="p">]</span>
 <span class="kn">depends:</span> <span class="n">executable</span><span class="p">(</span><span class="s2">&quot;bolt&quot;</span><span class="p">)</span>
 <span class="kn">input:</span> <span class="n">bgenFile</span><span class="p">,</span> <span class="n">group_by</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.boltlmm.snp_stats.gz&#39;</span>
-<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">phenoCol</span><span class="si">}</span><span class="s1">.boltlmm.snp_stats.gz&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span>
     <span class="n">bolt</span> \
     <span class="o">--</span><span class="n">bfile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">bfile</span><span class="p">}</span> \
@@ -562,7 +496,7 @@ Sections
     <span class="o">--</span><span class="n">LDscoresFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">LDscoresFile</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">geneticMapFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">geneticMapFile</span><span class="p">}</span> \
     <span class="err">$</span><span class="p">{(</span><span class="s1">&#39;--&#39;</span> <span class="o">+</span> <span class="n">lmm_option</span><span class="p">)</span> <span class="k">if</span> <span class="n">lmm_option</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lmm&#39;</span><span class="p">,</span> <span class="s1">&#39;lmmInfOnly&#39;</span><span class="p">,</span> <span class="s1">&#39;lmmForceNonInf&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">}</span> \
-    <span class="o">--</span><span class="n">statsFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">nn</span><span class="p">}</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">gz</span> \
+    <span class="o">--</span><span class="n">statsFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">nn</span><span class="p">}</span><span class="o">.</span><span class="n">ref_stats</span><span class="o">.</span><span class="n">gz</span> \
     <span class="o">--</span><span class="n">numThreads</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">numThreads</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">bgenFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">bgenMinMAF</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">bgenMinMAF</span><span class="p">}</span> \
@@ -570,6 +504,59 @@ Sections
     <span class="o">--</span><span class="n">sampleFile</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">sampleFile</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">statsFileBgenSnps</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">verboseStats</span>
+
+<span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">active</span> <span class="o">=</span> <span class="p">(</span><span class="n">_index</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># remove redundant reference summary stats file</span>
+    <span class="n">rm</span> <span class="o">-</span><span class="n">f</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">nn</span><span class="p">}</span><span class="o">.</span><span class="n">ref_stats</span><span class="o">.</span><span class="n">gz</span>
+
+<span class="kn">bash:</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">active</span> <span class="o">=</span> <span class="p">(</span><span class="n">_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># rename reference summary stats file</span>
+    <span class="n">mv</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">nn</span><span class="p">}</span><span class="o">.</span><span class="n">ref_stats</span><span class="o">.</span><span class="n">gz</span> <span class="err">$</span><span class="p">{</span><span class="n">cwd</span><span class="p">}</span><span class="o">/</span><span class="err">$</span><span class="p">{</span><span class="n">phenoFile</span><span class="p">:</span><span class="n">bn</span><span class="p">}</span><span class="n">_</span><span class="err">$</span><span class="p">{</span><span class="n">phenoCol</span><span class="p">}</span><span class="o">.</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">ref_stats</span><span class="o">.</span><span class="n">gz</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Merge results and log files</span>
+<span class="p">[</span><span class="n">bolt_2</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">group_by</span> <span class="o">=</span> <span class="s1">&#39;all&#39;</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">phenoCol</span><span class="si">}</span><span class="s1">.boltlmm.snp_stats.gz&#39;</span><span class="p">,</span> 
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">phenoCol</span><span class="si">}</span><span class="s1">.boltlmm.snp_counts.txt&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;30m&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;6G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="kn">python:</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span>
+    <span class="kn">import</span> <span class="nn">gzip</span>
+    <span class="n">n_lines</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{_output[0]}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;wt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">({</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">r</span><span class="p">})</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">files</span> <span class="ow">in</span> <span class="p">[{</span><span class="n">_input</span><span class="p">:</span><span class="n">r</span><span class="p">,}][</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;SNP&#39;</span><span class="p">):</span>
+                            <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{_output[0]}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">))</span>
+
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span><span class="s2">&quot;$( )&quot;</span>
+    <span class="c1"># count result SNPs</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="err">$</span><span class="p">(</span><span class="n">_input</span><span class="p">);</span> <span class="n">do</span> <span class="n">echo</span> <span class="s2">&quot;$f: `zcat $f | wc -l`&quot;</span><span class="p">;</span> <span class="n">done</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">(</span><span class="n">_output</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c1"># merge stderr and stdout files</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="err">$</span><span class="p">(</span><span class="n">_input</span><span class="p">);</span> <span class="n">do</span> 
+        <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">stderr</span> <span class="n">stdout</span><span class="p">;</span> <span class="n">do</span>
+            <span class="n">echo</span> <span class="s2">&quot;$f $ext:&quot;</span>
+            <span class="n">cat</span> <span class="err">$</span><span class="p">{</span><span class="n">f</span><span class="o">%.</span><span class="n">gz</span><span class="p">}</span><span class="o">.</span><span class="err">$</span><span class="n">ext</span>
+            <span class="n">rm</span> <span class="o">-</span><span class="n">f</span> <span class="err">$</span><span class="p">{</span><span class="n">f</span><span class="o">%.</span><span class="n">gz</span><span class="p">}</span><span class="o">.</span><span class="err">$</span><span class="n">ext</span> 
+        <span class="n">done</span>
+    <span class="n">done</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">(</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">nn</span><span class="p">)</span><span class="o">.</span><span class="n">log</span>
+    <span class="c1"># remove files before merger</span>
+    <span class="n">rm</span> <span class="o">-</span><span class="n">f</span> <span class="err">$</span><span class="p">(</span><span class="n">_input</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -586,10 +573,42 @@ Sections
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">preview</span> <span class="n">output</span><span class="o">/</span><span class="n">imputed_genotypes_chr21</span><span class="o">.</span><span class="n">phenotypes</span><span class="o">.</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="n">ls</span> <span class="n">output</span><span class="o">/</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>phenotypes_BMI.boltlmm.log           phenotypes_BMI.boltlmm.snp_counts.txt
+<span class="ansi-red-intense-fg ansi-bold">phenotypes_BMI.boltlmm.ref_stats.gz</span>  <span class="ansi-red-intense-fg ansi-bold">phenotypes_BMI.boltlmm.snp_stats.gz</span>
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">preview</span> <span class="n">output</span><span class="o">/</span><span class="n">phenotypes_BMI</span><span class="o">.</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
 </pre></div>
 
     </div>
@@ -607,7 +626,7 @@ Sections
 
 
 <div class="output_html rendered_html output_subarea ">
-<div class="sos_hint">> /home/gw/tmp/10-Jun-2020/MWE_test/output/imputed_genotypes_chr21.phenotypes.boltlmm.snp_stats.gz (759 B):</div>
+<div class="sos_hint">> /home/gw/tmp/10-Jun-2020/MWE_test/output/phenotypes_BMI.boltlmm.snp_stats.gz (1.3 KiB):</div>
 </div>
 
 </div>
@@ -631,9 +650,169 @@ rs55777714	21	48097101	0.646499	T	C	0.169882	0.959507	0.128473	7.2E-01
 </div>
 
 </div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">preview</span> <span class="n">output</span><span class="o">/</span><span class="n">phenotypes_BMI</span><span class="o">.</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">ref_stats</span><span class="o">.</span><span class="n">gz</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">> /home/gw/tmp/10-Jun-2020/MWE_test/output/phenotypes_BMI.boltlmm.ref_stats.gz (10.3 MiB):</div>
+</div>
+
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>SNP	CHR	BP	GENPOS	ALLELE1	ALLELE0	A1FREQ	F_MISS	CHISQ_LINREG	P_LINREG
+rs3131962	1	756604	0.00490722	A	G	0.165	0	0.0284453	8.7E-01
+rs12562034	1	768448	0.00495714	A	G	0.07	0	1.03484	3.1E-01
+rs4040617	1	779322	0.00500708	G	A	0.155	0	0.133342	7.1E-01
+rs79373928	1	801536	0.0058722	G	T	0.02	0	0.0409388	8.4E-01
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">preview</span> <span class="n">output</span><span class="o">/</span><span class="n">phenotypes_BMI</span><span class="o">.</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">snp_counts</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">> /home/gw/tmp/10-Jun-2020/MWE_test/output/phenotypes_BMI.boltlmm.snp_counts.txt (142 B):</div>
+</div>
+
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">2 lines</div>
+</div>
+
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>output/imputed_genotypes_chr21.phenotypes_BMI.boltlmm.snp_stats.gz: 25
+output/imputed_genotypes_chr22.phenotypes_BMI.boltlmm.snp_stats.gz: 22</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">preview</span> <span class="n">output</span><span class="o">/</span><span class="n">phenotypes_BMI</span><span class="o">.</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">> /home/gw/tmp/10-Jun-2020/MWE_test/output/phenotypes_BMI.boltlmm.log (34.8 KiB):</div>
+</div>
+
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">1036 lines (5 displayed, see --limit)</div>
+</div>
+
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>output/imputed_genotypes_chr21.phenotypes_BMI.boltlmm.snp_stats.gz stderr:
+NOTE: Using all-1s vector (constant term) in addition to specified covariates
+NOTE: Using all-1s vector (constant term) in addition to specified covariates
+NOTE: Using all-1s vector (constant term) in addition to specified covariates
+NOTE: Using all-1s vector (constant term) in addition to specified covariates</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/8d4c2ac7ed6bcc99ce93febfc762bf40e30128a2/workflow/BoltLMM.ipynb"><code>workflow/BoltLMM.ipynb</code></a> committed by Gao Wang on Wed Jun 10 21:09:16 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/8d4c2ac7ed6bcc99ce93febfc762bf40e30128a2">revision 21, 8d4c2ac</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/822559d5dcb721f1ae9fdc686697095295dd884a/workflow/BoltLMM.ipynb"><code>workflow/BoltLMM.ipynb</code></a> committed by Gao Wang on Wed Jun 10 22:09:31 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/822559d5dcb721f1ae9fdc686697095295dd884a">revision 22, 822559d</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
