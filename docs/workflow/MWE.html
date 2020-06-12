@@ -280,7 +280,7 @@ sos run ~/project/pleiotropy_UKB/workflow/MWE.ipynb qctool -c ~/project/pleiotro
 <span class="c1"># Genotype file in plink binary format</span>
 <span class="kn">parameter:</span> <span class="n">genoFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindivs.bed&#39;</span><span class="p">)</span>
 <span class="c1"># Path to bgen files</span>
-<span class="kn">parameter:</span> <span class="n">bgenFile</span> <span class="o">=</span> <span class="n">paths</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb_imp_chr</span><span class="si">{</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">_v3.bgen&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)])</span>
+<span class="kn">parameter:</span> <span class="n">bgenFile</span> <span class="o">=</span> <span class="n">paths</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb_imp_chr</span><span class="si">{</span><span class="n">x</span><span class="o">+</span><span class="mi">20</span><span class="si">}</span><span class="s1">_v3.bgen&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)])</span>
 <span class="c1"># Path to sample file</span>
 <span class="kn">parameter:</span> <span class="n">sampleFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb32285_imputedindiv.sample&#39;</span><span class="p">)</span>
 <span class="c1"># Samples to select for plink format contains two columns FID and IID</span>
@@ -302,7 +302,7 @@ sos run ~/project/pleiotropy_UKB/workflow/MWE.ipynb qctool -c ~/project/pleiotro
 <span class="c1"># Select snps for each chromosome </span>
 <span class="kn">parameter:</span> <span class="n">select_snps</span><span class="o">=</span> <span class="n">paths</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb_mfi_chr</span><span class="si">{</span><span class="n">x</span><span class="o">+</span><span class="mi">20</span><span class="si">}</span><span class="s1">_v3.txt_infoabove0.8&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">2</span><span class="p">)])</span>
 <span class="c1"># Filter snps in bgenFiles</span>
-<span class="kn">parameter:</span> <span class="n">rsid</span> <span class="o">=</span> <span class="n">paths</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;~/scratch60/plink-clumping/chr</span><span class="si">{</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">_filter_snps.txt&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)])</span> 
+<span class="kn">parameter:</span> <span class="n">rsid</span> <span class="o">=</span> <span class="n">paths</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;~/scratch60/plink-clumping/chr</span><span class="si">{</span><span class="n">x</span><span class="o">+</span><span class="mi">20</span><span class="si">}</span><span class="s1">_filter_snps.txt&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)])</span> 
 <span class="c1"># Output the bgen file with 8bit formatting</span>
 <span class="kn">parameter:</span> <span class="n">bgen_bits</span><span class="o">=</span><span class="mi">8</span>
 <span class="c1"># Specify the nymber of threads to use</span>
@@ -403,11 +403,11 @@ sos run ~/project/pleiotropy_UKB/workflow/MWE.ipynb qctool -c ~/project/pleiotro
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Filter bgen files chr1 and chr2 with only the 100 individuals</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Filter bgen files chr21 and chr22 with only the 100 individuals</span>
 <span class="c1"># Cluster script mwe_chr2.sh</span>
 <span class="p">[</span><span class="n">qctool</span><span class="p">]</span>
 <span class="kn">input:</span> <span class="n">bgenFile</span><span class="p">,</span> <span class="n">paired_with</span><span class="o">=</span><span class="s1">&#39;rsid&#39;</span><span class="p">,</span> <span class="n">group_by</span><span class="o">=</span><span class="mi">1</span>
-<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.filtered.bgen&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.filtered.sample&#39;</span>
+<span class="kn">output:</span> <span class="n">bgen_filtered</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.filtered.bgen&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.filtered.sample&#39;</span>
 <span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;60G&#39;</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span><span class="p">,</span> <span class="n">template</span> <span class="o">=</span> <span class="n">qctool_module</span>
     <span class="n">qctool</span> \
@@ -419,6 +419,25 @@ sos run ~/project/pleiotropy_UKB/workflow/MWE.ipynb qctool -c ~/project/pleiotro
     <span class="o">-</span><span class="n">incl</span><span class="o">-</span><span class="n">rsids</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="o">.</span><span class="n">_rsid</span><span class="p">}</span> \
     <span class="o">-</span><span class="n">bgen</span><span class="o">-</span><span class="n">bits</span> <span class="err">$</span><span class="p">{</span><span class="n">bgen_bits</span><span class="p">}</span> \
     <span class="o">-</span><span class="n">threads</span> <span class="err">$</span><span class="p">{</span><span class="n">numThreads</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">bgen</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">output_from</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;qctool&#39;</span><span class="p">)[</span><span class="s1">&#39;bgen_filtered&#39;</span><span class="p">]</span>
+<span class="kn">output:</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.filtered.bgen.bgi&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="kp">workdir</span> <span class="o">=</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span>
+    <span class="n">bgenix</span> \
+    <span class="o">-</span><span class="n">g</span> <span class="p">{</span><span class="n">_input</span><span class="p">}</span> \
+    <span class="o">-</span><span class="n">index</span>
 </pre></div>
 
     </div>
@@ -523,7 +542,7 @@ grep -w -F -f  UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthip
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/c4ec3087c02ba32aa8cb2222f14f532781fb023d/workflow/MWE.ipynb"><code>workflow/MWE.ipynb</code></a> committed by dianacornejo on Wed Jun 10 20:25:11 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/c4ec3087c02ba32aa8cb2222f14f532781fb023d">revision 31, c4ec308</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/ad7c261ad28452d460fee68ce38ed9d091667601/workflow/MWE.ipynb"><code>workflow/MWE.ipynb</code></a> committed by dianacornejo on Thu Jun 11 14:29:50 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/ad7c261ad28452d460fee68ce38ed9d091667601">revision 32, ad7c261</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

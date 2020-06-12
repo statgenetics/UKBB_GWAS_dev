@@ -268,6 +268,14 @@ body {
 <p>To login from the terminal:</p>
 
 <pre><code>ssh dc2325@farnam.hpc.yale.edu</code></pre>
+<p>You should not perform any analysis on the login node. If you do, your job may either run into memory error, or get terminated without noticing. However you can submit jobs easily using <code>sbatch</code> command. For example instead of running:</p>
+
+<pre><code># `sos` is our pipeline software
+sos run analysis.ipynb</code></pre>
+<p>you run</p>
+
+<pre><code>sbatch sos run analysis.ipynb</code></pre>
+<p>to submit job. This uses default resource allocation on the cluster. The rest of this document provides tips on more advanced job template, job management and logging to an interactive compute node.</p>
 
 </div>
 </div>
@@ -662,7 +670,7 @@ sacct -S start-date -u user-name</code></pre>
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/5a78e5df8c583940b2c4d489864a9581d51d4acd/workflow/setup.ipynb"><code>workflow/setup.ipynb</code></a> committed by dianacornejo on Wed Jun 10 17:06:02 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/5a78e5df8c583940b2c4d489864a9581d51d4acd">revision 13, 5a78e5d</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/0014045ebd005b1243efd403cb54e9ffed4623df/workflow/setup.ipynb"><code>workflow/setup.ipynb</code></a> committed by Gao Wang on Fri Jun 12 09:10:45 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/0014045ebd005b1243efd403cb54e9ffed4623df">revision 14, 0014045</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

@@ -331,7 +331,7 @@ body {
 <span class="c1"># For cluster jobs, number commands to run per job</span>
 <span class="kn">parameter:</span> <span class="n">job_size</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="c1"># Output the bgen file with 8bit formatting</span>
-<span class="kn">parameter:</span> <span class="n">bgen_bits</span><span class="o">=</span><span class="mi">8</span>
+<span class="c1">#parameter: bgen_bits=16</span>
 <span class="c1"># Specific number of threads to use</span>
 <span class="kn">parameter:</span> <span class="n">numThreads</span> <span class="o">=</span> <span class="mi">20</span>
 <span class="c1"># Load specific modules for each step</span>
@@ -413,7 +413,6 @@ body {
     <span class="o">-</span><span class="n">og</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> \
     <span class="o">-</span><span class="n">os</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> \
     <span class="o">-</span><span class="n">incl</span><span class="o">-</span><span class="n">samples</span> <span class="err">$</span><span class="p">{</span><span class="n">_depends</span><span class="p">}</span>\
-    <span class="o">-</span><span class="n">bgen</span><span class="o">-</span><span class="n">bits</span> <span class="err">$</span><span class="p">{</span><span class="n">bgen_bits</span><span class="p">}</span> \
     <span class="o">-</span><span class="n">threads</span> <span class="err">$</span><span class="p">{</span><span class="n">numThreads</span><span class="p">}</span>
 </pre></div>
 
@@ -507,7 +506,7 @@ body {
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/5a78e5df8c583940b2c4d489864a9581d51d4acd/workflow/LDclumping.ipynb"><code>workflow/LDclumping.ipynb</code></a> committed by dianacornejo on Wed Jun 10 17:06:02 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/5a78e5df8c583940b2c4d489864a9581d51d4acd">revision 56, 5a78e5d</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/51517c85a5343af2f3038848390d0edc3cc2b2a4/workflow/LDclumping.ipynb"><code>workflow/LDclumping.ipynb</code></a> committed by dianacornejo on Thu Jun 11 21:58:16 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/51517c85a5343af2f3038848390d0edc3cc2b2a4">revision 58, 51517c8</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
