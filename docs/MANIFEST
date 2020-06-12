@@ -1,11 +1,12 @@
 docs/analysis.html
 docs/analysis.tpl
 docs/analysis/BMI.html
+docs/analysis/SAIGE.html
 docs/analysis/WHI.html
 docs/analysis/fastGWA.html
 docs/analysis/phenotype_analysis.html
 docs/analysis/postprocessing.html
-docs/analysis/region_extraction_example.html
+docs/analysis/regions_extracted.html
 docs/index.html
 docs/index.tpl
 docs/js/docs.js
@@ -15,5 +16,4 @@ docs/workflow/LDclumping.html
 docs/workflow/LMM.html
 docs/workflow/MWE.html
 docs/workflow/Region_Extraction.html
-docs/workflow/SAIGE.html
 docs/workflow/setup.html
