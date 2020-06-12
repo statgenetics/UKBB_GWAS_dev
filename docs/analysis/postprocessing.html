@@ -140,12 +140,12 @@ $( document ).ready(function(){
             st.toc_index=0;
             // fire the main function with these parameters
             table_of_contents(cfg, st);
-            var file=workflowDict[$("h1:first").attr("id")];
+            var file=analysisDict[$("h1:first").attr("id")];
             $("#toc-level0 a").css("color","#126dce");
             $('a[href="#'+$("h1:first").attr("id")+'"]').hide()
-            var docs=workflowArray;
-            var docs_map=workflowArrayMap;
-            var pos=workflowArray.indexOf(file);
+            var docs=analysisArray;
+            var docs_map=analysisArrayMap;
+            var pos=analysisArray.indexOf(file);
             for (var a=pos;a>=0;a--){
                   $('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>').insertBefore("#toc-level0 li:eq(0)");
             }
@@ -239,7 +239,7 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="SAIGE-analysis-for-UK-Biobank-data">SAIGE analysis for UK Biobank data<a class="anchor-link" href="#SAIGE-analysis-for-UK-Biobank-data">&#182;</a></h1><p>For binary and quantitative phenotypes</p>
+<h2 id="Data-analysis">Data analysis<a class="anchor-link" href="#Data-analysis">&#182;</a></h2><p><strong>FIXME: Diana, I have moved / rewritten most of the useful codes to the actual LMM analysis pipeline. Please salvage what you need here and try to build them to the pipeline -- after you complete MWE for fastGWA and SAIGE</strong></p>
 
 </div>
 </div>
@@ -247,14 +247,7 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Aim">Aim<a class="anchor-link" href="#Aim">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>To perfom genetic association analysis for binary traits (asthma and diabetes) using SAIGE software and UK Biobank imputed data of ~500K invidivuals</p>
+<p>Pipeline to process the output files from the association results and analyze summary statistics</p>
 
 </div>
 </div>
@@ -262,17 +255,10 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Method-and-workflow-overview">Method and workflow overview<a class="anchor-link" href="#Method-and-workflow-overview">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<ol>
-<li>Download data from UKB: phenotype, genotypes files (<code>.fam</code>,<code>.bed</code>, <code>.bim</code>) and imputed genotypes (<code>.bgen</code>, <code>.bgi</code>, <code>.sample</code>)</li>
-<li>Run SAIGE analysis to obtain summary statistics for association analysis</li>
-</ol>
+<h2 id="Running-sos-notebook">Running sos notebook<a class="anchor-link" href="#Running-sos-notebook">&#182;</a></h2><p>On the Yale Farnam cluster,</p>
+<p>On a local computer with for example 8 threads,</p>
+
+<pre><code>sos run ~/project/pleiotropy_UKB/postprocessing.ipynb -q none -j 8</code></pre>
 
 </div>
 </div>
@@ -280,17 +266,18 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Input-data">Input data<a class="anchor-link" href="#Input-data">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<ol>
-<li>Genotype file for constructing the GRM (genetic relationship matrix) formated as a plink binary file <code>(.bed, .bim, .fam)</code></li>
-<li>Phenotype file (contains non-genetic covariates). Format is space or tab delimited with a header (one column for sample IDs and one column for each phenotype)</li>
-</ol>
+<h2 id="Input-files">Input files<a class="anchor-link" href="#Input-files">&#182;</a></h2><h3 id="BOLT-LMM">BOLT-LMM<a class="anchor-link" href="#BOLT-LMM">&#182;</a></h3><p>The input files for this process are the ones created after running the <code>BoltLMM.ipynb</code> notebook that should be the following (example for INT-BMI):</p>
+<ul>
+<li>ukb_imp_chr{1:22}_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.boltlmm.snp_stats.gz (these are the association results for the bgen genotypes)</li>
+<li>ukb_imp_chr{1:22}_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.boltlmm.stats.gz (take into account that the 22 files generated in this step will have the same information, that is the association results for the hard called genotypes - PLINK genotypes)</li>
+<li>ukb_imp_chr{1:22}_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.boltlmm.snp_stats.stderr</li>
+<li>ukb_imp_chr{1:22}_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.boltlmm.snp_stats.stdout</li>
+</ul>
+<h3 id="FastGWA">FastGWA<a class="anchor-link" href="#FastGWA">&#182;</a></h3><p>The input files for this process are the ones created after running the <code>fastGWA.ipynb</code> notebook and should be the following:</p>
+<ul>
+<li>bgenFile_chr{1:22}.TraitName.fastGWA (these are the association results for the bgen genotypes)</li>
+<li>bgenFile_chr{1:22}.TraitName.log</li>
+</ul>
 
 </div>
 </div>
@@ -298,49 +285,31 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Ouput-files">Ouput files<a class="anchor-link" href="#Ouput-files">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Global-parameter-setting">Global parameter setting<a class="anchor-link" href="#Global-parameter-setting">&#182;</a></h2>
+<h3 id="Step-1:-Merge-the-summary-statistics-generated-during-the-association-analysis-of-the-imputed-variants">Step 1: Merge the summary statistics generated during the association analysis of the imputed variants<a class="anchor-link" href="#Step-1:-Merge-the-summary-statistics-generated-during-the-association-analysis-of-the-imputed-variants">&#182;</a></h3>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[92]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="k">global</span><span class="p">]</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="c1"># Genotype file in plink binary format</span>
-<span class="kn">parameter:</span> <span class="n">genoFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv.bed&#39;</span><span class="p">)</span>
-<span class="c1"># Phenotype file for binary trait 1 (asthma)</span>
-<span class="kn">parameter:</span> <span class="n">phenoFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720&#39;</span><span class="p">)</span>
-<span class="c1"># Phenotype file for binary trait 2 (diabetes)</span>
-<span class="c1">#parameter: phenoFile2 = path(&#39;/SAY/dbgapstg/scratch/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_030720&#39;)</span>
-<span class="c1"># Path to bgen files</span>
-<span class="kn">parameter:</span> <span class="n">bgenFile</span> <span class="o">=</span> <span class="n">paths</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb_imp_chr</span><span class="si">{</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">_v3.bgen&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">22</span><span class="p">)])</span>
-<span class="c1"># Path to sample file</span>
-<span class="kn">parameter:</span> <span class="n">sampleFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb32285_imputedindiv.sample&#39;</span><span class="p">)</span>
-<span class="c1"># Minimum MAF to be used</span>
-<span class="kn">parameter:</span> <span class="n">minMAF</span> <span class="o">=</span> <span class="mf">0.001</span>
-<span class="c1"># Mimimum info score to be used</span>
-<span class="kn">parameter:</span> <span class="n">minInfo</span> <span class="o">=</span> <span class="mf">0.8</span>
-<span class="c1"># Mimimum allele count to be sued</span>
-<span class="kn">parameter:</span> <span class="n">minMAC</span> <span class="o">=</span> <span class="mi">4</span>
-<span class="c1"># the output directory for generated files</span>
-<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;~/scratch60/2020-04_saige/asthma&#39;</span><span class="p">)</span>
-<span class="c1"># Specific number of threads to use</span>
-<span class="kn">parameter:</span> <span class="n">numThreads</span> <span class="o">=</span> <span class="mi">20</span>
-<span class="c1"># For cluster jobs, number commands to run per job</span>
-<span class="kn">parameter:</span> <span class="n">job_size</span> <span class="o">=</span> <span class="mi">1</span>
-
-<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">bgenFile</span><span class="p">:</span>
-    <span class="n">fail_if</span><span class="p">(</span><span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2">.bgi&quot;</span><span class="p">),</span> <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Index file doesn&#39;t exist: ``</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2">.bgi``&quot;</span><span class="p">)</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Merge all the bgen summary statistics</span>
+<span class="p">[</span><span class="n">merge_imputed</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">snp_stats_file</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">bgen_sumstats</span><span class="si">}</span><span class="s1">.gz&#39;</span>
+<span class="kn">python:</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span>
+    <span class="kn">import</span> <span class="nn">gzip</span>
+    <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">{_output}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;wt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">({</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">r</span><span class="p">})</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">files</span> <span class="ow">in</span> <span class="p">[{</span><span class="n">_input</span><span class="p">:</span><span class="n">r</span><span class="p">,}][</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;SNP&#39;</span><span class="p">):</span>
+                            <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{_output}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">))</span>
 </pre></div>
 
     </div>
@@ -351,41 +320,7 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Running-SAIGE">Running SAIGE<a class="anchor-link" href="#Running-SAIGE">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>On Yale's Farnam cluster,</p>
-
-<pre><code>sos run pleiotropy_UKB/SAIGE_binary_UKB.ipynb -c pleiotropy_UKB/farnam.yml -q farnam -J 40</code></pre>
-<p>In your local machine, for a test run</p>
-
-<pre><code>sos dryrun pleiotropy_UKB/SAIGE_binary_UKB.ipynb</code></pre>
-<p>To try the steps</p>
-
-<pre><code>sos run pleiotropy_UKB/SAIGE_binary_UKB.ipynb saige_1 -q none</code></pre>
-<p>If using the sos-submit-template.sh <code>sbatch saige_asthma.sh</code></p>
-
-<pre><code>sos run ~/project/pleiotropy_UKB/workflow/SAIGE.ipynb -c ~/project/pleiotropy_UKB/farnam.yml -q farnam -J 40 \
--s build &amp; &gt; sos-submission-saige-asthma-051920.log</code></pre>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Results">Results<a class="anchor-link" href="#Results">&#182;</a></h3>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Results for the single variant association analyses can be found in file with the suffix <code>.SAIGE.bgen.txt</code></p>
+<p>Awk to find the minimum and maximum values in a specific column</p>
 
 </div>
 </div>
@@ -395,7 +330,99 @@ body {
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span>
+<div class=" highlight hl-sos"><pre><span></span><span class="c1">#awk &#39;(NR==1){Min=$3;Max=$3};(NR&gt;=3){if(Min&gt;$3) Min=$3;if(Max&lt;$3) Max=$3} END {printf &quot;The Min is %d ,Max is %d&quot;,Min,Max}&#39; ukb_mfi_chr1_v3.txt</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Show the lowest p-values</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1">#gzcat Test_INT-BMI.txt.gz | awk -F &quot;\t&quot; &#39;{ if ($16 &lt;= 5e-8) { print } }&#39;| sort -g | head -n 5</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To find the overlapping variants between dataset 1 and dataset 2</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1">#awk &#39;NR==FNR {FILE1[$1]=$0; next} ($1 in FILE1) {print $0}&#39; dataset2 dataset1 &gt; dataset1_subset_overlapping_dataset2</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The output file .clumped will contain the index SNPs for each LD block in column 3. To extract this column and create a vector to use for highlighting in the Manhattan Plot</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>awk '{ print $3 }' \
+Test_INT-BMI.txt.clumped \
+&gt; dataset1_subset_overlapping_dataset2_clump1.SNPs</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Output-some-summary-statistics-from-the-phenotypic-data">Output some summary statistics from the phenotypic data<a class="anchor-link" href="#Output-some-summary-statistics-from-the-phenotypic-data">&#182;</a></h3><ul>
+<li>Number of cases</li>
+<li>Number of controls</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">phenotype_summary</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">phenoFile</span>
+<span class="kn">output:</span> <span class="kc">None</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span>
+    <span class="c1"># Number of controls</span>
+    <span class="n">awk</span> <span class="s1">&#39;{ if ($5 == 0) { print }&#39;</span> <span class="p">{</span><span class="n">_input</span><span class="p">}</span> <span class="o">|</span> <span class="n">wc</span> <span class="o">-</span><span class="n">l</span> 
+    <span class="c1"># Number of cases</span>
+    <span class="n">awk</span> <span class="s1">&#39;{ if ($5 == 1) { print }&#39;</span> <span class="p">{</span><span class="n">_input</span><span class="p">}</span> <span class="o">|</span> <span class="n">wc</span> <span class="o">-</span><span class="n">l</span>
 </pre></div>
 
     </div>
@@ -405,7 +432,7 @@ body {
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/c4cb9c3b6bd5cde6ec6d4fac320b7b716d0a94ba/workflow/SAIGE.ipynb"><code>workflow/SAIGE.ipynb</code></a> committed by Gao Wang on Thu Jun 11 11:10:56 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/c4cb9c3b6bd5cde6ec6d4fac320b7b716d0a94ba">revision 3, c4cb9c3</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/d27bda8c8286d3f247da6aba73980a3d6088aff7/analysis/postprocessing.ipynb"><code>analysis/postprocessing.ipynb</code></a> committed by Gao Wang on Thu Jun 11 10:07:32 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/d27bda8c8286d3f247da6aba73980a3d6088aff7">revision 1, d27bda8</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
