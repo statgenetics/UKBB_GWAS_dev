@@ -1,10 +1,13 @@
 docs/analysis.html
 docs/analysis.tpl
 docs/analysis/BMI.html
+docs/analysis/MWE_script_creation.html
 docs/analysis/SAIGE.html
-docs/analysis/WHI.html
+docs/analysis/T2D.html
+docs/analysis/WAIST.html
+docs/analysis/WHR.html
+docs/analysis/asthma.html
 docs/analysis/candidate_regions.html
-docs/analysis/fastGWA.html
 docs/analysis/phenotype_analysis.html
 docs/analysis/postprocessing.html
 docs/index.html
