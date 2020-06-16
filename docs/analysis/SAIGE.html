@@ -314,20 +314,7 @@ body {
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="k">global</span><span class="p">]</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="c1"># Genotype file in plink binary format</span>
-<span class="kn">parameter:</span> <span class="n">genoFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv.bed&#39;</span><span class="p">)</span>
-<span class="c1"># Phenotype file for binary trait 1 (asthma)</span>
-<span class="kn">parameter:</span> <span class="n">phenoFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720&#39;</span><span class="p">)</span>
-<span class="c1"># Phenotype file for binary trait 2 (diabetes)</span>
-<span class="c1">#parameter: phenoFile2 = path(&#39;/SAY/dbgapstg/scratch/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_030720&#39;)</span>
-<span class="c1"># Path to bgen files</span>
-<span class="kn">parameter:</span> <span class="n">bgenFile</span> <span class="o">=</span> <span class="n">paths</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb_imp_chr</span><span class="si">{</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">_v3.bgen&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">22</span><span class="p">)])</span>
-<span class="c1"># Path to sample file</span>
-<span class="kn">parameter:</span> <span class="n">sampleFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;/SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb32285_imputedindiv.sample&#39;</span><span class="p">)</span>
-<span class="c1"># Minimum MAF to be used</span>
-<span class="kn">parameter:</span> <span class="n">minMAF</span> <span class="o">=</span> <span class="mf">0.001</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="kn">parameter:</span> <span class="n">minMAF</span> <span class="o">=</span> <span class="mf">0.001</span>
 <span class="c1"># Mimimum info score to be used</span>
 <span class="kn">parameter:</span> <span class="n">minInfo</span> <span class="o">=</span> <span class="mf">0.8</span>
 <span class="c1"># Mimimum allele count to be sued</span>
@@ -405,7 +392,7 @@ body {
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/a0794910120d496e615d9e030ec528f2ad722c79/analysis/SAIGE.ipynb"><code>analysis/SAIGE.ipynb</code></a> committed by Gao Wang on Fri Jun 12 11:15:32 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/a0794910120d496e615d9e030ec528f2ad722c79">revision 1, a079491</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/3977f32885a57f90269cc2d61b85dc5bfb972f39/analysis/SAIGE.ipynb"><code>analysis/SAIGE.ipynb</code></a> committed by dianacornejo on Tue Jun 16 12:19:54 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/3977f32885a57f90269cc2d61b85dc5bfb972f39">revision 2, 3977f32</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
