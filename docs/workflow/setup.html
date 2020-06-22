@@ -561,6 +561,9 @@ hg clone -r beta https://gavinband@bitbucket.org/gavinband/qctool &amp;&amp; cd 
 <p>To see all pending jobs sorted by priority (jobs with higher priority at the top)</p>
 
 <pre><code>squeue --sort=-p -t PD -p general</code></pre>
+<p>To cancel all pending jobs</p>
+
+<pre><code>scancel -t PENDING -u$USER</code></pre>
 <p>To see files that will be deleted from scratch60 (they purge every 30 days)</p>
 
 <pre><code>cat /gpfs/ysm/scratch60/todelete/${UID}</code></pre>
@@ -670,7 +673,7 @@ sacct -S start-date -u user-name</code></pre>
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/0014045ebd005b1243efd403cb54e9ffed4623df/workflow/setup.ipynb"><code>workflow/setup.ipynb</code></a> committed by Gao Wang on Fri Jun 12 09:10:45 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/0014045ebd005b1243efd403cb54e9ffed4623df">revision 14, 0014045</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/1e87d2bffb960cbe97aa0f4c16e8291500a74aa6/workflow/setup.ipynb"><code>workflow/setup.ipynb</code></a> committed by dianacornejo on Thu Jun 18 16:22:33 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/1e87d2bffb960cbe97aa0f4c16e8291500a74aa6">revision 15, 1e87d2b</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

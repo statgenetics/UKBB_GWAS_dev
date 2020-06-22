@@ -405,13 +405,19 @@ Sections
   gcta_3:               Make a sparse GRM from the merged full-dense GRM
   fastGWA_1:            fastGWA mixed model (based on the sparse GRM generated
                         above)
+    Workflow Options:
+      --grmfile VAL (as path, required)
   SAIGE_1:              Fit SAIGE null model
     Workflow Options:
       --trait-type VAL (as str, required)
                         trait type, eg &#39;binary&#39; or &#39;quantitative&#39;
       --loco TRUE
+                        Whether to use LOCO or not
       --sampleCol IID
-      --invNormalize TRUE
+                        Name of the sample column
+      --script-path /Users/dianacornejo/software/bin/step1_fitNULLGLMM.R (as path)
+                        Path specific to SAIGE script
+      --invNormalize FALSE
                         Inverse normalization only for non-normal quantitative
                         traits
   SAIGE_2:              Compute SAIGE statistics
@@ -421,6 +427,8 @@ Sections
       --af-caco TRUE
                         Specify whether to output allele frequencies in cases
                         and controls
+      --script-path /Users/dianacornejo/software/bin/step2_SPAtests.R (as path)
+                        Path specific to SAIGE script
   boltlmm_2, fastGWA_2, SAIGE_3: Merge results and log files
   boltlmm_3, fastGWA_3, SAIGE_4: Manhattan and QQ plots using `qqman`
     Workflow Options:
@@ -428,8 +436,11 @@ Sections
                         Column name for BP
       --pval P
                         Column name for p-value
+      --snp SNP
+                        Column name for SNP
       --p-filter &#39;0.05&#39;
                         Plot only on p-values smaller than this
+  boltlmm_4, fastGWA_4, SAIGE_5: Generate analysis report
 </pre>
 </div>
 </div>
@@ -796,7 +807,7 @@ Sections
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="c1"># fastGWA mixed model (based on the sparse GRM generated above)</span>
 <span class="p">[</span><span class="n">fastGWA_1</span><span class="p">]</span>
-<span class="kn">depends:</span> <span class="n">executable</span><span class="p">(</span><span class="s2">&quot;gcta64&quot;</span><span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">bfile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.grm.sp&#39;</span>
+<span class="kn">depends:</span> <span class="n">executable</span><span class="p">(</span><span class="s2">&quot;gcta64&quot;</span><span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">bfile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.grm.sp&#39;</span> 
 <span class="c1"># extract and prepare phenotype &amp; covariate files</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="n">dat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">phenoFile</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -807,7 +818,7 @@ Sections
 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">qCovarCol</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
     <span class="n">dat</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s2">bn</span><span class="si">}</span><span class="s2">.fastGWA_qcovar&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;FID&#39;</span><span class="p">,</span> <span class="s1">&#39;IID&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">qCovarCol</span><span class="p">)</span>
 
-<span class="kn">input:</span> <span class="n">bgenFile</span><span class="p">,</span> <span class="n">group_by</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">group_with</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="p">[(</span><span class="n">path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s2">bn</span><span class="si">}</span><span class="s2">.fastGWA_phenotype&quot;</span><span class="p">),</span> <span class="n">sampleFile</span><span class="p">,</span> <span class="n">path</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">bfile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.grm.sp&#39;</span><span class="p">),</span> 
+<span class="kn">input:</span> <span class="n">bgenFile</span><span class="p">,</span> <span class="n">group_by</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">group_with</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="p">[(</span><span class="n">path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s2">bn</span><span class="si">}</span><span class="s2">.fastGWA_phenotype&quot;</span><span class="p">),</span> <span class="n">sampleFile</span><span class="p">,</span> <span class="n">path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">bfile</span><span class="si">:</span><span class="s2">bn</span><span class="si">}</span><span class="s2">.grm.sp&quot;</span><span class="p">),</span>
                                                         <span class="n">path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">covarFile</span><span class="si">:</span><span class="s2">bn</span><span class="si">}</span><span class="s2">.fastGWA_qcovar&quot;</span><span class="p">),</span> <span class="n">path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">covarFile</span><span class="si">:</span><span class="s2">bn</span><span class="si">}</span><span class="s2">.fastGWA_covar&quot;</span><span class="p">))]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">bgenFile</span><span class="p">))</span>
 <span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/cache/</span><span class="si">{</span><span class="n">_input</span><span class="si">:</span><span class="s1">bnn</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">phenoFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.fastGWA.gz&#39;</span>
 <span class="n">fail_if</span><span class="p">(</span><span class="ow">not</span> <span class="n">path</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_input</span><span class="si">}</span><span class="s1">.bgi&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Cannot find file ``</span><span class="si">{</span><span class="n">_input</span><span class="si">}</span><span class="s1">.bgi``. Please generate it using command ``bgenix -g </span><span class="si">{</span><span class="n">_input</span><span class="si">}</span><span class="s1"> -index``.&#39;</span><span class="p">)</span>
@@ -816,7 +827,7 @@ Sections
     <span class="n">gcta64</span> \
     <span class="o">--</span><span class="n">bgen</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">sample</span>  <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> \
-    <span class="o">--</span><span class="n">grm</span><span class="o">-</span><span class="n">sparse</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span><span class="n">nn</span><span class="p">}</span> \
+    <span class="o">--</span><span class="n">grm</span><span class="o">-</span><span class="n">sparse</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="mi">2</span><span class="p">]}</span> \
     <span class="o">--</span><span class="n">maf</span> <span class="err">$</span><span class="p">{</span><span class="n">bgenMinMAF</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">info</span> <span class="err">$</span><span class="p">{</span><span class="n">bgenMinINFO</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">fastGWA</span><span class="o">-</span><span class="n">mlm</span> \
@@ -1510,7 +1521,7 @@ NOTE: Using all-1s vector (constant term) in addition to specified covariates</p
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/1b267265f1c863f5d07de63307b835883a928476/workflow/LMM.ipynb"><code>workflow/LMM.ipynb</code></a> committed by Gao Wang on Mon Jun 15 22:39:49 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/1b267265f1c863f5d07de63307b835883a928476">revision 30, 1b26726</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/4e4ec7ac27642f00fd86180cca7b837115345170/workflow/LMM.ipynb"><code>workflow/LMM.ipynb</code></a> committed by dianacornejo on Mon Jun 22 12:32:12 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/4e4ec7ac27642f00fd86180cca7b837115345170">revision 36, 4e4ec7a</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
