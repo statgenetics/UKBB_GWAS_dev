@@ -2,10 +2,12 @@
 #SBATCH --partition general
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
-#SBATCH --mem-per-cpu 60G
-#SBATCH --time 3-0:00:00
+#SBATCH --mem-per-cpu 10G
+#SBATCH --time 24:00:00
 #SBATCH --job-name jupyter-notebook
 #SBATCH --output jupyter-notebook-%J.log
+#SBATCH --error jupyter-notebook-%J.err
+
 
 # get tunneling info
 XDG_RUNTIME_DIR=""
@@ -36,11 +38,13 @@ localhost:${port}  (prefix w/ https:// if using password)
 
 # load modules or conda environments here
 # uncomment the following two lines to use your conda environment called notebook_env
-module load miniconda
-conda create -yn notebook_env anaconda python=3
-source activate notebook_env
+#module load miniconda
+#conda create -yn notebook_env anaconda python=3
+#source activate notebook_env
 
 
 # DON'T USE ADDRESS BELOW.
 # DO USE TOKEN BELOW
-jupyter-notebook --no-browser --port=${port} --ip=${node}
+# Start jupyter
+cd
+jupyter-lab --no-browser --port=${port} --ip=${node}
