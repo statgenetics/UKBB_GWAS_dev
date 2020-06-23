@@ -447,9 +447,56 @@ body {
 </div>
 
 </div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">scripts</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">BMI_region</span><span class="o">.</span><span class="n">sbatch</span> <span class="o">-</span><span class="n">f</span>
+
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 1</span>
+<span class="c1">#SBATCH --mem 1G</span>
+<span class="c1">#SBATCH --time 3-0:00:00</span>
+<span class="c1">#SBATCH --job-name sos-submission</span>
+<span class="c1">#SBATCH --output sos-submission-%J.out</span>
+<span class="c1">#SBATCH --error sos-submission-%J.log</span>
+
+<span class="c1"># Set the bash variables </span>
+<span class="n">cwd</span><span class="o">=~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">plink</span><span class="o">-</span><span class="n">clumping</span><span class="o">/</span><span class="n">chr7_region</span>
+<span class="n">region_file</span><span class="o">=~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">plink</span><span class="o">-</span><span class="n">clumping</span><span class="o">/</span><span class="n">chr7_region</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">BMI_region</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">pheno_path</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">phenotypes_UKB</span><span class="o">/</span><span class="n">UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT</span><span class="o">-</span><span class="n">BMI_withagesex_041720</span>
+<span class="n">geno_path</span><span class="o">=~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">plink</span><span class="o">-</span><span class="n">clumping</span><span class="o">/</span><span class="n">chr7_region</span><span class="o">/</span><span class="n">bgenfilepath</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">bgen_sample_file</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb32285_imputedindiv</span><span class="o">.</span><span class="n">sample</span>
+<span class="n">sumstats_path</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">project</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">pleiotropy</span><span class="o">/</span><span class="mi">2020</span><span class="o">-</span><span class="mi">04</span><span class="n">_bolt</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">BMI</span><span class="o">/</span><span class="n">ukb_imp_v3</span><span class="o">.</span><span class="n">UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT</span><span class="o">-</span><span class="n">BMI_withagesex_041720</span><span class="o">.</span><span class="n">BoltLMM</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">all_chr</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">unrelated_samples</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">unrelated_n307259</span><span class="o">/</span><span class="n">UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620</span>
+<span class="n">format_config_path</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">boltlmm_template</span><span class="o">.</span><span class="n">yml</span>
+
+<span class="c1">#Running the Region Extractiob workflow for INT-BMI trait</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">workflow</span><span class="o">/</span><span class="n">Region_Extraction</span><span class="o">.</span><span class="n">ipynb</span> \
+    <span class="o">--</span><span class="n">cwd</span> <span class="err">$</span><span class="n">cwd</span> \
+    <span class="o">--</span><span class="n">region</span><span class="o">-</span><span class="n">file</span> <span class="err">$</span><span class="n">region_file</span> \
+    <span class="o">--</span><span class="n">pheno</span><span class="o">-</span><span class="n">path</span> <span class="err">$</span><span class="n">pheno_path</span> \
+    <span class="o">--</span><span class="n">geno</span><span class="o">-</span><span class="n">path</span> <span class="err">$</span><span class="n">geno_path</span> \
+    <span class="o">--</span><span class="n">bgen</span><span class="o">-</span><span class="n">sample</span><span class="o">-</span><span class="n">path</span> <span class="err">$</span><span class="n">bgen_sample_file</span> \
+    <span class="o">--</span><span class="n">sumstats</span><span class="o">-</span><span class="n">path</span> <span class="err">$</span><span class="n">sumstats_path</span> \
+    <span class="o">--</span><span class="nb">format</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="n">path</span> <span class="err">$</span><span class="n">format_config_path</span> \
+    <span class="o">--</span><span class="n">unrelated</span><span class="o">-</span><span class="n">samples</span> <span class="err">$</span><span class="n">unrelated_samples</span><span class="o">.</span><span class="n">txt</span>
+    <span class="o">-</span><span class="n">s</span> <span class="n">build</span> <span class="o">&amp;&gt;</span> <span class="mi">062320</span><span class="o">-</span><span class="n">sos</span><span class="o">-</span><span class="n">INT</span><span class="o">-</span><span class="n">BMI</span><span class="o">-</span><span class="n">region</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/5477ddbdc5ef58be5826e9d5a3264d0d7f646539/analysis/BMI.ipynb"><code>analysis/BMI.ipynb</code></a> committed by dianacornejo on Mon Jun 22 11:51:13 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/5477ddbdc5ef58be5826e9d5a3264d0d7f646539">revision 26, 5477ddb</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/59e28d2371502426b79b4c3334b6a7f0de9ae6e3/analysis/BMI.ipynb"><code>analysis/BMI.ipynb</code></a> committed by dianacornejo on Tue Jun 23 11:00:21 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/59e28d2371502426b79b4c3334b6a7f0de9ae6e3">revision 28, 59e28d2</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
