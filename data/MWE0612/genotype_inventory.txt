@@ -1,0 +1,2 @@
+21 imputed_genotypes_chr21.bgen
+22 imputed_genotypes_chr22.bgen
