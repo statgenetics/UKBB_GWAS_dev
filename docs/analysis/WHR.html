@@ -272,6 +272,15 @@ body {
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Running-this-notebook-on-the-cluster-to-generate-the-specific-scripts">Running this notebook on the cluster to generate the specific scripts<a class="anchor-link" href="#Running-this-notebook-on-the-cluster-to-generate-the-specific-scripts">&#182;</a></h2>
+<pre><code>sos convert ~/project/UKBB_GWAS_DEV/analysis/WHR.ipynb ~/project/UKBB_GWAS_DEV/docs/analysis/WHR.html --execute</code></pre>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
@@ -283,8 +292,8 @@ body {
 <span class="c1">#SBATCH --partition general</span>
 <span class="c1">#SBATCH --nodes 1</span>
 <span class="c1">#SBATCH --ntasks-per-node 1</span>
-<span class="c1">#SBATCH --cpus-per-task 16</span>
-<span class="c1">#SBATCH --mem-per-cpu 1G</span>
+<span class="c1">#SBATCH --cpus-per-task 1</span>
+<span class="c1">#SBATCH --mem 1G</span>
 <span class="c1">#SBATCH --time 3-0:00:00</span>
 <span class="c1">#SBATCH --job-name sos-submission</span>
 <span class="c1">#SBATCH --output sos-submission-%J.out</span>
@@ -292,10 +301,10 @@ body {
 
 <span class="c1"># Defining bash variables for the different paths,</span>
 
-<span class="n">cwd</span><span class="o">=~/</span><span class="n">scratch60</span><span class="o">/</span><span class="mi">2020_04</span><span class="n">_bolt</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span>
+<span class="n">cwd</span><span class="o">=~/</span><span class="n">scratch60</span><span class="o">/</span><span class="mi">2020</span><span class="o">-</span><span class="mi">04</span><span class="n">_bolt</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span>
 <span class="n">bfile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv</span><span class="o">.</span><span class="n">bed</span>
 <span class="n">sampleFile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb32285_imputedindiv</span><span class="o">.</span><span class="n">sample</span>
-<span class="n">bgenFile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/*.</span><span class="n">bgen</span>
+<span class="n">bgenFile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb_imp_chr</span><span class="p">{</span><span class="mf">1.</span><span class="o">.</span><span class="mi">22</span><span class="p">}</span><span class="n">_v3</span><span class="o">.</span><span class="n">bgen</span>
 <span class="n">phenoFile</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">phenotypes_UKB</span><span class="o">/</span><span class="n">UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT</span><span class="o">-</span><span class="n">WHR_withagesex_042020</span>
 <span class="n">covarFile</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">phenotypes_UKB</span><span class="o">/</span><span class="n">UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT</span><span class="o">-</span><span class="n">WHR_withagesex_042020</span>
 <span class="n">LDscoresFile</span><span class="o">=~/</span><span class="n">software</span><span class="o">/</span><span class="n">BOLT</span><span class="o">-</span><span class="n">LMM_v2</span><span class="o">.</span><span class="mf">3.4</span><span class="o">/</span><span class="n">tables</span><span class="o">/</span><span class="n">LDSCORE</span><span class="o">.</span><span class="mi">1000</span><span class="n">G_EUR</span><span class="o">.</span><span class="n">tab</span><span class="o">.</span><span class="n">gz</span>
@@ -307,11 +316,11 @@ body {
 <span class="n">numThreads</span><span class="o">=</span><span class="mi">20</span>
 <span class="n">bgenMinMAF</span><span class="o">=</span><span class="mf">0.001</span>
 <span class="n">bgenMinINFO</span><span class="o">=</span><span class="mf">0.8</span>
-<span class="n">job</span><span class="o">-</span><span class="n">size</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">job_size</span><span class="o">=</span><span class="mi">1</span>
 
 <span class="c1">#Running the workflow for INT-WHR trait. Here I used age, sex and BMI as covariates.</span>
 
-<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">pleiotropy_UKB</span><span class="o">/</span><span class="n">workflow</span><span class="o">/</span><span class="n">LMM</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">boltlmm</span> \
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">workflow</span><span class="o">/</span><span class="n">LMM</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">boltlmm</span> \
     <span class="o">--</span><span class="n">cwd</span> <span class="err">$</span><span class="n">cwd</span> \
     <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="n">bfile</span> \
     <span class="o">--</span><span class="n">sampleFile</span> <span class="err">$</span><span class="n">sampleFile</span> \
@@ -327,8 +336,8 @@ body {
     <span class="o">--</span><span class="n">numThreads</span> <span class="err">$</span><span class="n">numThreads</span> \
     <span class="o">--</span><span class="n">bgenMinMAF</span> <span class="err">$</span><span class="n">bgenMinMAF</span> \
     <span class="o">--</span><span class="n">bgenMinINFO</span> <span class="err">$</span><span class="n">bgenMinINFO</span> \
-    <span class="o">--</span><span class="n">job</span><span class="o">-</span><span class="n">size</span> <span class="err">$</span><span class="n">job</span><span class="o">-</span><span class="n">size</span> \
-    <span class="o">-</span><span class="n">c</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">pleiotropy_UKB</span><span class="o">/</span><span class="n">farnam</span><span class="o">.</span><span class="n">yml</span> <span class="o">-</span><span class="n">q</span> <span class="n">farnam</span> <span class="o">-</span><span class="n">J</span> <span class="mi">40</span> \
+    <span class="o">--</span><span class="n">job_size</span> <span class="err">$</span><span class="n">job_size</span> \
+    <span class="o">-</span><span class="n">c</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">farnam</span><span class="o">.</span><span class="n">yml</span> <span class="o">-</span><span class="n">q</span> <span class="n">farnam</span> <span class="o">-</span><span class="n">J</span> <span class="mi">40</span> \
     <span class="o">-</span><span class="n">s</span> <span class="n">build</span> <span class="o">&amp;&gt;</span> <span class="mi">060820</span><span class="o">-</span><span class="n">sos</span><span class="o">-</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span><span class="o">-</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">log</span>
 </pre></div>
 
@@ -339,7 +348,7 @@ body {
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/3ac67fbb03d384d98404e1eab8d596ffd9bdb2a8/analysis/WHR.ipynb"><code>analysis/WHR.ipynb</code></a> committed by dianacornejo on Tue Jun 16 12:00:12 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/3ac67fbb03d384d98404e1eab8d596ffd9bdb2a8">revision 1, 3ac67fb</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/5477ddbdc5ef58be5826e9d5a3264d0d7f646539/analysis/WHR.ipynb"><code>analysis/WHR.ipynb</code></a> committed by dianacornejo on Mon Jun 22 11:51:13 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/5477ddbdc5ef58be5826e9d5a3264d0d7f646539">revision 6, 5477ddb</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
