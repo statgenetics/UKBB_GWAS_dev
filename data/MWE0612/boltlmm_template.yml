@@ -1,9 +1,0 @@
-# BoltLMM summary statistics template
-CHR: CHR
-BP: BP
-REF: ALLELE0
-ALT: ALLELE1
-SNP: SNP
-BETA: BETA
-SE: SE
-P: P_BOLT_LMM
