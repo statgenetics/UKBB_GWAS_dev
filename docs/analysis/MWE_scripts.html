@@ -261,18 +261,18 @@ body {
 <span class="c1"># Defining bash variables for the different paths,</span>
 
 <span class="n">output</span><span class="o">=</span><span class="n">output</span>
-<span class="n">bfile</span><span class="o">=~/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">workflow</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">genotypes</span><span class="o">.</span><span class="n">bed</span>
-<span class="n">bgenFile</span><span class="o">=</span><span class="err">`</span><span class="n">echo</span> <span class="o">~/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">workflow</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">ukb_imp_chr</span><span class="p">{</span><span class="mf">1.</span><span class="o">.</span><span class="mi">22</span><span class="p">}</span><span class="n">_v3</span><span class="o">.</span><span class="n">bgen</span><span class="err">`</span>
-<span class="n">sampleFile</span><span class="o">=~/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">workflow</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">imputed_genotypes</span><span class="o">.</span><span class="n">sample</span>
-<span class="n">sumstatsFile</span><span class="o">=~/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">workflow</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">phenotypes_BMI</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
-<span class="n">unrelated_samples</span><span class="o">=~/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">workflow</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">imputed_genotypes</span><span class="o">.</span><span class="mi">1000</span><span class="n">unrelatedindivid</span>
+<span class="n">bfile</span><span class="o">=~/</span><span class="n">MWE0612</span><span class="o">/</span><span class="n">genotypes</span><span class="o">.</span><span class="n">bed</span>
+<span class="n">bgenFile</span><span class="o">=</span><span class="err">`</span><span class="n">echo</span> <span class="o">~/</span><span class="n">MWE0612</span><span class="o">/</span><span class="n">imputed_genotypes_chr2</span><span class="err">?</span><span class="o">.</span><span class="n">bgen</span><span class="err">`</span>
+<span class="n">sampleFile</span><span class="o">=~/</span><span class="n">MWE0612</span><span class="o">/</span><span class="n">imputed_genotypes</span><span class="o">.</span><span class="n">sample</span>
+<span class="n">sumstatsFile</span><span class="o">=~/</span><span class="n">MWE0612</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">phenotypes_BMI</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">unrelated_samples</span><span class="o">=~/</span><span class="n">MWE0612</span><span class="o">/</span><span class="n">unrelated_samples</span><span class="o">.</span><span class="n">txt</span>
 <span class="n">ld_sample_size</span><span class="o">=</span><span class="mi">100</span>
 <span class="n">clump_field</span><span class="o">=</span><span class="n">P</span>
 <span class="n">clump_p1</span><span class="o">=</span><span class="mf">0.05</span>
 <span class="n">clump_p2</span><span class="o">=</span><span class="mi">1</span>
 <span class="n">clump_r2</span><span class="o">=</span><span class="mf">0.2</span>
 <span class="n">clump_kb</span><span class="o">=</span><span class="mi">1000</span>
-<span class="n">clump_annotate</span><span class="o">=</span><span class="n">BP</span>
+<span class="n">clump_annotate</span><span class="o">=</span><span class="n">OR</span>
 <span class="n">numThreads</span><span class="o">=</span><span class="mi">20</span>
 <span class="n">job_size</span><span class="o">=</span><span class="mi">1</span>
 
@@ -295,7 +295,7 @@ body {
     <span class="o">--</span><span class="n">numThreads</span> <span class="err">$</span><span class="n">numThreads</span> \
     <span class="o">--</span><span class="n">job_size</span> <span class="err">$</span><span class="n">job_size</span>
     <span class="o">-</span><span class="n">q</span> <span class="n">localhost</span> \
-    <span class="o">-</span><span class="n">s</span> <span class="n">build</span> <span class="o">&amp;&gt;</span> <span class="mi">061620</span><span class="o">-</span><span class="n">sos</span><span class="o">-</span><span class="n">LD</span><span class="o">-</span><span class="n">MWE</span><span class="o">.</span><span class="n">log</span>
+    <span class="o">-</span><span class="n">s</span> <span class="n">build</span> <span class="o">&amp;&gt;</span> <span class="mi">062420</span><span class="o">-</span><span class="n">sos</span><span class="o">-</span><span class="n">LD</span><span class="o">-</span><span class="n">MWE</span><span class="o">.</span><span class="n">log</span>
 </pre></div>
 
     </div>
@@ -337,7 +337,7 @@ body {
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/5477ddbdc5ef58be5826e9d5a3264d0d7f646539/analysis/MWE_scripts.ipynb"><code>analysis/MWE_scripts.ipynb</code></a> committed by dianacornejo on Mon Jun 22 11:51:13 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/5477ddbdc5ef58be5826e9d5a3264d0d7f646539">revision 5, 5477ddb</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/b7ee75b0fc7b43469dacf713aff5aca4d83ac65a/analysis/MWE_scripts.ipynb"><code>analysis/MWE_scripts.ipynb</code></a> committed by dianacornejo on Wed Jun 24 18:08:10 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/b7ee75b0fc7b43469dacf713aff5aca4d83ac65a">revision 7, b7ee75b</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

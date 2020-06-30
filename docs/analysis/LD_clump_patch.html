@@ -251,7 +251,7 @@ body {
 <span class="c1"># Path to sample file</span>
 <span class="kn">parameter:</span> <span class="n">sampleFile</span> <span class="o">=</span> <span class="n">path</span>
 <span class="c1"># Path to summary stats file</span>
-<span class="kn">parameter:</span> <span class="n">sumstatsFile</span> <span class="o">=</span> <span class="n">path</span>
+<span class="kn">parameter:</span> <span class="n">sumstatsFiles</span> <span class="o">=</span> <span class="n">paths</span>
 <span class="c1"># Path to samples of unrelated individuals</span>
 <span class="kn">parameter:</span> <span class="n">unrelated_samples</span> <span class="o">=</span> <span class="n">path</span>
 <span class="c1"># Number of samples to use to compute LD</span>
@@ -296,6 +296,86 @@ body {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">sos</span> <span class="n">run</span> <span class="n">LD_clump_patch</span><span class="o">.</span><span class="n">ipynb</span> <span class="o">-</span><span class="n">h</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>usage: sos run LD_clump_patch.ipynb [workflow_name | -t targets] [options] [workflow_options]
+  workflow_name:        Single or combined workflows defined in this script
+  targets:              One or more targets to generate
+  options:              Single-hyphen sos parameters (see &#34;sos run -h&#34; for details)
+  workflow_options:     Double-hyphen workflow-specific parameters
+
+Workflows:
+  default
+
+Global Workflow Options:
+  --cwd VAL (as path, required)
+                        Working directory: change accordingly
+  --bfile VAL (as path, required)
+                        Genotype file in plink binary format
+  --bgenFile  paths
+
+                        Path to bgen files
+  --sampleFile VAL (as path, required)
+                        Path to sample file
+  --sumstatsFiles  paths
+
+                        Path to summary stats file
+  --unrelated-samples VAL (as path, required)
+                        Path to samples of unrelated individuals
+  --ld-sample-size 1000 (as int)
+                        Number of samples to use to compute LD
+  --clump-field VAL (as str, required)
+                        Clumping parameteres
+  --clump-annotate VAL (as str, required)
+  --clump-p1 5e-08 (as float)
+  --clump-p2 1 (as int)
+  --clump-r2 0.04 (as float)
+                        r2 = 0.04 =&gt; r = 0.2
+  --clump-kb 2000 (as int)
+  --job-size 1 (as int)
+                        For cluster jobs, number commands to run per job
+  --numThreads VAL (as int, required)
+                        Output the bgen file with 8bit formatting parameter:
+                        bgen_bits=16 Specific number of threads to use
+  --qctool-module &#39;\nmodule load QCTOOL/2.0-foss-2016b-rc7-CentOS6.8\necho &#34;Module qctool loaded&#34;\n{cmd}\n&#39;
+                        Load specific modules for each step
+  --plink2-module &#39;\nmodule load PLINK/2_x86_64_20180428\necho &#34;Module plink2 loaded&#34;\n{cmd}\n&#39;
+  --plink-module &#39;\nmodule load PLINK/1.90-beta5.3\necho &#34;Module plink loaded&#34;\n{cmd}\n&#39;
+
+Sections
+  default_1:            Select a subset of samples from the BGEN files
+  default_2:            Make the binary files for the selected samples
+  default_3:            Remove multiallelic variants and rename indels
+  default_4:            Merge all the .bed files into one reference file
+  default_5:            Perform LD-clumping in PLINKv1.9
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
@@ -324,7 +404,8 @@ body {
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">default_2</span><span class="p">]</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Make the binary files for the selected samples </span>
+<span class="p">[</span><span class="n">default_2</span><span class="p">]</span>
 <span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.bed&#39;</span>
 <span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;12G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span><span class="p">,</span> <span class="n">template</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{cmd}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">executable</span><span class="p">(</span><span class="s1">&#39;plink2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">target_exists</span><span class="p">()</span> <span class="k">else</span> <span class="n">plink2_module</span>
@@ -346,19 +427,33 @@ body {
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Extract snps only and remove multiallelic places</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Remove multiallelic variants and rename indels </span>
 <span class="p">[</span><span class="n">default_3</span><span class="p">]</span>
-<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.snps_only.bed&#39;</span>
+<span class="kn">depends:</span> <span class="n">Py_Module</span><span class="p">(</span><span class="s1">&#39;xxhash&#39;</span><span class="p">)</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.filtered.bed&#39;</span>
 <span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;12G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span><span class="p">,</span> <span class="n">template</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{cmd}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">executable</span><span class="p">(</span><span class="s1">&#39;plink&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">target_exists</span><span class="p">()</span> <span class="k">else</span> <span class="n">plink_module</span>
     <span class="n">cut</span>  <span class="o">-</span><span class="n">d</span><span class="err">$</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">-</span><span class="n">f2</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">n</span><span class="p">}</span><span class="o">.</span><span class="n">bim</span> <span class="o">|</span> <span class="n">sort</span> <span class="o">|</span> <span class="n">uniq</span> <span class="o">-</span><span class="n">d</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">nn</span><span class="p">}</span><span class="o">.</span><span class="n">exclude</span>
-    <span class="n">plink</span> \
+    <span class="n">plink2</span> \
     <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">n</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">exclude</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">nn</span><span class="p">}</span><span class="o">.</span><span class="n">exclude</span> \
     <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> \
     <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">threads</span> <span class="err">$</span><span class="p">{</span><span class="n">numThreads</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">memory</span> <span class="mi">12000</span>
+    
+<span class="kn">python:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span>
+    <span class="c1"># Fix SNP names longer than 50 characters. </span>
+    <span class="c1"># This will result in a false insufficient memory alert and error in the next step, if not dealt with</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+    <span class="kn">from</span> <span class="nn">xxhash</span> <span class="kn">import</span> <span class="n">xxh32</span> <span class="k">as</span> <span class="n">xxh</span>
+    <span class="k">def</span> <span class="nf">shorten_id</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">30</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">xxh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">dat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;${_output:bn}.bim&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">dat</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;chrom&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;gd&#39;</span><span class="p">,</span> <span class="s1">&#39;pos&#39;</span><span class="p">,</span> <span class="s1">&#39;a1&#39;</span><span class="p">,</span> <span class="s1">&#39;a2&#39;</span><span class="p">]</span>
+    <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">shorten_id</span><span class="p">)</span>
+    <span class="n">dat</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;$</span><span class="si">{_output:n}</span><span class="s1">.bim&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -374,9 +469,9 @@ body {
 <div class=" highlight hl-sos"><pre><span></span><span class="c1"># Merge all the .bed files into one reference file </span>
 <span class="p">[</span><span class="n">default_4</span><span class="p">]</span>
 <span class="kn">input:</span> <span class="n">group_by</span> <span class="o">=</span> <span class="s1">&#39;all&#39;</span>
-<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">sumstatsFile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.ref_geno.bed&#39;</span>
+<span class="kn">output:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">bfile</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">.ref_geno.bed&#39;</span>
 <span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;64G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">bn</span><span class="si">}</span><span class="s1">&#39;</span>
-<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span><span class="p">,</span> <span class="n">template_name</span><span class="o">=</span><span class="s1">&#39;conda&#39;</span><span class="p">,</span> <span class="n">env_name</span><span class="o">=</span><span class="s1">&#39;plink1.7&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span><span class="p">,</span> <span class="n">template</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{cmd}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">executable</span><span class="p">(</span><span class="s1">&#39;plink&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">target_exists</span><span class="p">()</span> <span class="k">else</span> <span class="n">plink_module</span>
     <span class="n">echo</span> <span class="o">-</span><span class="n">e</span> <span class="err">$</span><span class="p">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">_input</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])}</span> <span class="o">|</span> <span class="n">sed</span> <span class="s1">&#39;s/ /</span><span class="se">\n</span><span class="s1">/g&#39;</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span><span class="o">.</span><span class="n">merge_list</span>
     <span class="n">plink</span> \
     <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">n</span><span class="p">}</span> \
@@ -384,8 +479,7 @@ body {
     <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> \
     <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">threads</span> <span class="err">$</span><span class="p">{</span><span class="n">numThreads</span><span class="p">}</span> \
-    <span class="o">--</span><span class="n">memory</span> <span class="mi">64000</span> \
-    <span class="o">--</span><span class="n">noweb</span>
+    <span class="o">--</span><span class="n">memory</span> <span class="mi">64000</span>
 </pre></div>
 
     </div>
@@ -405,7 +499,7 @@ body {
 <span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">n</span><span class="si">}</span><span class="s1">.stdout&#39;</span><span class="p">,</span> <span class="n">template</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{cmd}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">executable</span><span class="p">(</span><span class="s1">&#39;plink&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">target_exists</span><span class="p">()</span> <span class="k">else</span> <span class="n">plink_module</span>    
     <span class="n">plink</span> \
     <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">:</span><span class="n">n</span><span class="p">}</span> \
-    <span class="o">--</span><span class="n">clump</span> <span class="err">$</span><span class="p">{</span><span class="n">sumstatsFile</span><span class="p">}</span> \
+    <span class="o">--</span><span class="n">clump</span> <span class="err">$</span><span class="p">{</span><span class="n">sumstatsFiles</span><span class="p">:,}</span> \
     <span class="o">--</span><span class="n">clump</span><span class="o">-</span><span class="n">field</span> <span class="err">$</span><span class="p">{</span><span class="n">clump_field</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">clump</span><span class="o">-</span><span class="n">p1</span> <span class="err">$</span><span class="p">{</span><span class="n">clump_p1</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">clump</span><span class="o">-</span><span class="n">p2</span> <span class="err">$</span><span class="p">{</span><span class="n">clump_p2</span><span class="p">}</span> \
@@ -413,6 +507,7 @@ body {
     <span class="o">--</span><span class="n">clump</span><span class="o">-</span><span class="n">kb</span> <span class="err">$</span><span class="p">{</span><span class="n">clump_kb</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">clump</span><span class="o">-</span><span class="n">verbose</span> \
     <span class="o">--</span><span class="n">clump</span><span class="o">-</span><span class="n">annotate</span> <span class="err">$</span><span class="p">{</span><span class="n">clump_annotate</span><span class="p">}</span> \
+    <span class="o">--</span><span class="n">clump</span><span class="o">-</span><span class="n">allow</span><span class="o">-</span><span class="n">overlap</span> \
     <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">n</span><span class="p">}</span> \
     <span class="o">--</span><span class="n">threads</span> <span class="err">$</span><span class="p">{</span><span class="n">numThreads</span><span class="p">}</span> \
     <span class="o">&amp;&amp;</span> <span class="n">touch</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> <span class="c1"># need to touch and create empty file because some chroms may not have anything significant to clump.</span>
@@ -426,7 +521,7 @@ body {
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/c2a20d44535fa0191f6b5a4e154ceb79400e0137/analysis/LD_clump_patch.ipynb"><code>analysis/LD_clump_patch.ipynb</code></a> committed by dianacornejo on Mon Jun 22 23:29:34 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/c2a20d44535fa0191f6b5a4e154ceb79400e0137">revision 16, c2a20d4</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/f45ec2d0ef03c53bdf086fa2a69a5ac7846e5fd4/analysis/LD_clump_patch.ipynb"><code>analysis/LD_clump_patch.ipynb</code></a> committed by dianacornejo on Wed Jun 24 16:54:51 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/f45ec2d0ef03c53bdf086fa2a69a5ac7846e5fd4">revision 23, f45ec2d</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

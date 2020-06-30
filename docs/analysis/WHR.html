@@ -346,9 +346,71 @@ body {
 </div>
 
 </div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">scripts</span><span class="o">/</span><span class="n">WHR_asthma_ldclumping</span><span class="o">.</span><span class="n">sbatch</span> <span class="o">-</span><span class="n">f</span>
+
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 1</span>
+<span class="c1">#SBATCH --mem 1G</span>
+<span class="c1">#SBATCH --time 3-0:00:00</span>
+<span class="c1">#SBATCH --job-name sos-submission</span>
+<span class="c1">#SBATCH --output sos-submission-%J.out</span>
+<span class="c1">#SBATCH --error sos-submission-%J.log</span>
+
+<span class="c1"># Set the bash variables </span>
+<span class="n">cwd</span><span class="o">=~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">plink</span><span class="o">-</span><span class="n">clumping</span>
+<span class="n">bfile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv</span><span class="o">.</span><span class="n">bed</span>
+<span class="n">bgenFile</span><span class="o">=</span><span class="err">`</span><span class="n">echo</span> <span class="o">/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb_imp_chr</span><span class="p">{</span><span class="mf">1.</span><span class="o">.</span><span class="mi">22</span><span class="p">}</span><span class="n">_v3</span><span class="o">.</span><span class="n">bgen</span><span class="err">`</span>
+<span class="n">sampleFile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb32285_imputedindiv</span><span class="o">.</span><span class="n">sample</span>
+<span class="n">sumstatsFiles</span><span class="o">=</span><span class="err">`</span><span class="n">echo</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">plink</span><span class="o">-</span><span class="n">clumping</span><span class="o">/*.</span><span class="n">sumstats</span><span class="o">.</span><span class="n">gz</span><span class="err">`</span>
+<span class="n">unrelated_samples</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">unrelated_n307259</span><span class="o">/</span><span class="n">UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620</span>
+<span class="n">ld_sample_size</span><span class="o">=</span><span class="mi">1210</span>
+<span class="n">clump_field</span><span class="o">=</span><span class="n">P</span>
+<span class="n">clump_p1</span><span class="o">=</span><span class="mf">5e-08</span>
+<span class="n">clump_p2</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">clump_r2</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="n">clump_kb</span><span class="o">=</span><span class="mi">2000</span>
+<span class="n">clump_annotate</span><span class="o">=</span><span class="n">BP</span>
+<span class="n">numThreads</span><span class="o">=</span><span class="mi">20</span>
+<span class="n">job_size</span><span class="o">=</span><span class="mi">1</span>
+
+<span class="c1">#Running the LDclumping workflow for INT-BMI trait</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">workflow</span><span class="o">/</span><span class="n">LD_Clumping</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">default</span> \
+    <span class="o">--</span><span class="n">cwd</span> <span class="err">$</span><span class="n">cwd</span> \
+    <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="n">bfile</span> \
+    <span class="o">--</span><span class="n">bgenFile</span> <span class="err">$</span><span class="n">bgenFile</span> \
+    <span class="o">--</span><span class="n">sampleFile</span> <span class="err">$</span><span class="n">sampleFile</span> \
+    <span class="o">--</span><span class="n">sumstatsFile</span> <span class="err">$</span><span class="n">sumstatsFile</span> \
+    <span class="o">--</span><span class="n">unrelated_samples</span> <span class="err">$</span><span class="n">unrelated_samples</span> \
+    <span class="o">--</span><span class="n">ld_sample_size</span> <span class="err">$</span><span class="n">ld_sample_size</span> \
+    <span class="o">--</span><span class="n">clump_field</span> <span class="err">$</span><span class="n">clump_field</span>\
+    <span class="o">--</span><span class="n">clump_p1</span> <span class="err">$</span><span class="n">clump_p1</span> \
+    <span class="o">--</span><span class="n">clump_p2</span> <span class="err">$</span><span class="n">clump_p2</span> \
+    <span class="o">--</span><span class="n">clump_r2</span> <span class="err">$</span><span class="n">clump_r2</span> \
+    <span class="o">--</span><span class="n">clump_kb</span> <span class="err">$</span><span class="n">clump_kb</span> \
+    <span class="o">--</span><span class="n">clump_annotate</span> <span class="err">$</span><span class="n">clump_annotate</span> \
+    <span class="o">--</span><span class="n">numThreads</span> <span class="err">$</span><span class="n">numThreads</span> \
+    <span class="o">--</span><span class="n">job_size</span> <span class="err">$</span><span class="n">job_size</span> \
+    <span class="o">-</span><span class="n">c</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">farnam</span><span class="o">.</span><span class="n">yml</span> <span class="o">-</span><span class="n">q</span> <span class="n">farnam</span> <span class="o">-</span><span class="n">J</span> <span class="mi">40</span> \
+    <span class="o">-</span><span class="n">s</span> <span class="n">build</span> <span class="o">&amp;&gt;</span> <span class="mi">062420</span><span class="o">-</span><span class="n">sos</span><span class="o">-</span><span class="n">INT</span><span class="o">-</span><span class="n">BMI_asthma</span><span class="o">-</span><span class="n">ldclumping</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/5477ddbdc5ef58be5826e9d5a3264d0d7f646539/analysis/WHR.ipynb"><code>analysis/WHR.ipynb</code></a> committed by dianacornejo on Mon Jun 22 11:51:13 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/5477ddbdc5ef58be5826e9d5a3264d0d7f646539">revision 6, 5477ddb</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/14cf8ab5829e128ed70704942eb699923b9e7911/analysis/WHR.ipynb"><code>analysis/WHR.ipynb</code></a> committed by dianacornejo on Wed Jun 24 16:21:24 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/14cf8ab5829e128ed70704942eb699923b9e7911">revision 9, 14cf8ab</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

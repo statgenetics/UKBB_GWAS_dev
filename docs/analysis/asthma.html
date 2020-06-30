@@ -291,6 +291,72 @@ qcovarFile=~/project/phenotypes_UKB/Asthma_casesbyICD10codesANDselfreport_contro
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">scripts</span><span class="o">/</span><span class="n">asthma_boltlmm</span><span class="o">.</span><span class="n">sbatch</span> <span class="o">-</span><span class="n">f</span>
+
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 1</span>
+<span class="c1">#SBATCH --mem 1G</span>
+<span class="c1">#SBATCH --time 3-0:00:00</span>
+<span class="c1">#SBATCH --job-name sos-submission</span>
+<span class="c1">#SBATCH --output sos-submission-%J.out</span>
+<span class="c1">#SBATCH --error sos-submission-%J.log</span>
+
+<span class="c1"># Defining bash variables for the different paths,</span>
+
+<span class="n">cwd</span><span class="o">=~/</span><span class="n">scratch60</span><span class="o">/</span><span class="mi">2020</span><span class="o">-</span><span class="mi">04</span><span class="n">_bolt</span><span class="o">/</span><span class="n">asthma</span>
+<span class="n">bfile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv</span><span class="o">.</span><span class="n">bed</span>
+<span class="n">sampleFile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span>
+<span class="o">/</span><span class="n">ukb32285_imputedindiv</span><span class="o">.</span><span class="n">sample</span>
+<span class="n">bgenFile</span><span class="o">=</span><span class="err">`</span><span class="n">echo</span> <span class="o">/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb_imp_chr</span><span class="p">{</span><span class="mf">1.</span><span class="o">.</span><span class="mi">22</span><span class="p">}</span><span class="n">_v3</span><span class="o">.</span><span class="n">bgen</span><span class="err">`</span>
+<span class="n">phenoFile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">pleiotropy_R01</span><span class="o">/</span><span class="n">phenotypesforanalysis</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720</span>
+<span class="n">covarFile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">pleiotropy_R01</span><span class="o">/</span><span class="n">phenotypesforanalysis</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720</span>
+<span class="n">LDscoresFile</span><span class="o">=~/</span><span class="n">software</span><span class="o">/</span><span class="n">BOLT</span><span class="o">-</span><span class="n">LMM_v2</span><span class="o">.</span><span class="mf">3.4</span><span class="o">/</span><span class="n">tables</span><span class="o">/</span><span class="n">LDSCORE</span><span class="o">.</span><span class="mi">1000</span><span class="n">G_EUR</span><span class="o">.</span><span class="n">tab</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">geneticMapFile</span><span class="o">=~/</span><span class="n">software</span><span class="o">/</span><span class="n">BOLT</span><span class="o">-</span><span class="n">LMM_v2</span><span class="o">.</span><span class="mf">3.4</span><span class="o">/</span><span class="n">tables</span><span class="o">/</span><span class="n">genetic_map_hg19_withX</span><span class="o">.</span><span class="n">txt</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">phenoCol</span><span class="o">=</span><span class="n">ASTHMA</span>
+<span class="n">covarCol</span><span class="o">=</span><span class="n">SEX</span>
+<span class="n">covarMaxLevels</span><span class="o">=</span><span class="mi">10</span>
+<span class="n">qCovarCol</span><span class="o">=</span><span class="n">AGE</span>
+<span class="n">numThreads</span><span class="o">=</span><span class="mi">20</span>
+<span class="n">bgenMinMAF</span><span class="o">=</span><span class="mf">0.001</span>
+<span class="n">bgenMinINFO</span><span class="o">=</span><span class="mf">0.8</span>
+<span class="n">job_size</span><span class="o">=</span><span class="mi">1</span>
+
+<span class="c1">#Running the workflow for BMI trait. Here, sex and age where used as covariates</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">workflow</span><span class="o">/</span><span class="n">LMM</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">boltlmm</span> \
+    <span class="o">--</span><span class="n">cwd</span> <span class="err">$</span><span class="n">cwd</span> \
+    <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="n">bfile</span> \
+    <span class="o">--</span><span class="n">sampleFile</span> <span class="err">$</span><span class="n">sampleFile</span> \
+    <span class="o">--</span><span class="n">bgenFile</span> <span class="err">$</span><span class="n">bgenFile</span> \
+    <span class="o">--</span><span class="n">phenoFile</span> <span class="err">$</span><span class="n">phenoFile</span> \
+    <span class="o">--</span><span class="n">covarFile</span> <span class="err">$</span><span class="n">covarFile</span> \
+    <span class="o">--</span><span class="n">LDscoresFile</span> <span class="err">$</span><span class="n">LDscoresFile</span> \
+    <span class="o">--</span><span class="n">geneticMapFile</span> <span class="err">$</span><span class="n">geneticMapFile</span> \
+    <span class="o">--</span><span class="n">phenoCol</span> <span class="err">$</span><span class="n">phenoCol</span> \
+    <span class="o">--</span><span class="n">covarCol</span> <span class="err">$</span><span class="n">covarCol</span> \
+    <span class="o">--</span><span class="n">covarMaxLevels</span> <span class="err">$</span><span class="n">covarMaxLevels</span> \
+    <span class="o">--</span><span class="n">qCovarCol</span> <span class="err">$</span><span class="n">qCovarCol</span> \
+    <span class="o">--</span><span class="n">numThreads</span> <span class="err">$</span><span class="n">numThreads</span> \
+    <span class="o">--</span><span class="n">bgenMinMAF</span> <span class="err">$</span><span class="n">bgenMinMAF</span> \
+    <span class="o">--</span><span class="n">bgenMinINFO</span> <span class="err">$</span><span class="n">bgenMinINFO</span> \
+    <span class="o">--</span><span class="n">job_size</span> <span class="err">$</span><span class="n">job_size</span> \
+    <span class="o">-</span><span class="n">c</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">farnam</span><span class="o">.</span><span class="n">yml</span> <span class="o">-</span><span class="n">q</span> <span class="n">farnam</span> <span class="o">-</span><span class="n">J</span> <span class="mi">40</span> \
+    <span class="o">-</span><span class="n">s</span> <span class="n">build</span> <span class="o">&amp;&gt;</span> <span class="mi">062420</span><span class="o">-</span><span class="n">sos</span><span class="o">-</span><span class="n">ASTHMA</span><span class="o">-</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">scripts</span><span class="o">/</span><span class="n">asthma_fastGWA</span><span class="o">.</span><span class="n">sbatch</span> <span class="o">-</span><span class="n">f</span>
 
 <span class="c1">#!/bin/bash</span>
@@ -410,7 +476,7 @@ qcovarFile=~/project/phenotypes_UKB/Asthma_casesbyICD10codesANDselfreport_contro
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/5477ddbdc5ef58be5826e9d5a3264d0d7f646539/analysis/asthma.ipynb"><code>analysis/asthma.ipynb</code></a> committed by dianacornejo on Mon Jun 22 11:51:13 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/5477ddbdc5ef58be5826e9d5a3264d0d7f646539">revision 10, 5477ddb</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/91bcd45a3abf1b3abdda2592913fd78f50036b5f/analysis/asthma.ipynb"><code>analysis/asthma.ipynb</code></a> committed by dianacornejo on Wed Jun 24 21:56:26 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/91bcd45a3abf1b3abdda2592913fd78f50036b5f">revision 12, 91bcd45</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
