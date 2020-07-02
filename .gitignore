@@ -56,3 +56,4 @@ _region_.tex
 **/__pycache__
 **/_index.ipynb
 **/_index.html
+**/*.sbatch
