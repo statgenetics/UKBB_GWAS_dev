@@ -1,6 +1,6 @@
 # BoltLMM summary statistics template
 CHR: CHR
-BP: BP
+POS: BP
 REF: ALLELE0
 ALT: ALLELE1
 SNP: SNP
