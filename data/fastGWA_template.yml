@@ -1,6 +1,6 @@
 # FastGWA summary statistics template
 CHR: CHR
-BP: POS
+POS: POS
 REF: A2
 ALT: A1
 SNP: SNP
