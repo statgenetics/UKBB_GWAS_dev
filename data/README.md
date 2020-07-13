@@ -1,3 +1,5 @@
+# Pleiotropy project
+
 ## Location of phenotypic, genotypic and imputed data files used in the project
 
 ### Phenotypic files
@@ -41,3 +43,11 @@ Output:
 ### Summary statistics
 
 `/SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results`
+
+# Hearing impairment Project
+
+## Analysis plan 
+The analysis plan and the traits to analyze are in the google doc share [document] (https://docs.google.com/document/d/1cpxTzElpsEkwmBDjnMBHg2wW7CL1AcG_b0_0wE_k5rQ/edit)
+
+## Exclusion criteria 
+The ICD10 and ICD9 codes used as exclusion criteria are in this [document](https://docs.google.com/spreadsheets/d/12L7Cx4Ov8FppGVmG0DxL9uG-lVRHM5QJSea0nORyirQ/edit#gid=0)
