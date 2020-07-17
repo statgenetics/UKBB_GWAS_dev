@@ -621,7 +621,7 @@ sacct -S start-date -u user-name</code></pre>
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Accessing-an-interactive-node">Accessing an interactive node<a class="anchor-link" href="#Accessing-an-interactive-node">&#182;</a></h2><p>Interactive jobs can be used for testing and troubleshooting code. By requesting an interactive job, you will be allocated resources and logged onto the node in a shell.</p>
 
-<pre><code>srun --pty -p interactive --mem-per-cpu=48G --cpus-per-task=1 --time=1-00:00:00 bash</code></pre>
+<pre><code>srun --pty -p interactive --mem-per-cpu=20G --cpus-per-task=1 --time=1-00:00:00 bash</code></pre>
 
 </div>
 </div>
@@ -637,43 +637,62 @@ sacct -S start-date -u user-name</code></pre>
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>After completing the runs of the association analysis you should copy the results to the project shared folder</p>
-<h4 id="Path">Path<a class="anchor-link" href="#Path">&#182;</a></h4><p><code>/SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results/results_imputed_data/INT-BMI</code></p>
+<h4 id="Path">Path<a class="anchor-link" href="#Path">&#182;</a></h4>
+<pre><code>/SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results/results_imputed_data/
+/SAY/dbgapstg/scratch/UKBiobank/results/FastGWA_results/results_imputed_data/</code></pre>
 <ul>
 <li>The combined association analyses for the imputed data in .snp_stats.gz</li>
-</ul>
-<p>cp ukb_imp_allchr_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.snp_stats.gz /SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results/results_imputed_data</p>
-<ul>
 <li>The combined association analyses for the hard called genotypes in .stats.gz</li>
-</ul>
-<p>cp ukb_imp_allchr_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.stats.gz /SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results/results_imputed_data</p>
-<ul>
 <li>The gziped .stderr files in .stats.stderr.gz</li>
-</ul>
-<p>cp ukb_imp_allchr_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.stats.stderr.gz /SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results/results_imputed_data</p>
-<ul>
 <li>The gziped .stdout files in .stdout.gz</li>
 </ul>
-<p>cp ukb_imp_allchr_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720.BoltLMM.stdout.gz /SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results/results_imputed_data</p>
 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span>
-</pre></div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Checking-job-failure-on-cluster">Checking job failure on cluster<a class="anchor-link" href="#Checking-job-failure-on-cluster">&#182;</a></h1><p>When a job fails in the cluster make sure you do quadruple check to understand the origin of the error</p>
+<h3 id="Step-1">Step 1<a class="anchor-link" href="#Step-1">&#182;</a></h3><p>Check the log file generated &amp;&gt; file.log that is located in the folder where you run the script</p>
+<h3 id="Step-2">Step 2<a class="anchor-link" href="#Step-2">&#182;</a></h3><p>Check the stderr files that will be located in the output folder you choose</p>
+<h3 id="Step-3">Step 3<a class="anchor-link" href="#Step-3">&#182;</a></h3><p>Check the .err files generated in the same folder where you run the script</p>
+<h3 id="Step-4">Step 4<a class="anchor-link" href="#Step-4">&#182;</a></h3><p>Check the output of sos status task -v4</p>
+<p>Note: it is suggested that you remove all err and out files <code>rm *.err *.out</code>  when you decide to run another round</p>
 
-    </div>
 </div>
 </div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Purging-traces-after-runs">Purging traces after runs<a class="anchor-link" href="#Purging-traces-after-runs">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>First of all, make sure there are not running pipelines.
+Then, under the working directory (the place where you run the sbatch scripts) run the following commands to remove any traces of previous runs</p>
 
+<pre><code>rm -rf ~/.sos
+rm -rf .sos</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>tar -czvf name-of-archive.tar.gz /path/to/directory-or-file</p>
+
+</div>
+</div>
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/91bcd45a3abf1b3abdda2592913fd78f50036b5f/workflow/setup.ipynb"><code>workflow/setup.ipynb</code></a> committed by dianacornejo on Wed Jun 24 21:56:26 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/91bcd45a3abf1b3abdda2592913fd78f50036b5f">revision 17, 91bcd45</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/8f97e42f4925c216e2afd56e481c7a6f88baa808/workflow/setup.ipynb"><code>workflow/setup.ipynb</code></a> committed by dianacornejo on Tue Jul 14 13:05:37 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/8f97e42f4925c216e2afd56e481c7a6f88baa808">revision 24, 8f97e42</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

@@ -246,7 +246,7 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>This notebook applies <a href="https://dianacornejo.github.io/pleiotropy_UKB/workflow">various LMM workflows</a> to perform association analysis for WHR.</p>
+<p>This notebook applies <a href="https://github.com/statgenetics/UKBB_GWAS_dev/tree/master/workflow">various LMM workflows</a> to perform association analysis for WHR.</p>
 
 </div>
 </div>
@@ -275,9 +275,15 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Running-this-notebook-on-the-cluster-to-generate-the-specific-scripts">Running this notebook on the cluster to generate the specific scripts<a class="anchor-link" href="#Running-this-notebook-on-the-cluster-to-generate-the-specific-scripts">&#182;</a></h2>
-<pre><code>sos convert ~/project/UKBB_GWAS_DEV/analysis/WHR.ipynb ~/project/UKBB_GWAS_DEV/docs/analysis/WHR.html --execute</code></pre>
+<h2 id="07/01/20-analysis">07/01/20 analysis<a class="anchor-link" href="#07/01/20-analysis">&#182;</a></h2><p>On the cluster, open up this notebook using the JupyterLab server you set up via the ssh channel, then run the following cells,</p>
 
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Bash-variables-for-workflow-configurations">Bash variables for workflow configurations<a class="anchor-link" href="#Bash-variables-for-workflow-configurations">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -286,27 +292,24 @@ body {
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">INT</span><span class="o">-</span><span class="n">WHR_boltlmm</span><span class="o">.</span><span class="n">sbatch</span> <span class="o">-</span><span class="n">f</span>
-
-<span class="c1">#!/bin/bash</span>
-<span class="c1">#SBATCH --partition general</span>
-<span class="c1">#SBATCH --nodes 1</span>
-<span class="c1">#SBATCH --ntasks-per-node 1</span>
-<span class="c1">#SBATCH --cpus-per-task 1</span>
-<span class="c1">#SBATCH --mem 1G</span>
-<span class="c1">#SBATCH --time 3-0:00:00</span>
-<span class="c1">#SBATCH --job-name sos-submission</span>
-<span class="c1">#SBATCH --output sos-submission-%J.out</span>
-<span class="c1">#SBATCH --error sos-submission-%J.log</span>
-
-<span class="c1"># Defining bash variables for the different paths,</span>
-
-<span class="n">cwd</span><span class="o">=~/</span><span class="n">scratch60</span><span class="o">/</span><span class="mi">2020</span><span class="o">-</span><span class="mi">04</span><span class="n">_bolt</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span>
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Common variables</span>
+<span class="n">tpl_file</span><span class="o">=../</span><span class="n">farnam</span><span class="o">.</span><span class="n">yml</span>
 <span class="n">bfile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv</span><span class="o">.</span><span class="n">bed</span>
 <span class="n">sampleFile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb32285_imputedindiv</span><span class="o">.</span><span class="n">sample</span>
-<span class="n">bgenFile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb_imp_chr</span><span class="p">{</span><span class="mf">1.</span><span class="o">.</span><span class="mi">22</span><span class="p">}</span><span class="n">_v3</span><span class="o">.</span><span class="n">bgen</span>
-<span class="n">phenoFile</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">phenotypes_UKB</span><span class="o">/</span><span class="n">UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT</span><span class="o">-</span><span class="n">WHR_withagesex_042020</span>
-<span class="n">covarFile</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">phenotypes_UKB</span><span class="o">/</span><span class="n">UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT</span><span class="o">-</span><span class="n">WHR_withagesex_042020</span>
+<span class="n">bgenFile</span><span class="o">=</span><span class="err">`</span><span class="n">echo</span> <span class="o">/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb_imp_chr</span><span class="p">{</span><span class="mf">1.</span><span class="o">.</span><span class="mi">22</span><span class="p">}</span><span class="n">_v3</span><span class="o">.</span><span class="n">bgen</span><span class="err">`</span>
+<span class="n">unrelated_samples</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">unrelated_n307259</span><span class="o">/</span><span class="n">UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620</span>
+<span class="n">formatFile_bolt</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">boltlmm_template</span><span class="o">.</span><span class="n">yml</span>
+<span class="c1"># LMM directories</span>
+<span class="n">lmm_dir_fastgwa</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span>
+<span class="n">lmm_dir_bolt</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">BOLTLMM_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span>
+<span class="n">lmm_dir_saige</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">SAIGE_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span>
+<span class="n">lmm_sos</span><span class="o">=../</span><span class="n">workflow</span><span class="o">/</span><span class="n">LMM</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="n">lmm_sbatch_fastgwa</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_INT</span><span class="o">-</span><span class="n">WHR</span><span class="o">-</span><span class="n">fastgwa</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">lmm_sbatch_bolt</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_INT</span><span class="o">-</span><span class="n">WHR</span><span class="o">-</span><span class="n">bolt</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">lmm_sbatch_saige</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_INT</span><span class="o">-</span><span class="n">WHR</span><span class="o">-</span><span class="n">saige</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">phenoFile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">pleiotropy_R01</span><span class="o">/</span><span class="n">phenotypesforanalysis</span><span class="o">/</span><span class="n">normalized_phenotypes</span><span class="o">/</span><span class="n">phenotypes_UKB</span><span class="o">/</span><span class="n">UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT</span><span class="o">-</span><span class="n">WHR_withagesex_042020</span>
+<span class="c1">## LMM variables </span>
+<span class="n">covarFile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">pleiotropy_R01</span><span class="o">/</span><span class="n">phenotypesforanalysis</span><span class="o">/</span><span class="n">normalized_phenotypes</span><span class="o">/</span><span class="n">UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT</span><span class="o">-</span><span class="n">WHR_withagesex_042020</span>
 <span class="n">LDscoresFile</span><span class="o">=~/</span><span class="n">software</span><span class="o">/</span><span class="n">BOLT</span><span class="o">-</span><span class="n">LMM_v2</span><span class="o">.</span><span class="mf">3.4</span><span class="o">/</span><span class="n">tables</span><span class="o">/</span><span class="n">LDSCORE</span><span class="o">.</span><span class="mi">1000</span><span class="n">G_EUR</span><span class="o">.</span><span class="n">tab</span><span class="o">.</span><span class="n">gz</span>
 <span class="n">geneticMapFile</span><span class="o">=~/</span><span class="n">software</span><span class="o">/</span><span class="n">BOLT</span><span class="o">-</span><span class="n">LMM_v2</span><span class="o">.</span><span class="mf">3.4</span><span class="o">/</span><span class="n">tables</span><span class="o">/</span><span class="n">genetic_map_hg19_withX</span><span class="o">.</span><span class="n">txt</span><span class="o">.</span><span class="n">gz</span>
 <span class="n">phenoCol</span><span class="o">=</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span>
@@ -316,61 +319,23 @@ body {
 <span class="n">numThreads</span><span class="o">=</span><span class="mi">20</span>
 <span class="n">bgenMinMAF</span><span class="o">=</span><span class="mf">0.001</span>
 <span class="n">bgenMinINFO</span><span class="o">=</span><span class="mf">0.8</span>
-<span class="n">job_size</span><span class="o">=</span><span class="mi">1</span>
-
-<span class="c1">#Running the workflow for INT-WHR trait. Here I used age, sex and BMI as covariates.</span>
-
-<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">workflow</span><span class="o">/</span><span class="n">LMM</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">boltlmm</span> \
-    <span class="o">--</span><span class="n">cwd</span> <span class="err">$</span><span class="n">cwd</span> \
-    <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="n">bfile</span> \
-    <span class="o">--</span><span class="n">sampleFile</span> <span class="err">$</span><span class="n">sampleFile</span> \
-    <span class="o">--</span><span class="n">bgenFile</span> <span class="err">$</span><span class="n">bgenFile</span> \
-    <span class="o">--</span><span class="n">phenoFile</span> <span class="err">$</span><span class="n">phenoFile</span> \
-    <span class="o">--</span><span class="n">covarFile</span> <span class="err">$</span><span class="n">covarFile</span> \
-    <span class="o">--</span><span class="n">LDscoresFile</span> <span class="err">$</span><span class="n">LDscoresFile</span> \
-    <span class="o">--</span><span class="n">geneticMapFile</span> <span class="err">$</span><span class="n">geneticMapFile</span> \
-    <span class="o">--</span><span class="n">phenoCol</span> <span class="err">$</span><span class="n">phenoCol</span> \
-    <span class="o">--</span><span class="n">covarCol</span> <span class="err">$</span><span class="n">covarCol</span> \
-    <span class="o">--</span><span class="n">covarMaxLevels</span> <span class="err">$</span><span class="n">covarMaxLevels</span> \
-    <span class="o">--</span><span class="n">qCovarCol</span> <span class="err">$</span><span class="n">qCovarCol</span> \
-    <span class="o">--</span><span class="n">numThreads</span> <span class="err">$</span><span class="n">numThreads</span> \
-    <span class="o">--</span><span class="n">bgenMinMAF</span> <span class="err">$</span><span class="n">bgenMinMAF</span> \
-    <span class="o">--</span><span class="n">bgenMinINFO</span> <span class="err">$</span><span class="n">bgenMinINFO</span> \
-    <span class="o">--</span><span class="n">job_size</span> <span class="err">$</span><span class="n">job_size</span> \
-    <span class="o">-</span><span class="n">c</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">farnam</span><span class="o">.</span><span class="n">yml</span> <span class="o">-</span><span class="n">q</span> <span class="n">farnam</span> <span class="o">-</span><span class="n">J</span> <span class="mi">40</span> \
-    <span class="o">-</span><span class="n">s</span> <span class="n">build</span> <span class="o">&amp;&gt;</span> <span class="mi">060820</span><span class="o">-</span><span class="n">sos</span><span class="o">-</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span><span class="o">-</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">log</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">scripts</span><span class="o">/</span><span class="n">WHR_asthma_ldclumping</span><span class="o">.</span><span class="n">sbatch</span> <span class="o">-</span><span class="n">f</span>
-
-<span class="c1">#!/bin/bash</span>
-<span class="c1">#SBATCH --partition general</span>
-<span class="c1">#SBATCH --nodes 1</span>
-<span class="c1">#SBATCH --ntasks-per-node 1</span>
-<span class="c1">#SBATCH --cpus-per-task 1</span>
-<span class="c1">#SBATCH --mem 1G</span>
-<span class="c1">#SBATCH --time 3-0:00:00</span>
-<span class="c1">#SBATCH --job-name sos-submission</span>
-<span class="c1">#SBATCH --output sos-submission-%J.out</span>
-<span class="c1">#SBATCH --error sos-submission-%J.log</span>
-
-<span class="c1"># Set the bash variables </span>
-<span class="n">cwd</span><span class="o">=~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">plink</span><span class="o">-</span><span class="n">clumping</span>
-<span class="n">bfile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv</span><span class="o">.</span><span class="n">bed</span>
-<span class="n">bgenFile</span><span class="o">=</span><span class="err">`</span><span class="n">echo</span> <span class="o">/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb_imp_chr</span><span class="p">{</span><span class="mf">1.</span><span class="o">.</span><span class="mi">22</span><span class="p">}</span><span class="n">_v3</span><span class="o">.</span><span class="n">bgen</span><span class="err">`</span>
-<span class="n">sampleFile</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb32285_imputedindiv</span><span class="o">.</span><span class="n">sample</span>
-<span class="n">sumstatsFiles</span><span class="o">=</span><span class="err">`</span><span class="n">echo</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">plink</span><span class="o">-</span><span class="n">clumping</span><span class="o">/*.</span><span class="n">sumstats</span><span class="o">.</span><span class="n">gz</span><span class="err">`</span>
-<span class="n">unrelated_samples</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">unrelated_n307259</span><span class="o">/</span><span class="n">UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620</span>
+<span class="n">lmm_job_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="c1">### Specific to SAIGE</span>
+<span class="n">bgenMinMAC</span><span class="o">=</span><span class="mi">4</span>
+<span class="n">trait_type</span><span class="o">=</span><span class="n">quantitative</span>
+<span class="n">loco</span><span class="o">=</span><span class="n">TRUE</span>
+<span class="n">sampleCol</span><span class="o">=</span><span class="n">IID</span>
+<span class="c1"># LD clumping directories</span>
+<span class="n">clumping_dir</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">LD_clumping</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span>
+<span class="n">clumping_sos</span><span class="o">=../</span><span class="n">workflow</span><span class="o">/</span><span class="n">LD_Clumping</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="n">clumping_sbatch</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_INT</span><span class="o">-</span><span class="n">WHR_ldclumping</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="c1">## LD clumping variables</span>
+<span class="c1"># For sumtastsFiles if more than one provide each path</span>
+<span class="n">bfile_ref</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">LD_clumping</span><span class="o">/</span><span class="n">UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv</span><span class="o">.</span><span class="mf">1210.</span><span class="n">ref_geno</span><span class="o">.</span><span class="n">bed</span>
+<span class="c1"># Changes dependending upon which traits are analyzed</span>
+<span class="c1"># In this case INT-WHR and asthma</span>
+<span class="n">sumstatsFiles</span><span class="o">=</span><span class="p">(</span><span class="o">/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">BOLTLMM_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span><span class="o">/</span><span class="n">ukb_imp_v3</span><span class="o">.</span><span class="n">UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT</span><span class="o">-</span><span class="n">WHR_withagesex_042020</span><span class="o">.</span><span class="n">BoltLMM</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">all_chr</span><span class="o">.</span><span class="n">gz</span> \
+               <span class="o">/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_v3</span><span class="o">.</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">all_chr</span><span class="o">.</span><span class="n">gz</span><span class="p">)</span>
 <span class="n">ld_sample_size</span><span class="o">=</span><span class="mi">1210</span>
 <span class="n">clump_field</span><span class="o">=</span><span class="n">P</span>
 <span class="n">clump_p1</span><span class="o">=</span><span class="mf">5e-08</span>
@@ -379,28 +344,231 @@ body {
 <span class="n">clump_kb</span><span class="o">=</span><span class="mi">2000</span>
 <span class="n">clump_annotate</span><span class="o">=</span><span class="n">BP</span>
 <span class="n">numThreads</span><span class="o">=</span><span class="mi">20</span>
-<span class="n">job_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">clump_job_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="c1"># Region extraction directories</span>
+<span class="n">extract_dir</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">region_extraction</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span>
+<span class="n">extract_sos</span><span class="o">=../</span><span class="n">workflow</span><span class="o">/</span><span class="n">Region_Extraction</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="n">extract_sbatch</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_INT</span><span class="o">-</span><span class="n">WHR</span><span class="o">-</span><span class="n">region</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="c1">## Region extraction variables</span>
+<span class="n">region_file</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">LD_clumping</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span><span class="o">/*.</span><span class="n">clumped_region</span>
+<span class="n">geno_path</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">UKBB_bgenfilepath</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">sumstats_path</span><span class="o">=/</span><span class="n">SAY</span><span class="o">/</span><span class="n">dbgapstg</span><span class="o">/</span><span class="n">scratch</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">BOLTLMM_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span><span class="o">/</span><span class="n">ukb_imp_v3</span><span class="o">.</span><span class="n">UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT</span><span class="o">-</span><span class="n">WHR_withagesex_042020</span><span class="o">.</span><span class="n">BoltLMM</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">all_chr</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">extract_job_size</span><span class="o">=</span><span class="mi">10</span>
+</pre></div>
 
-<span class="c1">#Running the LDclumping workflow for INT-BMI trait</span>
+    </div>
+</div>
+</div>
 
-<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">workflow</span><span class="o">/</span><span class="n">LD_Clumping</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">default</span> \
-    <span class="o">--</span><span class="n">cwd</span> <span class="err">$</span><span class="n">cwd</span> \
-    <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="n">bfile</span> \
-    <span class="o">--</span><span class="n">bgenFile</span> <span class="err">$</span><span class="n">bgenFile</span> \
-    <span class="o">--</span><span class="n">sampleFile</span> <span class="err">$</span><span class="n">sampleFile</span> \
-    <span class="o">--</span><span class="n">sumstatsFile</span> <span class="err">$</span><span class="n">sumstatsFile</span> \
-    <span class="o">--</span><span class="n">unrelated_samples</span> <span class="err">$</span><span class="n">unrelated_samples</span> \
-    <span class="o">--</span><span class="n">ld_sample_size</span> <span class="err">$</span><span class="n">ld_sample_size</span> \
-    <span class="o">--</span><span class="n">clump_field</span> <span class="err">$</span><span class="n">clump_field</span>\
-    <span class="o">--</span><span class="n">clump_p1</span> <span class="err">$</span><span class="n">clump_p1</span> \
-    <span class="o">--</span><span class="n">clump_p2</span> <span class="err">$</span><span class="n">clump_p2</span> \
-    <span class="o">--</span><span class="n">clump_r2</span> <span class="err">$</span><span class="n">clump_r2</span> \
-    <span class="o">--</span><span class="n">clump_kb</span> <span class="err">$</span><span class="n">clump_kb</span> \
-    <span class="o">--</span><span class="n">clump_annotate</span> <span class="err">$</span><span class="n">clump_annotate</span> \
-    <span class="o">--</span><span class="n">numThreads</span> <span class="err">$</span><span class="n">numThreads</span> \
-    <span class="o">--</span><span class="n">job_size</span> <span class="err">$</span><span class="n">job_size</span> \
-    <span class="o">-</span><span class="n">c</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_DEV</span><span class="o">/</span><span class="n">farnam</span><span class="o">.</span><span class="n">yml</span> <span class="o">-</span><span class="n">q</span> <span class="n">farnam</span> <span class="o">-</span><span class="n">J</span> <span class="mi">40</span> \
-    <span class="o">-</span><span class="n">s</span> <span class="n">build</span> <span class="o">&amp;&gt;</span> <span class="mi">062420</span><span class="o">-</span><span class="n">sos</span><span class="o">-</span><span class="n">INT</span><span class="o">-</span><span class="n">BMI_asthma</span><span class="o">-</span><span class="n">ldclumping</span><span class="o">.</span><span class="n">log</span>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="BoltLMM-job">BoltLMM job<a class="anchor-link" href="#BoltLMM-job">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1">#Running the workflow for INT-WHR trait. Here I used age, sex and BMI as covariates.</span>
+<span class="n">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;boltlmm</span>
+<span class="s2">    --cwd $lmm_dir_bolt</span>
+<span class="s2">    --bfile $bfile </span>
+<span class="s2">    --sampleFile $sampleFile</span>
+<span class="s2">    --bgenFile $bgenFile </span>
+<span class="s2">    --phenoFile $phenoFile </span>
+<span class="s2">    --formatFile $formatFile </span>
+<span class="s2">    --covarFile $covarFile </span>
+<span class="s2">    --LDscoresFile $LDscoresFile </span>
+<span class="s2">    --geneticMapFile $geneticMapFile </span>
+<span class="s2">    --phenoCol $phenoCol </span>
+<span class="s2">    --covarCol $covarCol </span>
+<span class="s2">    --covarMaxLevels $covarMaxLevels </span>
+<span class="s2">    --qCovarCol $qCovarCol </span>
+<span class="s2">    --numThreads $numThreads </span>
+<span class="s2">    --bgenMinMAF $bgenMinMAF </span>
+<span class="s2">    --bgenMinINFO $bgenMinINFO </span>
+<span class="s2">    --job_size $lmm_job_size</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">../</span><span class="n">workflow</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="n">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="n">file</span> <span class="err">$</span><span class="n">lmm_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">lmm_sbatch_bolt</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$lmm_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="FastGWA-job">FastGWA job<a class="anchor-link" href="#FastGWA-job">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;fastGWA</span>
+<span class="s2">    --cwd $lmm_dir_fastgwa </span>
+<span class="s2">    --bfile $bfile </span>
+<span class="s2">    --sampleFile $sampleFile</span>
+<span class="s2">    --bgenFile $bgenFile </span>
+<span class="s2">    --phenoFile $phenoFile </span>
+<span class="s2">    --formatFile $formatFile_fastgwa </span>
+<span class="s2">    --covarFile $covarFile </span>
+<span class="s2">    --LDscoresFile $LDscoresFile </span>
+<span class="s2">    --geneticMapFile $geneticMapFile </span>
+<span class="s2">    --phenoCol $phenoCol </span>
+<span class="s2">    --covarCol $covarCol </span>
+<span class="s2">    --covarMaxLevels $covarMaxLevels </span>
+<span class="s2">    --qCovarCol $qCovarCol </span>
+<span class="s2">    --numThreads $numThreads </span>
+<span class="s2">    --bgenMinMAF $bgenMinMAF </span>
+<span class="s2">    --bgenMinINFO $bgenMinINFO </span>
+<span class="s2">    --job_size $lmm_job_size</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">../</span><span class="n">workflow</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="n">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="n">file</span> <span class="err">$</span><span class="n">lmm_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">lmm_sbatch_fastgwa</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$lmm_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="SAIGE-job">SAIGE job<a class="anchor-link" href="#SAIGE-job">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;SAIGE</span>
+<span class="s2">    --cwd $lmm_dir_saige </span>
+<span class="s2">    --bfile $bfile </span>
+<span class="s2">    --sampleFile $sampleFile</span>
+<span class="s2">    --bgenFile $bgenFile </span>
+<span class="s2">    --phenoFile $phenoFile </span>
+<span class="s2">    --formatFile $formatFile_saige </span>
+<span class="s2">    --covarFile $covarFile </span>
+<span class="s2">    --LDscoresFile $LDscoresFile </span>
+<span class="s2">    --geneticMapFile $geneticMapFile </span>
+<span class="s2">    --phenoCol $phenoCol </span>
+<span class="s2">    --covarCol $covarCol </span>
+<span class="s2">    --covarMaxLevels $covarMaxLevels </span>
+<span class="s2">    --qCovarCol $qCovarCol </span>
+<span class="s2">    --numThreads $numThreads </span>
+<span class="s2">    --bgenMinMAF $bgenMinMAF </span>
+<span class="s2">    --bgenMinINFO $bgenMinINFO </span>
+<span class="s2">    --bgenMinMAC $bgenMinMAC</span>
+<span class="s2">    --trait_type $trait_type</span>
+<span class="s2">    --loco $loco</span>
+<span class="s2">    --sampleCol $sampleCol</span>
+<span class="s2">    --job_size $lmm_job_size</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">../</span><span class="n">workflow</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="n">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="n">file</span> <span class="err">$</span><span class="n">lmm_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">lmm_sbatch_saige</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$lmm_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="LD-clumping-job">LD clumping job<a class="anchor-link" href="#LD-clumping-job">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">clumping_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;default </span>
+<span class="s2">    --cwd $clumping_dir </span>
+<span class="s2">    --bfile $bfile </span>
+<span class="s2">    --bgenFile $bgenFile</span>
+<span class="s2">    --bfile_ref $bfile_ref</span>
+<span class="s2">    --sampleFile $sampleFile </span>
+<span class="s2">    --sumstatsFiles $sumstatsFiles </span>
+<span class="s2">    --unrelated_samples $unrelated_samples </span>
+<span class="s2">    --ld_sample_size $ld_sample_size </span>
+<span class="s2">    --clump_field $clump_field</span>
+<span class="s2">    --clump_p1 $clump_p1 </span>
+<span class="s2">    --clump_p2 $clump_p2 </span>
+<span class="s2">    --clump_r2 $clump_r2 </span>
+<span class="s2">    --clump_kb $clump_kb </span>
+<span class="s2">    --clump_annotate $clump_annotate </span>
+<span class="s2">    --numThreads $numThreads </span>
+<span class="s2">    --job_size $clump_job_size</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">../</span><span class="n">workflow</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="n">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="n">file</span> <span class="err">$</span><span class="n">clumping_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">clumping_sbatch</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$clumping_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Region-extract-job">Region extract job<a class="anchor-link" href="#Region-extract-job">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">extract_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;default</span>
+<span class="s2">    --cwd $extract_dir</span>
+<span class="s2">    --region-file $region_file</span>
+<span class="s2">    --pheno-path $phenoFile</span>
+<span class="s2">    --geno-path $geno_path</span>
+<span class="s2">    --bgen-sample-path $sampleFile</span>
+<span class="s2">    --sumstats-path $sumstats_path</span>
+<span class="s2">    --format-config-path $formatFile</span>
+<span class="s2">    --unrelated-samples $unrelated_samples</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">../</span><span class="n">workflow</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="n">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="n">file</span> <span class="err">$</span><span class="n">extract_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">extract_sbatch</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$extract_args&quot;</span>
 </pre></div>
 
     </div>
@@ -410,7 +578,7 @@ body {
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/14cf8ab5829e128ed70704942eb699923b9e7911/analysis/WHR.ipynb"><code>analysis/WHR.ipynb</code></a> committed by dianacornejo on Wed Jun 24 16:21:24 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/14cf8ab5829e128ed70704942eb699923b9e7911">revision 9, 14cf8ab</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/ce623bc95655b9e1dec6c6783a6f472c6bfac23e/analysis/WHR.ipynb"><code>analysis/WHR.ipynb</code></a> committed by dianacornejo on Fri Jul 17 10:49:31 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/ce623bc95655b9e1dec6c6783a6f472c6bfac23e">revision 14, ce623bc</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>
