@@ -1,4 +1,4 @@
-# Pleiotropy Project UKB
+# Pleiotropy Project UKBB
 
 ## **Goals**
 
@@ -10,3 +10,9 @@
 The main goal here is to analyze imputed and rare variants for association with different traits (asthma, BMI, waist-to-hip ratio, diabetes, waist circumference). First through a single variant analysis using Linear Mixed Models.
 
 To update the website run `./release`
+
+# Hearing impairment Project UKBB
+
+## **Documents**
+1. Analisis plan for each phenotype can be found [here](https://docs.google.com/document/d/1cpxTzElpsEkwmBDjnMBHg2wW7CL1AcG_b0_0wE_k5rQ/edit)
+2. Exclusion criteria applied to the data set is [here](https://docs.google.com/spreadsheets/d/12L7Cx4Ov8FppGVmG0DxL9uG-lVRHM5QJSea0nORyirQ/edit#gid=0)
