@@ -1,8 +1,22 @@
-The UK Biobank data is used in the following projects:
-
 # Pleiotropy Project UKBB
 
-## **Goals**
+## Overview
+
+This project aims to elucidate variants which play a role in pleiotropy for complex diseases and traits with high public health significance.
+
+We investigate phenotypes of strong public health significance, for which there is support for potential pleiotropy. 
+For example, there may exist pleiotropic relationships between asthma-adiposity, asthma-T2D, adiposity-T2D,
+ blood lipids-adiposity, CVD-Alzhemier's disease, and age related hearing impairment (ARHI)-tinnitus. A formal evaluation of pleiotropy for these phenotypes may 
+reveal novel loci and shed light on the mechanistic relationship between these variants and phenotypes.
+
+We use UK Biobank data for these phenotypes, and perform genome-wide association scan for both genotyped and imputed variants, 
+analyzing association for both common and rare variants using linear mixed model (LMM).
+We then look for evidence of pleiotropy in regions where more than one phenotype have detectable association signals, focusing on
+the following pairs of traits: asthma-adiposity, T2D-adiposity, asthma-T2D, LDL-HDL, LDL-TG, HDL-TG, adiposity-LDL, adiposity-HDL,
+adiposity-TG, T2G-LDL, T2D-HDL, T2D-TG and ARHI-tinnitus. Methods for fine-mapping, pleiotropy
+and mediation analysis will be applied to these regions. We use TOPMed as a secondary replication dataset. 
+
+## Goals
 
 1. **Extension of methods for rare and imputed variants and implementation in SEQSpark**
 2. **Detect pleiotropic effects for a variety of diseases and complex traits using rare variant and imputed data**
@@ -11,7 +25,21 @@ The UK Biobank data is used in the following projects:
 
 The main goal here is to analyze imputed and rare variants for association with different traits (asthma, BMI, waist-to-hip ratio, diabetes, waist circumference). First through a single variant analysis using Linear Mixed Models.
 
-To update the website run `./release`
+## Association scans using LMM
+
+FIXME: add links and status
+
+## Candidate region analysis
+
+For given regions of interest across multiple phenotypes, a number of statistical workflows will be developed for fine-mapping, pleiotropy, and mediation analysis. Candidate regions will be examined with a number of published & in-house methods looking to reveal
+the possible causal relationship between genetic variants and multiple phenotypes. The approach developed can also be applied to looking at a number of molecular phenotypes
+such as gene expression, splicing, methylation, etc.
+
+Additionally, some of these methods can be generated to analyzing rare variants in the context of multiple phenotypes.
+
+FIXME: add links to relevant issues on this page: 
+
+https://github.com/statgenetics/UKBB_GWAS_dev/issues
 
 # Hearing impairment Project UKBB
 
