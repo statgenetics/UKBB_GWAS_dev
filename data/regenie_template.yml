@@ -1,0 +1,9 @@
+# Regenie summary statistics template
+CHR: CHROM
+POS: GENPOS
+REF: ALLELE0
+ALT: ALLELE1
+SNP: ID
+BETA: BETA
+SE: SE
+P: LOG10P
