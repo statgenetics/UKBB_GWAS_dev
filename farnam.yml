@@ -26,7 +26,7 @@ hosts:
       cd {cur_dir}
       #module load R 2> /dev/null
       sos execute {task} -v {verbosity} -s {sig_mode}
-    pi_dewan:
+  pi_dewan:
     description: Andys partition on Farnam
     based_on: farnam
     account: ""
