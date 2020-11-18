@@ -26,11 +26,6 @@ hosts:
       cd {cur_dir}
       #module load R 2> /dev/null
       sos execute {task} -v {verbosity} -s {sig_mode}
-  pi_dewan:
-    description: Andys partition on Farnam
-    based_on: farnam
-    account: ""
-    partition: "SBATCH --partition=pi_dewan" 
     kill_cmd: scancel {job_id}
     max_cores: 40
     max_mem: 64G
@@ -39,4 +34,8 @@ hosts:
     status_cmd: squeue --job {job_id}
     submit_cmd: sbatch {job_file}
     submit_cmd_output: Submitted batch job {job_id}
+  pi_dewan:
+    description: Andys partition on Farnam
+    based_on: farnam
+    partition: "SBATCH --partition=pi_dewan" 
 localhost: localhost
