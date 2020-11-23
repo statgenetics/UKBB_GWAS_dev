@@ -33,5 +33,5 @@ hosts:
     max_walltime: '240:00:00'
     status_cmd: squeue --job {job_id}
     submit_cmd: sbatch {job_file}
-    submit_cmd_output: Submitted batch job {job_id} 
+    submit_cmd_output: Submitted batch job {job_id}
 localhost: localhost
