@@ -1,0 +1,240 @@
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Selecting by P
+Error in is.data.frame(x) : object 'susmstat_top' not found
+Calls: write.table -> is.data.frame
+Execution halted
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Selecting by P
+Error in is.data.frame(x) : object 'susmstat_top' not found
+Calls: write.table -> is.data.frame
+Execution halted
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Selecting by P
+Warning message:
+In write.table(sumstat_top, "output/phenotypes_BMI.fastGWA.top_SNPs.txt",  :
+  appending column names to file
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Selecting by P
+Error: Problem with `filter()` input `..1`.
+✖ Input `..1` must be a logical vector, not a factor<75f5d>.
+ℹ Input `..1` is `SNP`.
+Backtrace:
+     █
+  1. ├─sumstat %>% top_n(-10) %>% filter(SNP)
+  2. │ ├─base::withVisible(eval(quote(`_fseq`(`_lhs`)), env, env))
+  3. │ └─base::eval(quote(`_fseq`(`_lhs`)), env, env)
+  4. │   └─base::eval(quote(`_fseq`(`_lhs`)), env, env)
+  5. │     └─`_fseq`(`_lhs`)
+  6. │       └─magrittr::freduce(value, `_function_list`)
+  7. │         ├─base::withVisible(function_list[[k]](value))
+  8. │         └─function_list[[k]](value)
+  9. │           ├─dplyr::filter(., SNP)
+ 10. │           └─dplyr:::filter.data.frame(., SNP)
+ 11. │             └─dplyr:::filter_rows(.data, ...)
+ 12. │               ├─base::withCallingHandlers(...)
+ 13. │               └─mask$eval_all_filter(dots, env_filter)
+ 14. ├─dplyr:::abort_glue(...)
+ 15. │ ├─rlang::exec(abort, message = message, clas
+Execution halted
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Selecting by P
+Error: Problem with `filter()` input `..1`.
+✖ Input `..1` must be a logical vector, not a factor<75f5d>.
+ℹ Input `..1` is `SNP`.
+Backtrace:
+     █
+  1. ├─sumstat %>% top_n(-10) %>% filter(SNP)
+  2. │ ├─base::withVisible(eval(quote(`_fseq`(`_lhs`)), env, env))
+  3. │ └─base::eval(quote(`_fseq`(`_lhs`)), env, env)
+  4. │   └─base::eval(quote(`_fseq`(`_lhs`)), env, env)
+  5. │     └─`_fseq`(`_lhs`)
+  6. │       └─magrittr::freduce(value, `_function_list`)
+  7. │         ├─base::withVisible(function_list[[k]](value))
+  8. │         └─function_list[[k]](value)
+  9. │           ├─dplyr::filter(., SNP)
+ 10. │           └─dplyr:::filter.data.frame(., SNP)
+ 11. │             └─dplyr:::filter_rows(.data, ...)
+ 12. │               ├─base::withCallingHandlers(...)
+ 13. │               └─mask$eval_all_filter(dots, env_filter)
+ 14. ├─dplyr:::abort_glue(...)
+ 15. │ ├─rlang::exec(abort, message = message, clas
+Execution halted
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Selecting by P
+Error in write.table(sumstat_top, "output/phenotypes_BMI.fastGWA.top_SNPs.txt",  : 
+  unused arguments (header = F, index = F)
+Execution halted
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Selecting by P
+Warning message:
+In write.table(sumstat_top, "output/phenotypes_BMI.fastGWA.top_SNPs.txt",  :
+  appending column names to file
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Selecting by P
+Warning message:
+In write.table(sumstat_top, "output/phenotypes_BMI.fastGWA.top_SNPs.txt",  :
+  appending column names to file
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Selecting by P
+Error in write.table(sumstat_top, "output/phenotypes_BMI.fastGWA.top_SNPs.txt",  : 
+  unused argument (index = F)
+Execution halted
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Selecting by P
+Error in write.table(sumstat_top, "output/phenotypes_BMI.fastGWA.top_SNPs.txt",  : 
+  unused argument (index = FALSE)
+Execution halted
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Selecting by P
+Warning message:
+In write.table(sumstat_top, "output/phenotypes_BMI.fastGWA.top_SNPs.txt",  :
+  appending column names to file
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Selecting by P
+Error in write.table(sumstat_top, "output/phenotypes_BMI.fastGWA.top_SNPs.txt",  : 
+  unused argument (column.names = FALSE)
+Execution halted
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Selecting by P
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Selecting by INFO

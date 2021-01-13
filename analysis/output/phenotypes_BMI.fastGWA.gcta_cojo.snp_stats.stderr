@@ -1,0 +1,53 @@
+  File "/gpfs/ysm/project/dewan/dc2325/UKBB_GWAS_dev/analysis/tmp4_x98e61/singularity_run_70356.py", line 3
+    sumstats = pd.read_csv(/gpfs/gibbs/pi/dewan/data/UKBiobank/MWE/phenotypes_BMI.fastGWA.snp_stats.gz, compression='gzip', header=0, delim_whitespace=True, quotechar='"') 
+                           ^
+SyntaxError: invalid syntax
+/opt/conda/lib/python3.7/site-packages/pandas/core/indexing.py:1418: FutureWarning: 
+Passing list-likes to .loc or [] with any missing label will raise
+KeyError in the future, you can use .reindex() as an alternative.
+
+See the documentation here:
+https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#deprecate-loc-reindex-listlike
+  return self._getitem_tuple(key)
+/opt/conda/lib/python3.7/site-packages/pandas/core/indexing.py:1418: FutureWarning: 
+Passing list-likes to .loc or [] with any missing label will raise
+KeyError in the future, you can use .reindex() as an alternative.
+
+See the documentation here:
+https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#deprecate-loc-reindex-listlike
+  return self._getitem_tuple(key)
+/opt/conda/lib/python3.7/site-packages/pandas/core/indexing.py:1418: FutureWarning: 
+Passing list-likes to .loc or [] with any missing label will raise
+KeyError in the future, you can use .reindex() as an alternative.
+
+See the documentation here:
+https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#deprecate-loc-reindex-listlike
+  return self._getitem_tuple(key)
+/opt/conda/lib/python3.7/site-packages/pandas/core/indexing.py:1418: FutureWarning: 
+Passing list-likes to .loc or [] with any missing label will raise
+KeyError in the future, you can use .reindex() as an alternative.
+
+See the documentation here:
+https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#deprecate-loc-reindex-listlike
+  return self._getitem_tuple(key)
+/opt/conda/lib/python3.7/site-packages/pandas/core/indexing.py:1418: FutureWarning: 
+Passing list-likes to .loc or [] with any missing label will raise
+KeyError in the future, you can use .reindex() as an alternative.
+
+See the documentation here:
+https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#deprecate-loc-reindex-listlike
+  return self._getitem_tuple(key)
+/opt/conda/lib/python3.7/site-packages/pandas/core/indexing.py:1418: FutureWarning: 
+Passing list-likes to .loc or [] with any missing label will raise
+KeyError in the future, you can use .reindex() as an alternative.
+
+See the documentation here:
+https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#deprecate-loc-reindex-listlike
+  return self._getitem_tuple(key)
+/opt/conda/lib/python3.7/site-packages/pandas/core/indexing.py:1418: FutureWarning: 
+Passing list-likes to .loc or [] with any missing label will raise
+KeyError in the future, you can use .reindex() as an alternative.
+
+See the documentation here:
+https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#deprecate-loc-reindex-listlike
+  return self._getitem_tuple(key)
