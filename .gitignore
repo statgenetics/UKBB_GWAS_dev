@@ -3,6 +3,8 @@
 **/*~
 **/.DS_Store
 README.ipynb
+## Output scripts
+output/*
 
 ## R project files
 .Rproj.user
