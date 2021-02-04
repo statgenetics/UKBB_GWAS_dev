@@ -11,19 +11,21 @@ WORKDIR /tmp
 
 # Download and compile  bgenix needed for regenie to run
 
-ADD http://code.enkre.net/bgen/tarball/release/v1.1.7 /tmp/v1.1.7.tgz
+RUN wget https://enkre.net/cgi-bin/code/bgen/tarball/7aa2c109c6/BGEN-7aa2c109c6.tar.gz
+
+RUN gpg --keyserver pgp.mit.edu --recv-key E084DAB9 && gpg -a --export E084DAB9 |  apt-key add -
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
       g++ \
       make \
       python3 \
       zlib1g-dev \
-      $LIB_INSTALL \
-      && tar -xzf v1.1.7.tgz \
-      && rm v1.1.7.tgz \
-      && cd v1.1.7 \
-      && python3 waf configure \
-      && python3 waf
+      $LIB_INSTALL\ 
+      && tar -xzf BGEN-7aa2c109c6.tar.gz \
+      && rm BGEN-7aa2c109c6.tar.gz \
+      && cd BGEN-7aa2c109c6 \
+      && ./waf configure --prefix=/usr/local/ \
+      && ./waf install
 
 
 # Install pre-requisites for region-extraction pipeline
@@ -46,7 +48,7 @@ RUN wget http://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20201019.zip &
 # Install qctool
 RUN wget https://www.well.ox.ac.uk/~gav/resources/qctool_v2.0.6-Ubuntu16.04-x86_64.tgz && tar -zxvf  qctool_v2.0.6-Ubuntu16.04-x86_64.tgz && \
     rm -rf qctool_v2.0.6-Ubuntu16.04-x86_64.tgz && \
-    cd qctool_v2.0.6-Ubuntu16.04-x86_64 && \
+    cd qctool_v2.0.6-Ubuntu16.04-x86_64 && chmod a+x qctool &&\
     cp qctool /usr/local/bin/
 
 #Download and install R packages
@@ -75,7 +77,7 @@ COPY .  /tmp/
 
 WORKDIR /tmp/regenie-1.0.6.9/
 
-RUN  make BGEN_PATH=/tmp/v1.1.7 HAS_BOOST_IOSTREAM=$BOOST_IO
+RUN  make BGEN_PATH=/tmp/BGEN-7aa2c109c6 HAS_BOOST_IOSTREAM=$BOOST_IO
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
       libgomp1 $LIB_INSTALL \
