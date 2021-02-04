@@ -44,11 +44,10 @@ RUN wget http://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20201019.zip &
     rm -rf plink
 
 # Install qctool
-RUN wget https://code.enkre.net/qctool/tarball/release/qctool.tgz && \
-    tar -zxvf qctool.tgz && \
-    rm -rf qctool.tgz && \
-    cd qctool && ./waf-1.5.18 configure && ./waf-1.5.18 &&\zlib-1.2.11.tar.gz && \
-    cp ./build/release/qctool_v2.0* /usr/local/bin/
+RUN wget https://www.well.ox.ac.uk/~gav/resources/qctool_v2.0.6-Ubuntu16.04-x86_64.tgz && tar -zxvf  qctool_v2.0.6-Ubuntu16.04-x86_64.tgz && \
+    rm -rf qctool_v2.0.6-Ubuntu16.04-x86_64.tgz && \
+    cd qctool_v2.0.6-Ubuntu16.04-x86_64 && \
+    cp qctool /usr/local/bin/
 
 #Download and install R packages
 RUN Rscript -e 'p = c("ggplot2", "ggrepel", "dplyr", "qqman", "remotes","scales"); install.packages(p, repos="https://cloud.r-project.org")'
