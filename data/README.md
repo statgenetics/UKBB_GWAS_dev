@@ -51,3 +51,9 @@ The analysis plan and the traits to analyze are in the google doc share [documen
 
 ## Exclusion criteria 
 The ICD10 and ICD9 codes used as exclusion criteria are in this [document](https://docs.google.com/spreadsheets/d/12L7Cx4Ov8FppGVmG0DxL9uG-lVRHM5QJSea0nORyirQ/edit#gid=0)
+
+## Toy datasets
+
+Toy data for testing and debugging are uploaded to [Google Drive (click here)](https://drive.google.com/drive/folders/1XhOAA-wrMxQeheZkrO0Wsp5veVgmTv5t?usp=sharing).
+
+Please request access with your Google account when prompted.
