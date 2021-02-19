@@ -75,13 +75,13 @@ RUN wget https://cnsgenomics.com/software/gcta/bin/gcta_1.93.2beta.zip && \
 
 COPY .  /tmp/
 
-WORKDIR /tmp/regenie-1.0.6.9/
+WORKDIR /tmp/regenie
 
 RUN  make BGEN_PATH=/tmp/BGEN-7aa2c109c6 HAS_BOOST_IOSTREAM=$BOOST_IO
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
       libgomp1 $LIB_INSTALL \
-     &&  cp /tmp/regenie-1.0.6.9/regenie /usr/local/bin
+     &&  cp /tmp/regenie/regenie /usr/local/bin
 
 RUN wget https://data.broadinstitute.org/alkesgroup/BOLT-LMM/downloads/BOLT-LMM_v2.3.4.tar.gz && \
     tar -zxvf BOLT-LMM_v2.3.4.tar.gz && \
