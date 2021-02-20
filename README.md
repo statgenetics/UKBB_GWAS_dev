@@ -66,3 +66,11 @@ https://github.com/statgenetics/UKBB_GWAS_dev/issues
 
 **Results:** /mnt/mfs/statgen/UKBiobank/results
 
+# Release website
+
+To generate the website,
+
+```
+source jnbinder-docker.sh
+jnbinder
+```
