@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="ipynb_website:version" content="0.9.7" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link rel="stylesheet" type="text/css" href="../css/jt.css">
+
+<link rel="stylesheet" type="text/css" href="../css/toc2.css">
+
+<link href="../site_libs/jqueryui-1.11.4/jquery-ui.css">
+<link rel="stylesheet" href="../site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="../site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+
+<link rel="stylesheet"
+      href="../site_libs/highlightjs/null.min.css"
+      type="text/css" />
+
+<script src="../site_libs/highlightjs/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+<script src="../js/doc_toc.js"></script>
+<script src="../js/docs.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script>
+    MathJax.Hub.Config({
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+        },
+        "HTML-CSS": {
+            preferredFont: "TeX",
+            availableFonts: ["TeX"],
+            styles: {
+                scale: 110,
+                ".MathJax_Display": {
+                    "font-size": "110%",
+                }
+            }
+        }
+    });
+</script>
+<script>
+function filterDataFrame(id) {
+    var input = document.getElementById("search_" + id);
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("dataframe_" + id);
+    var tr = table.getElementsByTagName("tr");
+    // Loop through all table rows, and hide those who don't match the search query
+    for (var i = 1; i < tr.length; i++) {
+        for (var j = 0; j < tr[i].cells.length; ++j) {
+            var matched = false;
+            if (tr[i].cells[j].innerHTML.toUpperCase().indexOf(filter) != -1) {
+                tr[i].style.display = "";
+                matched = true
+                break;
+            }
+            if (!matched)
+                tr[i].style.display = "none";
+        }
+    }
+}
+function sortDataFrame(id, n, dtype) {
+    var table = document.getElementById("dataframe_" + id);
+    var tb = table.tBodies[0]; // use `<tbody>` to ignore `<thead>` and `<tfoot>` rows
+    var tr = Array.prototype.slice.call(tb.rows, 0); // put rows into array
+    if (dtype === 'numeric') {
+        var fn = function(a, b) { 
+            return parseFloat(a.cells[n].textContent) <= parseFloat(b.cells[n].textContent) ? -1 : 1;
+        }
+    } else {
+        var fn = function(a, b) {
+            var c = a.cells[n].textContent.trim().localeCompare(b.cells[n].textContent.trim()); 
+            return c > 0 ? 1 : (c < 0 ? -1 : 0) }
+    }
+    var isSorted = function(array, fn) {
+        if (array.length < 2)
+            return 1;
+        var direction = fn(array[0], array[1]); 
+        for (var i = 1; i < array.length - 1; ++i) {
+            var d = fn(array[i], array[i+1]);
+            if (d == 0)
+                continue;
+            else if (direction == 0)
+                direction = d;
+            else if (direction != d)
+                return 0;
+            }
+        return direction;
+    }
+    var sorted = isSorted(tr, fn);
+    if (sorted == 1 || sorted == -1) {
+        // if sorted already, reverse it
+        for(var i = tr.length - 1; i >= 0; --i)
+            tb.appendChild(tr[i]); // append each row in order
+    } else {
+        tr = tr.sort(fn);
+        for(var i = 0; i < tr.length; ++i)
+            tb.appendChild(tr[i]); // append each row in order
+    }
+}
+</script>
+
+<script>
+$( document ).ready(function(){
+            var cfg={'threshold':3,     // depth of toc (number of levels)
+             'number_sections': false,
+             'toc_cell': false,          // useless here
+             'toc_window_display': true, // display the toc window
+             "toc_section_display": "block", // display toc contents in the window
+             'sideBar':true,       // sidebar or floating window
+             'navigate_menu':false       // navigation menu (only in liveNotebook -- do not change)
+            }
+            var st={};                  // some variables used in the script
+            st.rendering_toc_cell = false;
+            st.config_loaded = false;
+            st.extension_initialized=false;
+            st.nbcontainer_marginleft = $('#notebook-container').css('margin-left')
+            st.nbcontainer_marginright = $('#notebook-container').css('margin-right')
+            st.nbcontainer_width = $('#notebook-container').css('width')
+            st.oldTocHeight = undefined
+            st.cell_toc = undefined;
+            st.toc_index=0;
+            // fire the main function with these parameters
+            table_of_contents(cfg, st);
+            var file=workflowDict[$("h1:first").attr("id")];
+            $("#toc-level0 a").css("color","#126dce");
+            $('a[href="#'+$("h1:first").attr("id")+'"]').hide()
+            var docs=workflowArray;
+            var docs_map=workflowArrayMap;
+            var pos=workflowArray.indexOf(file);
+            for (var a=pos;a>=0;a--){
+                  $('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>').insertBefore("#toc-level0 li:eq(0)");
+            }
+            $('a[href="'+file+'.html'+'"]').css("color","#126dce");
+            for (var a=pos+1;a<docs.length;a++){
+                  $(".toc #toc-level0").append('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>');
+            }
+            // $("#toc-header").hide(); // comment out because it prevents search bar from displaying
+    });
+</script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+  // mark it active
+  menuAnchor.parent().addClass('active');
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+<div class="container-fluid main-container">
+<!-- tabsets -->
+<script src="../site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+
+
+<title>Pleiotropy analysis in UKBB</title>
+
+<style type = "text/css">
+body {
+  font-family: "Droid Sans";
+  padding-top: 66px;
+  padding-bottom: 40px;
+}
+</style>
+</head>
+
+<body>
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+<div class="container" id="notebook-container">
+
+<!-- code folding -->
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="../index.html">Pleiotropy analysis in UKBB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+<li>
+  <a href="../index.html">Overview</a>
+</li>
+        
+<li>
+  <a href="../workflow.html">Workflow</a>
+</li>
+        
+<li>
+  <a href="../analysis.html">Analysis</a>
+</li>
+        
+      </ul>
+        
+<ul class="nav navbar-nav navbar-right">
+<li>
+   <a href="http://github.com/dianacornejo/pleiotropy_UKB"> <span class="fa fa-github"></span> </a>
+</li>
+</ul>
+        
+      </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Setting-up-the-computer-environment">Setting up the computer environment<a class="anchor-link" href="#Setting-up-the-computer-environment">&#182;</a></h1><p>Notes and tips on software configuration and management on Yale HPC cluster.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="1.-Accessing-Yale-HPC-cluster">1. Accessing Yale HPC cluster<a class="anchor-link" href="#1.-Accessing-Yale-HPC-cluster">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Using AnyConnect to establish connection:</p>
+<ul>
+<li>VNP: access.yale.edu</li>
+<li>username: dc2325</li>
+<li>MFA: push # after this accept the access in the duo mobile app</li>
+</ul>
+<p>Using Linux terminal command:</p>
+
+<pre><code>sudo openconnect -u dc2325 access.yale.edu</code></pre>
+<p>Then type password at first password prompt, and <code>push</code> at 2nd password prompt. After this accept the access in the duo mobile app.</p>
+<p>Before you can login you must provide the public key of your computer to the server. To do so, please visit: <a href="https://secure.its.yale.edu/cas/login">https://secure.its.yale.edu/cas/login</a> to login, then provide the key at <a href="http://gold.hpc.yale.internal/cgi-bin/sshkeys.py">http://gold.hpc.yale.internal/cgi-bin/sshkeys.py</a></p>
+<p>To login from the terminal:</p>
+
+<pre><code>ssh dc2325@farnam.hpc.yale.edu</code></pre>
+<p>You should not perform any analysis on the login node. If you do, your job may either run into memory error, or get terminated without noticing. However you can submit jobs easily using <code>sbatch</code> command. For example instead of running:</p>
+
+<pre><code># `sos` is our pipeline software
+sos run analysis.ipynb</code></pre>
+<p>you run</p>
+
+<pre><code>sbatch sos run analysis.ipynb</code></pre>
+<p>to submit job. This uses default resource allocation on the cluster. The rest of this document provides tips on more advanced job template, job management and logging to an interactive compute node.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Loading-and-listing-modules-in-your-environment-on-the-cluster">Loading and listing modules in your environment on the cluster<a class="anchor-link" href="#Loading-and-listing-modules-in-your-environment-on-the-cluster">&#182;</a></h3>
+<pre><code>$ module avail # For a list of modules available to use
+$ module list # Displays all of the module files that are currently loaded in your environment
+$ module avail python # To look for specific modules
+$ module spider # Displays a description of all available modules
+$ module load &lt;name&gt; # to load pre-installed software
+$ module unload &lt;name&gt; # to unload</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Copying-files/directories-from-and-to-the-cluster">Copying files/directories from and to the cluster<a class="anchor-link" href="#Copying-files/directories-from-and-to-the-cluster">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To copy from the cluster to your local machine</p>
+<p>In your local terminal and to copy to the current dir <code>.</code>:</p>
+
+<pre><code>scp dc2325@farnam.hpc.yale.edu:/home/dc2325/results/pleiotropy/2020-04_bolt/BMI/*.snp_stats.bgen.gz . 
+scp dc2325@farnam.hpc.yale.edu:/home/dc2325/project/results/pleiotropy/2020-04_bolt/INT-WHR/snp_stats.all_chr.gz .</code></pre>
+<p>From your local machine to the cluster:</p>
+
+<pre><code>scp INT_BMI.sumstats.gz dc2325@farnam.hpc.yale.edu:/home/dc2325/scratch60/plink-clumping</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="2.-Installing-software-in-your-$HOME-directory">2. Installing software in your $HOME directory<a class="anchor-link" href="#2.-Installing-software-in-your-$HOME-directory">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="a.-Conda-installation">a. Conda installation<a class="anchor-link" href="#a.-Conda-installation">&#182;</a></h2><p>You'd better install your own python, R, R packages and other softwares needed using miniconda, not to rely on the cluster.</p>
+<h3 id="1.-The-first-step-is-to-download-miniconda3-to-your-local-directory,-then-sh-to-install.">1. The first step is to download miniconda3 to your local directory, then <code>sh</code> to install.<a class="anchor-link" href="#1.-The-first-step-is-to-download-miniconda3-to-your-local-directory,-then-sh-to-install.">&#182;</a></h3>
+<pre><code>wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+sh Miniconda3-latest-Linux-x86_64.sh</code></pre>
+<h3 id="2.-Add-miniconda-to-the-PATH">2. Add miniconda to the PATH<a class="anchor-link" href="#2.-Add-miniconda-to-the-PATH">&#182;</a></h3><p>By default a <code>.bashrc</code> file adding miniconda to the <code>$PATH</code> will be created, you can then modify as needed.</p>
+<p>If it gives you error when running <code>conda</code> after the  installation, please check your <code>.bash_profile</code> with command <code>$ cat ~/.bash_profile</code> to see if conda is added to the path.</p>
+<p>If not you should copy the code from the <code>.bashrc</code> file and add it manually:</p>
+<ol>
+<li>Open .bashrc file</li>
+<li>Copy the code between <code>#make miniconda part of the $PATH</code> and <code># &lt;&lt;&lt; conda initialize &lt;&lt;&lt;</code></li>
+<li>Add it to the .bash_profile</li>
+<li>Exit the cluster and re-enter or source .bash_profile</li>
+</ol>
+<h3 id="3.-Creating-and-switching-environments-with-conda">3. Creating and switching environments with conda<a class="anchor-link" href="#3.-Creating-and-switching-environments-with-conda">&#182;</a></h3><p>Installing python 2.7 and creating a conda environment</p>
+
+<pre><code>conda create --name py2 python=2.7
+conda activate py2
+conda deactivate</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="b.-BOLT-LMM-installation">b. BOLT-LMM installation<a class="anchor-link" href="#b.-BOLT-LMM-installation">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For local installs add these lines to your ~/.bash_profile</p>
+
+<pre><code># local installs
+export MY_PREFIX=~/software
+export PATH=$MY_PREFIX/bin:$PATH
+export LD_LIBRARY_PATH=$MY_PREFIX/lib:$LD_LIBRARY_PATH</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Then install the package:</p>
+
+<pre><code>cd ~/software &amp;&amp; mkdir bin lib &amp;&amp; \
+wget https://data.broadinstitute.org/alkesgroup/BOLT-LMM/downloads/BOLT-LMM_v2.3.4.tar.gz &amp;&amp; \
+tar -zxvf BOLT-LMM_v2.3.4.tar.gz &amp;&amp; \
+rm -rf BOLT-LMM_v2.3.4.tar.gz &amp;&amp; \
+cp BOLT-LMM_v2.3.4/bolt ~/software/bin/ &amp;&amp; \
+cp BOLT-LMM_v2.3.4/lib/* ~/software/lib/</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="c.-SAIGE-installation">c. SAIGE installation<a class="anchor-link" href="#c.-SAIGE-installation">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Creating-a-conda-environment">Creating a conda environment<a class="anchor-link" href="#Creating-a-conda-environment">&#182;</a></h4><p>As per SAIGE tutorial</p>
+
+<pre><code>conda create -n RSAIGE r-essentials r-base=3.6.1 python=2.7
+conda activate RSAIGE
+conda install -c anaconda cmake
+conda install -c conda-forge gettext lapack r-matrix
+conda install -c r r-rcpp  r-rcpparmadillo r-data.table r-bh
+conda install -c conda-forge r-spatest r-rcppeigen r-devtools  r-skat r-rcppparallel r-optparse boost openblas
+pip3 install cget click
+conda env export &gt; environment-RSAIGE.yml</code></pre>
+<p>Solving some error issues in the installation of SAIGE <a href="https://github.com/weizhouUMICH/SAIGE/issues/118">https://github.com/weizhouUMICH/SAIGE/issues/118</a></p>
+
+<pre><code>conda create -n RSAIGE r-essentials r-base=3.6.1 python=2.7
+conda activate RSAIGE
+conda install -c anaconda cmake boost zlib
+conda install -c conda-forge gettext lapack r-matrix 
+conda install -c conda-forge r-spatest r-rcppeigen r-devtools r-skat
+conda install -c conda-forge r-rcpp  r-rcpparmadillo r-data.table r-bh
+conda install -c conda-forge r-rcppparallel r-optparse
+pip install cget click</code></pre>
+<h4 id="Activate-conda-environment">Activate conda environment<a class="anchor-link" href="#Activate-conda-environment">&#182;</a></h4>
+<pre><code> conda activate RSAIGE
+ FLAGPATH=`which python | sed 's|/bin/python$||'`
+ export LDFLAGS="-L${FLAGPATH}/lib"
+ export CPPFLAGS="-I${FLAGPATH}/include"
+ export LDFLAGS="-L/gpfs/ysm/project/dewan/dc2325/conda_envs/RSAIGE/lib"
+ export CPPFLAGS='-I/gpfs/ysm/project/dewan/dc2325/conda_envs/RSAIGE/include'</code></pre>
+<h4 id="Intall-required-R-libraries">Intall required R libraries<a class="anchor-link" href="#Intall-required-R-libraries">&#182;</a></h4><p>For this part I had to install MetaSKAT using the remotes library otherwise I found an error</p>
+
+<pre><code>install.packages("remotes")
+remotes::install_github("lin-lab/MetaSKAT")</code></pre>
+<h4 id="Install-SAIGE">Install SAIGE<a class="anchor-link" href="#Install-SAIGE">&#182;</a></h4><p>Method 2: this method did not work for me, so I proceed to the next one</p>
+
+<pre><code>devtools::install_github("weizhouUMICH/SAIGE")</code></pre>
+<p>Method 3</p>
+
+<pre><code>src_branch=master
+repo_src_url=https://github.com/weizhouUMICH/SAIGE
+git clone --depth 1 -b $src_branch $repo_src_url
+R CMD INSTALL SAIGE</code></pre>
+<h4 id="SAIGE-on-Yale-cluster">SAIGE on Yale cluster<a class="anchor-link" href="#SAIGE-on-Yale-cluster">&#182;</a></h4><p>To install SAIGE in the HRC cluster first load necessary modules to create aspecific environment</p>
+<p>Search and load modules</p>
+<ul>
+<li><p><code>module avail</code> for a list of all available modules</p>
+</li>
+<li><p><code>module avail R</code> to see a list of all available R modules in Yale's HRC</p>
+<p>Select R-3.6.1 version if available by typing <code>module load R-3.6.1</code></p>
+</li>
+<li><p><code>module avail gcc</code></p>
+<p>Select gcc &gt;= 5.4.0: <code>module load gcc-5.4.1</code></p>
+</li>
+<li><p><code>module avail cmake</code></p>
+<p>Select cmake 3.14.1: <code>module load cmake-3.14.1</code></p>
+</li>
+<li><p><code>module avail cget</code></p>
+<p>Select the latest version of cget: <code>module load cget</code></p>
+</li>
+<li><p>Install R packages using the <code>install_packages.R</code> script</p>
+</li>
+</ul>
+<p>Install SAIGE R package</p>
+
+<pre><code>R 
+devtools::install_github("weizhouUMICH/SAIGE")`</code></pre>
+<p>Fixing problem with conda template: can't execute <code>conda activate</code> from bash script 
+<a href="https://github.com/conda/conda/issues/7980">https://github.com/conda/conda/issues/7980</a></p>
+<p>Added these variables to <code>.bash_profile</code> apparently fixed the issue</p>
+
+<pre><code>export -f conda
+export -f __conda_activate
+export -f __conda_reactivate
+export -f __conda_hashr</code></pre>
+<p>Then <code>source .bash_profile</code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="d.-SoS-installation-and-configuration">d. SoS installation and configuration<a class="anchor-link" href="#d.-SoS-installation-and-configuration">&#182;</a></h2><p>Install sos, sos-pbs and sos-notebook as the minimum requirements</p>
+
+<pre><code>conda install sos sos-pbs sos-notebook jupyterlab-sos sos-papermill -c conda-forge</code></pre>
+<p>Then check if all the kernels on jupyter are installed with this command : <code>$jupyter kernelspec list</code>, what we need are R, Bash and Python, if part of these kernels is missing, run this commmand to install: <code>$ conda install sos-r sos-python sos-bash -c conda-forge</code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="SoS-update-to-get-the-latest-improvements">SoS update to get the latest improvements<a class="anchor-link" href="#SoS-update-to-get-the-latest-improvements">&#182;</a></h3><p>For development versions</p>
+
+<pre><code>pip install git+https://github.com/vatlab/sos -U</code></pre>
+<p>For released versions (when is implemented)</p>
+
+<pre><code>pip install sos -U</code></pre>
+<p>When you don't get the full features of the update do:</p>
+
+<pre><code>pip uninstall sos
+pip install sos -U</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Test-your-code-before-running-it">Test your code before running it<a class="anchor-link" href="#Test-your-code-before-running-it">&#182;</a></h3><p>To check if the code in your notebook is running</p>
+
+<pre><code>sos dryrun notebook.ipynb -q localhost</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="SoS-commands-to-create-scripts-from-available-notebooks">SoS commands to create scripts from available notebooks<a class="anchor-link" href="#SoS-commands-to-create-scripts-from-available-notebooks">&#182;</a></h3><p>Make sure you have the latest papermill version</p>
+
+<pre><code>pip install sos-papermill -U</code></pre>
+
+<pre><code>sos convert ~/project/pleiotropy_UKB/analysis/minimal_working_example.ipynb ~/project/pleiotropy_UKB/docs/analysis/minimal_working_example.html --execute</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="e.-R-installation-using-conda">e. R installation using conda<a class="anchor-link" href="#e.-R-installation-using-conda">&#182;</a></h2><p>Intalling R with conda will allow you to manage your own packages. Refer to <a href="https://docs.ycrc.yale.edu/clusters-at-yale/guides/r/">https://docs.ycrc.yale.edu/clusters-at-yale/guides/r/</a> for more information</p>
+
+<pre><code>conda install -c conda-forge r-base</code></pre>
+<p>To install R packages using conda</p>
+
+<pre><code>conda install -c r package_name
+
+e.g. packages required for LMM pipeline:
+conda install -c r qqman 
+conda install -c r dplyr 
+conda install -c r ggrepel 
+conda install -c r ggplot2
+
+If this does not work, go to R to install:
+
+R
+install.packages("qqman")
+install.packages("dplyr")
+install.packages("ggrepel")
+install.packages("ggplot2")</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="f.-QCTOOL-version-2-usage">f. QCTOOL version 2 usage<a class="anchor-link" href="#f.-QCTOOL-version-2-usage">&#182;</a></h2><p>If installed from source it requires zlib to be installed and compilation needs to be done with python 2</p>
+
+<pre><code>cd ~/software &amp;&amp; \
+hg clone -r beta https://gavinband@bitbucket.org/gavinband/qctool &amp;&amp; cd qctool\
+./waf-1.5.18 configure --prefix=$MY_PREFIX  &amp;&amp; ./waf-1.5.18 \</code></pre>
+<p>If loaded from HPC cluster just write,</p>
+
+<pre><code>module load qctool</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="h.-REGENIE-installation">h. REGENIE installation<a class="anchor-link" href="#h.-REGENIE-installation">&#182;</a></h2><p>Requirements:</p>
+<ul>
+<li>regenie requires compilation with GCC version &gt;= 5.1 (on Linux) or Clang version &gt;=3.3 (on Mac OSX). In the cluster you can load gcc by typing:
+<pre><code>module load GCCcore/7.3.0</code></pre>
+</li>
+<li>Download and install <a href="https://enkre.net/cgi-bin/code/bgen/dir?ci=trunk">BGEN library</a> to ~/software</li>
+</ul>
+<p>Steps:</p>
+<ol>
+<li>Clone the repo (make sure you compile the latest version)
+<pre><code>git clone https://github.com/rgcgithub/regenie.git</code></pre>
+</li>
+<li>In the source code edit the BGEN_PATH variable in the Makefile to the BGEN library path (/home/dc2325/software/bgen/) Remove space at the end</li>
+<li>On the command line type make while in the main source code directory.</li>
+<li>This should produce the executable called regenie</li>
+</ol>
+<p>Run the program,</p>
+
+<pre><code>./regenie --help</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If you find these problems try:</p>
+<p>regenie: /lib64/libstdc++.so.6: version <code>GLIBCXX_3.4.21' not found (required by regenie)
+regenie: /lib64/libstdc++.so.6: version</code>CXXABI_1.3.9' not found (required by regenie)
+regenie: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.20' not found (required by regenie)</p>
+
+<pre><code>conda install -c omgarcia gcc-6 # install GCC version 6
+conda install libgcc            # install conda gcc tools</code></pre>
+<p>make sure that you see GLIBCXX_3.4.xx on the list (which it could not find before)</p>
+
+<pre><code>strings miniconda3/lib/libstdc++.so.6 | grep GLIBCXX</code></pre>
+<p>add it to library paths</p>
+
+<pre><code>export LD_LIBRARY_PATH=&lt;conda-env-path&gt;/lib:$LD_LIBRARY_PATH</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Using-Singularity-on-Yale's-cluster">Using Singularity on Yale's cluster<a class="anchor-link" href="#Using-Singularity-on-Yale's-cluster">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Add this to your bash_profile or bashrc</p>
+<p>set SINGULARITY_CACHEDIR if you want to pull files (which can get big) somewhere other than $HOME/.singularity</p>
+
+<pre><code>export SINGULARITY_CACHEDIR=~/scratch60/.singularity</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="3.-SLURM-commands-on-Yale's-cluster">3. SLURM commands on Yale's cluster<a class="anchor-link" href="#3.-SLURM-commands-on-Yale's-cluster">&#182;</a></h1><p>Submit a submission script</p>
+
+<pre><code>sbatch &lt;script&gt;</code></pre>
+<p>List queued and running jobs</p>
+
+<pre><code>squeue -u$USER</code></pre>
+<p>Cancel a queued job or kill a running job</p>
+
+<pre><code>scancel &lt;job_id&gt;</code></pre>
+<p>Cancel all your jobs (running and pending)</p>
+
+<pre><code>scancel -u$USER</code></pre>
+<p>Check status of individual job (including failed or completed)</p>
+
+<pre><code>sacct -j &lt;job_id&gt;</code></pre>
+<p>To see all pending jobs sorted by priority (jobs with higher priority at the top)</p>
+
+<pre><code>squeue --sort=-p -t PD -p general</code></pre>
+<p>To cancel all pending jobs</p>
+
+<pre><code>scancel -t PENDING -u$USER</code></pre>
+<p>To see files that will be deleted from scratch60 (they purge every 30 days)</p>
+
+<pre><code>cat /gpfs/ysm/scratch60/todelete/${UID}</code></pre>
+<p>To see the last job submitted slurm</p>
+
+<pre><code>sacct
+sacct -S start-date -u user-name</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="4.-Starting-a-jupyter-notebook-server-on-Yale's-cluster">4. Starting a jupyter notebook server on Yale's cluster<a class="anchor-link" href="#4.-Starting-a-jupyter-notebook-server-on-Yale's-cluster">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="1.-Submit/Start-a-jupyter-notebook-server-as-a-batch-job.">1. Submit/Start a jupyter-notebook server as a batch job.<a class="anchor-link" href="#1.-Submit/Start-a-jupyter-notebook-server-as-a-batch-job.">&#182;</a></h3><p>1.1. Clone the right github repo (containing the notebook to run), go the directory and run this command:<code>$ sbatch jupyter-tunnel.sh</code> to start the server, i.e. submit it as a job.</p>
+<p>1.2. Check if your job was submitted and is running with this command: <code>$ squeue -u$USER</code></p>
+
+<pre><code>Find the ST column:
+   R: indicates the job is running 
+   PD: the job is pending (you will have to wait for it to start running, otherwise you could not find the information needed in the log file to connect, which will be expained in detail in step 2.1)</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="2.-Start-a-ssh-tunnel">2. Start a ssh tunnel<a class="anchor-link" href="#2.-Start-a-ssh-tunnel">&#182;</a></h3><p>2.1. After making sure the job starts running, run command <code>$ ls</code> to find and open the log file. The name of it looks something like <code>jupyter-notebook-[jobid].log</code>. It contains all the information on how to connect. This will be located in the directory you submitted the job script from.</p>
+<p>Log file example:</p>
+<p>The content of your log file should look like as follow, find and grab the corresponding highlighted information from your log file, which will be used in the next steps:</p>
+<p>[hs863@farnam2 UKBB_GWAS_dev]$ cat jupyter-notebook-22823043.log</p>
+<p>For more info and how to connect from windows,
+   see <a href="https://docs.ycrc.yale.edu/clusters-at-yale/guides/jupyter/">https://docs.ycrc.yale.edu/clusters-at-yale/guides/jupyter/</a></p>
+<p>MacOS or linux terminal command to create your ssh tunnel
+<code>ssh -N -L 9240:c14n12:9240 hs863@farnam.hpc.yale.edu</code> --used in step 2.2</p>
+<p>Windows MobaXterm info
+Forwarded port:same as remote port
+Remote server: c14n12
+Remote port: 9240
+SSH server: farnam.hpc.yale.edu
+SSH login: hs863
+SSH port: 22</p>
+<p>Use a Browser on your local machine to go to:
+<code>localhost:9240  (prefix w/ https:// if using password)</code> --e.g. <a href="https://localhost:9240">https://localhost:9240</a> -- used step 3.1</p>
+<p>[I 16:36:55.522 LabApp] Writing notebook server cookie secret to /gpfs/ysm/home/hs863/.local/share/jupyter/runtime/notebook_cookie_secret</p>
+<p>[I 16:37:02.326 LabApp] JupyterLab extension loaded from /gpfs/ysm/project/dewan/hs863/conda_envs/notebook_env/lib/python3.8/site-packages/jupyterlab</p>
+<p>[I 16:37:02.328 LabApp] JupyterLab application directory is /gpfs/ysm/project/dewan/hs863/conda_envs/notebook_env/share/jupyter/lab</p>
+<p>[I 16:37:02.331 LabApp] Serving notebooks from local directory: /gpfs/ysm/home/hs863</p>
+<p>[I 16:37:02.331 LabApp] The Jupyter Notebook is running at:</p>
+<p>[I 16:37:02.331 LabApp] <a href="http://c14n12:9240/?token=0454c9e908381e176a57ee92615b9d7ab07f00c20370b967">http://c14n12:9240/?token=0454c9e908381e176a57ee92615b9d7ab07f00c20370b967</a> <code>(get the string after token=)</code> --used in step 3.2 / alternative url 1</p>
+<p>[I 16:37:02.331 LabApp]  or <a href="http://127.0.0.1:9240/?token=0454c9e908381e176a57ee92615b9d7ab07f00c20370b967">http://127.0.0.1:9240/?token=0454c9e908381e176a57ee92615b9d7ab07f00c20370b967</a> -- alternative url 2 of step3.1</p>
+<p>[I 16:37:02.331 LabApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).</p>
+<p>2.2 On a Mac or Linux machine, open a new terminal window and start the tunnel with <code>SSH</code> command. Get specific information from the log file.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="3.-Use-local-browser-to-connect-and-run-the-notebook">3. Use local browser to connect and run the notebook<a class="anchor-link" href="#3.-Use-local-browser-to-connect-and-run-the-notebook">&#182;</a></h3><p>3.1 Browse the notebook: open a browser in your local machine and enter the address <code>http://localhost:port</code> or you can use the alternative urls in the log file.</p>
+<p>3.2 Copy paste the token from the log file to the bar and enter.</p>
+<p><strong>Tip and Notes:</strong></p>
+<ul>
+<li>The address Jupyter creates by default (the one with the name of a compute node) will not work outside the cluster's network. </li>
+<li>The server is created for 24h. After that you will need a new one but the changes are saved to you folders. Also is better to exit when you are not using it in order to free computer resources.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Accessing-an-interactive-node">Accessing an interactive node<a class="anchor-link" href="#Accessing-an-interactive-node">&#182;</a></h2><p>Interactive jobs can be used for testing and troubleshooting code. By requesting an interactive job, you will be allocated resources and logged onto the node in a shell.</p>
+
+<pre><code>srun --pty -p interactive --mem-per-cpu=60G --cpus-per-task=1 --time=1-00:00:00 bash</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Copying-results-to-shared-folder">Copying results to shared folder<a class="anchor-link" href="#Copying-results-to-shared-folder">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>After completing the runs of the association analysis you should copy the results to the project shared folder</p>
+<h4 id="Path">Path<a class="anchor-link" href="#Path">&#182;</a></h4>
+<pre><code>/SAY/dbgapstg/scratch/UKBiobank/results/BOLTLMM_results/results_imputed_data/
+/SAY/dbgapstg/scratch/UKBiobank/results/FastGWA_results/results_imputed_data/</code></pre>
+<ul>
+<li>The combined association analyses for the imputed data in .snp_stats.gz</li>
+<li>The combined association analyses for the hard called genotypes in .stats.gz</li>
+<li>The gziped .stderr files in .stats.stderr.gz</li>
+<li>The gziped .stdout files in .stdout.gz</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="5.-Checking-job-failure-on-cluster">5. Checking job failure on cluster<a class="anchor-link" href="#5.-Checking-job-failure-on-cluster">&#182;</a></h1><p>When a job fails in the cluster make sure you do quadruple check to understand the origin of the error</p>
+<h3 id="Step-1">Step 1<a class="anchor-link" href="#Step-1">&#182;</a></h3><p>Check the log file generated &amp;&gt; file.log that is located in the folder where you run the script</p>
+<h3 id="Step-2">Step 2<a class="anchor-link" href="#Step-2">&#182;</a></h3><p>Check the stderr files that will be located in the output folder you choose</p>
+<h3 id="Step-3">Step 3<a class="anchor-link" href="#Step-3">&#182;</a></h3><p>Check the .err files generated in the same folder where you run the script</p>
+<h3 id="Step-4">Step 4<a class="anchor-link" href="#Step-4">&#182;</a></h3><p>Check the output of sos status task -v4</p>
+<p>Note: it is suggested that you remove all err and out files <code>rm *.err *.out</code>  when you decide to run another round</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="6.-Purging-traces-after-runs">6. Purging traces after runs<a class="anchor-link" href="#6.-Purging-traces-after-runs">&#182;</a></h1><p>First of all, make sure there are not running pipelines.
+Then, under the working directory (the place where you run the sbatch scripts) run the following commands to remove any traces of previous runs</p>
+
+<pre><code>rm -rf ~/.sos
+rm -rf .sos</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="7.-Accessing-Columbia-cluster">7. Accessing Columbia cluster<a class="anchor-link" href="#7.-Accessing-Columbia-cluster">&#182;</a></h1><p>First of all you need to set a password by entering this website</p>
+<p><a href="https://portal.neuro.columbia.edu/vpn/index.html">https://portal.neuro.columbia.edu/vpn/index.html</a></p>
+
+<pre><code>uni: dmc2245
+Password: Neurology99 is originated by default</code></pre>
+<p>You will need to change it when it is the first time</p>
+<p>Then using AnyConnect type in the vpn:</p>
+
+<pre><code>ssl.cpmc.columbia.edu
+select CUMC-VPN
+uni: dmc2245
+password: it should be the same as myColumbia (cas.columbia)
+push (to verify with duo mobile)</code></pre>
+<p>After this go to the terminal and ssh into the cluster</p>
+
+<pre><code>ssh dmc2245@hgrcgrid.cpmc.columbia.edu
+password (it is different from the VPN password)</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="8.-Syncing-the-results-between-clusters">8. Syncing the results between clusters<a class="anchor-link" href="#8.-Syncing-the-results-between-clusters">&#182;</a></h1>
+<pre><code>rsync -auzP /from/this/yale/path/* /to/this/columbia/path</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="9.-Building-an-image-using-singularity">9. Building an image using singularity<a class="anchor-link" href="#9.-Building-an-image-using-singularity">&#182;</a></h1>
+<pre><code>   singularity remote login
+   singularity build --remote  marp.sif Singularity
+   singularity shell -B /tmp:/scratch marp.sif</code></pre>
+
+<pre><code>
+   singularity build lmm.sif docker://statisticalgenetics/lmm:1.8
+   singularity build annovar.sif docker://gaow/gatk4-annovar</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<hr>
+&copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/804a49e20903d8a6a7eafcb7472453c5ea2dcde8/workflow/setup.ipynb"><code>workflow/setup.ipynb</code></a> committed by dc2325 on Fri Feb 19 22:22:36 2021 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/804a49e20903d8a6a7eafcb7472453c5ea2dcde8">revision 46, 804a49e</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+</div>
+</div>
+</body>
+</html>

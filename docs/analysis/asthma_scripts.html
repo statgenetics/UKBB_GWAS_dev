@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="ipynb_website:version" content="0.9.7" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link rel="stylesheet" type="text/css" href="../css/jt.css">
+
+<link rel="stylesheet" type="text/css" href="../css/toc2.css">
+
+<link href="../site_libs/jqueryui-1.11.4/jquery-ui.css">
+<link rel="stylesheet" href="../site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="../site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+
+<link rel="stylesheet"
+      href="../site_libs/highlightjs/null.min.css"
+      type="text/css" />
+
+<script src="../site_libs/highlightjs/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+<script src="../js/doc_toc.js"></script>
+<script src="../js/docs.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script>
+    MathJax.Hub.Config({
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+        },
+        "HTML-CSS": {
+            preferredFont: "TeX",
+            availableFonts: ["TeX"],
+            styles: {
+                scale: 110,
+                ".MathJax_Display": {
+                    "font-size": "110%",
+                }
+            }
+        }
+    });
+</script>
+<script>
+function filterDataFrame(id) {
+    var input = document.getElementById("search_" + id);
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("dataframe_" + id);
+    var tr = table.getElementsByTagName("tr");
+    // Loop through all table rows, and hide those who don't match the search query
+    for (var i = 1; i < tr.length; i++) {
+        for (var j = 0; j < tr[i].cells.length; ++j) {
+            var matched = false;
+            if (tr[i].cells[j].innerHTML.toUpperCase().indexOf(filter) != -1) {
+                tr[i].style.display = "";
+                matched = true
+                break;
+            }
+            if (!matched)
+                tr[i].style.display = "none";
+        }
+    }
+}
+function sortDataFrame(id, n, dtype) {
+    var table = document.getElementById("dataframe_" + id);
+    var tb = table.tBodies[0]; // use `<tbody>` to ignore `<thead>` and `<tfoot>` rows
+    var tr = Array.prototype.slice.call(tb.rows, 0); // put rows into array
+    if (dtype === 'numeric') {
+        var fn = function(a, b) { 
+            return parseFloat(a.cells[n].textContent) <= parseFloat(b.cells[n].textContent) ? -1 : 1;
+        }
+    } else {
+        var fn = function(a, b) {
+            var c = a.cells[n].textContent.trim().localeCompare(b.cells[n].textContent.trim()); 
+            return c > 0 ? 1 : (c < 0 ? -1 : 0) }
+    }
+    var isSorted = function(array, fn) {
+        if (array.length < 2)
+            return 1;
+        var direction = fn(array[0], array[1]); 
+        for (var i = 1; i < array.length - 1; ++i) {
+            var d = fn(array[i], array[i+1]);
+            if (d == 0)
+                continue;
+            else if (direction == 0)
+                direction = d;
+            else if (direction != d)
+                return 0;
+            }
+        return direction;
+    }
+    var sorted = isSorted(tr, fn);
+    if (sorted == 1 || sorted == -1) {
+        // if sorted already, reverse it
+        for(var i = tr.length - 1; i >= 0; --i)
+            tb.appendChild(tr[i]); // append each row in order
+    } else {
+        tr = tr.sort(fn);
+        for(var i = 0; i < tr.length; ++i)
+            tb.appendChild(tr[i]); // append each row in order
+    }
+}
+</script>
+
+<script>
+$( document ).ready(function(){
+            var cfg={'threshold':3,     // depth of toc (number of levels)
+             'number_sections': false,
+             'toc_cell': false,          // useless here
+             'toc_window_display': true, // display the toc window
+             "toc_section_display": "block", // display toc contents in the window
+             'sideBar':true,       // sidebar or floating window
+             'navigate_menu':false       // navigation menu (only in liveNotebook -- do not change)
+            }
+            var st={};                  // some variables used in the script
+            st.rendering_toc_cell = false;
+            st.config_loaded = false;
+            st.extension_initialized=false;
+            st.nbcontainer_marginleft = $('#notebook-container').css('margin-left')
+            st.nbcontainer_marginright = $('#notebook-container').css('margin-right')
+            st.nbcontainer_width = $('#notebook-container').css('width')
+            st.oldTocHeight = undefined
+            st.cell_toc = undefined;
+            st.toc_index=0;
+            // fire the main function with these parameters
+            table_of_contents(cfg, st);
+            var file=analysisDict[$("h1:first").attr("id")];
+            $("#toc-level0 a").css("color","#126dce");
+            $('a[href="#'+$("h1:first").attr("id")+'"]').hide()
+            var docs=analysisArray;
+            var docs_map=analysisArrayMap;
+            var pos=analysisArray.indexOf(file);
+            for (var a=pos;a>=0;a--){
+                  $('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>').insertBefore("#toc-level0 li:eq(0)");
+            }
+            $('a[href="'+file+'.html'+'"]').css("color","#126dce");
+            for (var a=pos+1;a<docs.length;a++){
+                  $(".toc #toc-level0").append('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>');
+            }
+            // $("#toc-header").hide(); // comment out because it prevents search bar from displaying
+    });
+</script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+  // mark it active
+  menuAnchor.parent().addClass('active');
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+<div class="container-fluid main-container">
+<!-- tabsets -->
+<script src="../site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+
+
+<title>Pleiotropy analysis in UKBB</title>
+
+<style type = "text/css">
+body {
+  font-family: "Droid Sans";
+  padding-top: 66px;
+  padding-bottom: 40px;
+}
+</style>
+</head>
+
+<body>
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+<div class="container" id="notebook-container">
+
+<!-- code folding -->
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="../index.html">Pleiotropy analysis in UKBB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+<li>
+  <a href="../index.html">Overview</a>
+</li>
+        
+<li>
+  <a href="../workflow.html">Workflow</a>
+</li>
+        
+<li>
+  <a href="../analysis.html">Analysis</a>
+</li>
+        
+      </ul>
+        
+<ul class="nav navbar-nav navbar-right">
+<li>
+   <a href="http://github.com/dianacornejo/pleiotropy_UKB"> <span class="fa fa-github"></span> </a>
+</li>
+</ul>
+        
+      </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Analysis-of-Asthma">Analysis of Asthma<a class="anchor-link" href="#Analysis-of-Asthma">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This notebook applies the <code>Get_Job_Script.ipynb</code> to automatically generate the sbatch scripts to run in Yale's cluster. The end result is to apply <a href="https://github.com/statgenetics/UKBB_GWAS_dev/tree/master/workflow">various LMM workflows</a> to perform association analysis in the ASTHMA trait, do clumping analysis and extract associated regions.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="File-paths-on-Yale-cluster">File paths on Yale cluster<a class="anchor-link" href="#File-paths-on-Yale-cluster">&#182;</a></h2><ul>
+<li>Genotype files in PLINK format:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/pleiotropy_geneticfiles/UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv</code></li>
+<li>Genotype files in bgen format:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/ukb39554_imputeddataset/</code></li>
+<li>Summary stats for imputed variants BOLT-LMM:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/BOLTLMM_results/results_imputed_data</code></li>
+<li>Summary stats for inputed variants FastGWA:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/FastGWA_results/results_imputed_data</code></li>
+<li>Phenotype files:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis</code></li>
+<li>Relationship file:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/pleiotropy_geneticfiles/unrelated_n307259/UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620</code></li>
+</ul>
+<h2 id="File-paths-to-specific-phenotypic-files-for-Asthma:">File paths to specific phenotypic files for Asthma:<a class="anchor-link" href="#File-paths-to-specific-phenotypic-files-for-Asthma:">&#182;</a></h2><p>This were the ones used in the analysis prior to the full pipeline implementation</p>
+
+<pre><code>phenoFile=~/project/phenotypes_UKB/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_fastGWA.phe
+covarFile=~/project/phenotypes_UKB/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_fastGWA_covSEX.txt
+qcovarFile=~/project/phenotypes_UKB/Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_fastGWA_covAGE.txt</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="07/01/20-analysis">07/01/20 analysis<a class="anchor-link" href="#07/01/20-analysis">&#182;</a></h2><p>On the cluster, open up this notebook using the JupyterLab server you set up via the ssh channel, then run the following cells,</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Bash-variables-for-workflow-configuration">Bash variables for workflow configuration<a class="anchor-link" href="#Bash-variables-for-workflow-configuration">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Common variables</span>
+<span class="n">tpl_file</span><span class="o">=../</span><span class="n">farnam</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">bfile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">UKB_Caucasians_phenotypeindepqc120319_updated082020removedwithdrawnindiv</span><span class="o">.</span><span class="n">bed</span>
+<span class="n">sampleFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb32285_imputedindiv</span><span class="o">.</span><span class="n">sample</span>
+<span class="n">bgenFile</span><span class="o">=</span><span class="sb">`echo /gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb_imp_chr{1..22}_v3.bgen`</span>
+<span class="n">unrelated_samples</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">unrelated_n307259</span><span class="o">/</span><span class="n">UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620</span>
+<span class="n">formatFile_fastgwa</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_dev</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">fastGWA_template</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">formatFile_bolt</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_dev</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">boltlmm_template</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">formatFile_saige</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_dev</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">saige_template</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">container_lmm</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">lmm</span><span class="o">.</span><span class="n">sif</span>
+<span class="n">container_marp</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">marp</span><span class="o">.</span><span class="n">sif</span>
+<span class="c1"># LMM directories</span>
+<span class="n">lmm_dir_fastgwa</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span>
+<span class="n">lmm_dir_bolt</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">BOLTLMM_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span>
+<span class="n">lmm_dir_saige</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">SAIGE_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span>
+<span class="n">lmm_sos</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">LMM</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="n">lmm_sbatch_fastgwa</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_asthma</span><span class="o">-</span><span class="n">fastgwa</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">lmm_sbatch_bolt</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_asthma</span><span class="o">-</span><span class="n">bolt</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">lmm_sbatch_saige</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_asthma</span><span class="o">-</span><span class="n">saige</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">phenoFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">pleiotropy_R01</span><span class="o">/</span><span class="n">phenotypesforanalysis</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720</span>
+<span class="c1">## LMM variables </span>
+<span class="n">covarFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">pleiotropy_R01</span><span class="o">/</span><span class="n">phenotypesforanalysis</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720</span>
+<span class="n">LDscoresFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">LDSCORE</span><span class="o">.</span><span class="mi">1000</span><span class="n">G_EUR</span><span class="o">.</span><span class="n">tab</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">geneticMapFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genetic_map_hg19_withX</span><span class="o">.</span><span class="n">txt</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">phenoCol</span><span class="o">=</span><span class="n">ASTHMA</span>
+<span class="n">covarCol</span><span class="o">=</span><span class="n">SEX</span>
+<span class="n">covarMaxLevels</span><span class="o">=</span><span class="mi">10</span>
+<span class="n">qCovarCol</span><span class="o">=</span><span class="n">AGE</span>
+<span class="n">numThreads</span><span class="o">=</span><span class="mi">20</span>
+<span class="n">bgenMinMAF</span><span class="o">=</span><span class="mf">0.001</span>
+<span class="n">bgenMinINFO</span><span class="o">=</span><span class="mf">0.8</span>
+<span class="n">lmm_job_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">ylim</span><span class="o">=</span><span class="mi">0</span>
+<span class="c1">### Specific to FastGWA</span>
+<span class="n">grmFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv</span><span class="o">.</span><span class="n">grm</span><span class="o">.</span><span class="n">sp</span>
+<span class="c1">### Specific to SAIGE</span>
+<span class="n">bgenMinMAC</span><span class="o">=</span><span class="mi">4</span>
+<span class="n">trait_type</span><span class="o">=</span><span class="n">binary</span>
+<span class="n">loco</span><span class="o">=</span><span class="n">TRUE</span>
+<span class="n">sampleCol</span><span class="o">=</span><span class="n">IID</span>
+<span class="c1"># LD clumping directories</span>
+<span class="n">clumping_dir</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">LD_clumping</span><span class="o">/</span><span class="n">asthma</span>
+<span class="n">clumping_sos</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">LD_Clumping</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="n">clumping_sbatch</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_asthma_ldclumping</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="c1">## LD clumping variables</span>
+<span class="n">bfile_ref</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">LD_clumping</span><span class="o">/</span><span class="n">UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv</span><span class="o">.</span><span class="mf">1210.</span><span class="n">ref_geno</span><span class="o">.</span><span class="n">bed</span>
+<span class="c1"># For sumtastsFiles if more than one provide each path</span>
+<span class="c1"># In this case asthma and INT-WHR</span>
+<span class="n">sumstatsFiles</span><span class="o">=</span><span class="s2">&quot;/gpfs/gibbs/pi/dewan/data/UKBiobank/results/FastGWA_results/results_imputed_data/asthma/ukb_imp_v3.Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols.fastGWA.snp_stats.all_chr.gz </span><span class="se">\</span>
+<span class="s2">              /gpfs/gibbs/pi/dewan/data/UKBiobank/results/BOLTLMM_results/results_imputed_data/INT-WHR/ukb_imp_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WHR_withagesex_042020.BoltLMM.snp_stats.all_chr_modif.gz </span><span class="se">\</span>
+<span class="s2">              /gpfs/gibbs/pi/dewan/data/UKBiobank/results/FastGWA_results/results_imputed_data/T2D/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_030720_T2D.fastGWA.snp_stats.gz&quot;</span>
+<span class="n">ld_sample_size</span><span class="o">=</span><span class="mi">1210</span>
+<span class="n">clump_field</span><span class="o">=</span><span class="n">P</span>
+<span class="n">clump_p1</span><span class="o">=</span><span class="mf">5e-08</span>
+<span class="n">clump_p2</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">clump_r2</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="n">clump_kb</span><span class="o">=</span><span class="mi">2000</span>
+<span class="n">clump_annotate</span><span class="o">=</span><span class="n">BP</span>
+<span class="n">numThreads</span><span class="o">=</span><span class="mi">20</span>
+<span class="n">clump_job_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">clumpFile</span><span class="o">=</span><span class="err">$</span><span class="n">clumping_dir</span><span class="o">/</span><span class="n">asthma_INT</span><span class="o">-</span><span class="n">WHR_T2D_ukbb</span><span class="o">.</span><span class="n">clumped</span>
+<span class="c1"># Region extraction directories</span>
+<span class="n">extract_dir</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">region_extraction</span><span class="o">/</span><span class="n">asthma</span>
+<span class="n">extract_sos</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_dev</span><span class="o">/</span><span class="n">Region_Extraction_3</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="n">extract_sbatch</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_asthma</span><span class="o">-</span><span class="n">region</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="c1">## Region extraction variables</span>
+<span class="n">region_file</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">LD_clumping</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">asthma_INT</span><span class="o">-</span><span class="n">WHR_T2D_ukbb</span><span class="o">.</span><span class="n">clumped_region</span>
+<span class="n">geno_path</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">UKBB_bgenfilepath</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">sumstats_path</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_v3</span><span class="o">.</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">all_chr</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">extract_job_size</span><span class="o">=</span><span class="mi">10</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="BoltLMM-job">BoltLMM job<a class="anchor-link" href="#BoltLMM-job">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;boltlmm</span>
+<span class="s2">    --cwd $lmm_dir_bolt </span>
+<span class="s2">    --bfile $bfile </span>
+<span class="s2">    --sampleFile $sampleFile</span>
+<span class="s2">    --bgenFile $bgenFile </span>
+<span class="s2">    --phenoFile $phenoFile </span>
+<span class="s2">    --formatFile $formatFile_bolt </span>
+<span class="s2">    --covarFile $covarFile </span>
+<span class="s2">    --LDscoresFile $LDscoresFile </span>
+<span class="s2">    --geneticMapFile $geneticMapFile </span>
+<span class="s2">    --phenoCol $phenoCol </span>
+<span class="s2">    --covarCol $covarCol </span>
+<span class="s2">    --covarMaxLevels $covarMaxLevels </span>
+<span class="s2">    --qCovarCol $qCovarCol </span>
+<span class="s2">    --numThreads $numThreads </span>
+<span class="s2">    --bgenMinMAF $bgenMinMAF </span>
+<span class="s2">    --bgenMinINFO $bgenMinINFO </span>
+<span class="s2">    --job_size $lmm_job_size</span>
+<span class="s2">    --ylim $ylim</span>
+<span class="s2">    --container_lmm $container_lmm</span>
+<span class="s2">    --container_marp $container_marp</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">lmm_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">lmm_sbatch_bolt</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$lmm_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>INFO: Running <span class="ansi-green-fg">farnam</span>: Configuration for Yale `farnam` cluster
+INFO: <span class="ansi-green-fg">farnam</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">farnam</span> output:   <span class="ansi-green-fg">../output/2020-07-17_asthma-bolt.sbatch</span>
+INFO: Workflow farnam (ID=e70247f4a0182528) is executed successfully with 1 completed step.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="FastGWA-job">FastGWA job<a class="anchor-link" href="#FastGWA-job">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;fastGWA</span>
+<span class="s2">    --cwd $lmm_dir_fastgwa </span>
+<span class="s2">    --bfile $bfile </span>
+<span class="s2">    --sampleFile $sampleFile</span>
+<span class="s2">    --bgenFile $bgenFile </span>
+<span class="s2">    --phenoFile $phenoFile </span>
+<span class="s2">    --formatFile $formatFile_fastgwa </span>
+<span class="s2">    --covarFile $covarFile  </span>
+<span class="s2">    --phenoCol $phenoCol </span>
+<span class="s2">    --covarCol $covarCol </span>
+<span class="s2">    --covarMaxLevels $covarMaxLevels </span>
+<span class="s2">    --qCovarCol $qCovarCol </span>
+<span class="s2">    --numThreads $numThreads </span>
+<span class="s2">    --bgenMinMAF $bgenMinMAF </span>
+<span class="s2">    --bgenMinINFO $bgenMinINFO </span>
+<span class="s2">    --job_size $lmm_job_size</span>
+<span class="s2">    --grmFile $grmFile</span>
+<span class="s2">    --ylim $ylim</span>
+<span class="s2">    --container_lmm $container_lmm</span>
+<span class="s2">    --container_marp $container_marp</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">lmm_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">lmm_sbatch_fastgwa</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$lmm_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>INFO: Running <span class="ansi-green-fg">farnam</span>: Configuration for Yale `farnam` cluster
+INFO: <span class="ansi-green-fg">farnam</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">farnam</span> output:   <span class="ansi-green-fg">../output/2020-09-15_asthma-fastgwa.sbatch</span>
+INFO: Workflow farnam (ID=d20de1f960d9c797) is executed successfully with 1 completed step.
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="SAIGE-job">SAIGE job<a class="anchor-link" href="#SAIGE-job">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;SAIGE</span>
+<span class="s2">    --cwd $lmm_dir_saige </span>
+<span class="s2">    --bfile $bfile </span>
+<span class="s2">    --sampleFile $sampleFile</span>
+<span class="s2">    --bgenFile $bgenFile </span>
+<span class="s2">    --phenoFile $phenoFile </span>
+<span class="s2">    --formatFile $formatFile_saige </span>
+<span class="s2">    --covarFile $covarFile </span>
+<span class="s2">    --LDscoresFile $LDscoresFile </span>
+<span class="s2">    --geneticMapFile $geneticMapFile </span>
+<span class="s2">    --phenoCol $phenoCol </span>
+<span class="s2">    --covarCol $covarCol </span>
+<span class="s2">    --covarMaxLevels $covarMaxLevels </span>
+<span class="s2">    --qCovarCol $qCovarCol </span>
+<span class="s2">    --numThreads $numThreads </span>
+<span class="s2">    --bgenMinMAF $bgenMinMAF </span>
+<span class="s2">    --bgenMinINFO $bgenMinINFO </span>
+<span class="s2">    --bgenMinMAC $bgenMinMAC</span>
+<span class="s2">    --trait_type $trait_type</span>
+<span class="s2">    --loco $loco</span>
+<span class="s2">    --sampleCol $sampleCol</span>
+<span class="s2">    --job_size $lmm_job_size</span>
+<span class="s2">    --ylim $ylim</span>
+<span class="s2">    --container_lmm $container_lmm</span>
+<span class="s2">    --container_marp $container_marp</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">lmm_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">lmm_sbatch_saige</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$lmm_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="LD-clumping-job">LD clumping job<a class="anchor-link" href="#LD-clumping-job">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">clumping_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;default </span>
+<span class="s2">    --cwd $clumping_dir </span>
+<span class="s2">    --bfile $bfile</span>
+<span class="s2">    --bfile_ref $bfile_ref </span>
+<span class="s2">    --bgenFile $bgenFile</span>
+<span class="s2">    --sampleFile $sampleFile </span>
+<span class="s2">    --sumstatsFiles $sumstatsFiles </span>
+<span class="s2">    --unrelated_samples $unrelated_samples </span>
+<span class="s2">    --ld_sample_size $ld_sample_size </span>
+<span class="s2">    --clump_field $clump_field</span>
+<span class="s2">    --clump_p1 $clump_p1 </span>
+<span class="s2">    --clump_p2 $clump_p2 </span>
+<span class="s2">    --clump_r2 $clump_r2 </span>
+<span class="s2">    --clump_kb $clump_kb </span>
+<span class="s2">    --clump_annotate $clump_annotate </span>
+<span class="s2">    --numThreads $numThreads </span>
+<span class="s2">    --job_size $clump_job_size</span>
+<span class="s2">    --clumpFile $clumpFile</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">clumping_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">clumping_sbatch</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$clumping_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>INFO: Running <span class="ansi-green-fg">farnam</span>: Configuration for Yale `farnam` cluster
+INFO: <span class="ansi-green-fg">farnam</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">farnam</span> output:   <span class="ansi-green-fg">../output/2020-08-04_asthma_ldclumping.sbatch</span>
+INFO: Workflow farnam (ID=62980a243f7f8e8c) is executed successfully with 1 completed step.
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Region-extract-job">Region extract job<a class="anchor-link" href="#Region-extract-job">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">extract_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;default_1</span>
+<span class="s2">    --cwd $extract_dir</span>
+<span class="s2">    --region-file $region_file</span>
+<span class="s2">    --pheno-path $phenoFile</span>
+<span class="s2">    --geno-path $geno_path</span>
+<span class="s2">    --bgen-sample-path $sampleFile</span>
+<span class="s2">    --sumstats-path $sumstats_path</span>
+<span class="s2">    --format-config-path $formatFile_fastgwa</span>
+<span class="s2">    --unrelated-samples $unrelated_samples</span>
+<span class="s2">    --job-size $extract_job_size</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">extract_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">extract_sbatch</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$extract_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>INFO: Running <span class="ansi-green-fg">farnam</span>: Configuration for Yale `farnam` cluster
+INFO: <span class="ansi-green-fg">farnam</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">farnam</span> output:   <span class="ansi-green-fg">../output/2020-11-04_asthma-region.sbatch</span>
+INFO: Workflow farnam (ID=bf247f9443a510f6) is executed successfully with 1 completed step.
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Hudson-plot">Hudson plot<a class="anchor-link" href="#Hudson-plot">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Asthma-vs-BMI">Asthma vs BMI<a class="anchor-link" href="#Asthma-vs-BMI">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">tpl_file</span><span class="o">=../</span><span class="n">farnam</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">hudson_sos</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Hudson_plot</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="n">hudson_dir</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">hudson_plots</span><span class="o">/</span><span class="n">pleiotropy</span><span class="o">/</span><span class="n">asthma_INT</span><span class="o">-</span><span class="n">BMI</span>
+<span class="n">hudson_sbatch</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_asthma_vs_BMI_hudson</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">sumstats_1</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720_ASTHMA</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">sumstats_2</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">BOLTLMM_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">BMI</span><span class="o">/</span><span class="n">UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT</span><span class="o">-</span><span class="n">BMI_withagesex_041720_rankNorm_BMI</span><span class="o">.</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">toptitle</span><span class="o">=</span><span class="s2">&quot;Asthma_fastGWA&quot;</span>
+<span class="n">bottomtitle</span><span class="o">=</span><span class="s2">&quot;INT-BMI_boltlmm&quot;</span>
+<span class="n">highlight_p_top</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">highlight_p_bottom</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">pval_filter</span><span class="o">=</span><span class="mf">5e-06</span>
+<span class="n">job_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">container_lmm</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">lmm</span><span class="o">.</span><span class="n">sif</span>
+<span class="c1">#highlight_snp=</span>
+<span class="n">annotate_snp</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">phenocol1</span><span class="o">=</span><span class="s1">&#39;asthma&#39;</span>
+<span class="n">phenocol2</span><span class="o">=</span><span class="s1">&#39;INT-BMI&#39;</span>
+
+<span class="n">hudson_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;hudson</span>
+<span class="s2">    --cwd $hudson_dir</span>
+<span class="s2">    --sumstats_1 $sumstats_1</span>
+<span class="s2">    --sumstats_2 $sumstats_2</span>
+<span class="s2">    --toptitle $toptitle</span>
+<span class="s2">    --bottomtitle $bottomtitle</span>
+<span class="s2">    --job_size $job_size</span>
+<span class="s2">    --highlight_p_top $highlight_p_top</span>
+<span class="s2">    --highlight_p_bottom $highlight_p_bottom</span>
+<span class="s2">    --pval_filter $pval_filter</span>
+<span class="s2">    --annotate_snp $annotate_snp</span>
+<span class="s2">    --phenocol1 $phenocol1</span>
+<span class="s2">    --phenocol2 $phenocol2</span>
+<span class="s2">    --container_lmm $container_lmm</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">hudson_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">hudson_sbatch</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$hudson_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>INFO: Running <span class="ansi-green-fg">farnam</span>: Configuration for Yale `farnam` cluster
+INFO: <span class="ansi-green-fg">farnam</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">farnam</span> output:   <span class="ansi-green-fg">../output/2020-11-05_asthma_vs_BMI_hudson.sbatch</span>
+INFO: Workflow farnam (ID=44859da9e0f9e48b) is executed successfully with 1 completed step.
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Asthma-vs-WHR">Asthma vs WHR<a class="anchor-link" href="#Asthma-vs-WHR">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">tpl_file</span><span class="o">=../</span><span class="n">farnam</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">hudson_sos</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Hudson_plot</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="n">hudson_dir</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">hudson_plots</span><span class="o">/</span><span class="n">pleiotropy</span><span class="o">/</span><span class="n">asthma_INT</span><span class="o">-</span><span class="n">WHR</span>
+<span class="n">hudson_sbatch</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_asthma_vs_WHR_hudson</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">sumstats_1</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720_ASTHMA</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">sumstats_2</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">BOLTLMM_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">WHR</span><span class="o">/</span><span class="n">UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT</span><span class="o">-</span><span class="n">WHR_withagesex_042020_rankNorm_WHR</span><span class="o">.</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">toptitle</span><span class="o">=</span><span class="s2">&quot;Asthma_fastGWA&quot;</span>
+<span class="n">bottomtitle</span><span class="o">=</span><span class="s2">&quot;INT-WHR_boltlmm&quot;</span>
+<span class="n">highlight_p_top</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">highlight_p_bottom</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">pval_filter</span><span class="o">=</span><span class="mf">5e-06</span>
+<span class="n">job_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">container_lmm</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">lmm</span><span class="o">.</span><span class="n">sif</span>
+<span class="c1">#highlight_snp=</span>
+<span class="n">annotate_snp</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">phenocol1</span><span class="o">=</span><span class="s1">&#39;asthma&#39;</span>
+<span class="n">phenocol2</span><span class="o">=</span><span class="s1">&#39;INT-WHR&#39;</span>
+
+<span class="n">hudson_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;hudson</span>
+<span class="s2">    --cwd $hudson_dir</span>
+<span class="s2">    --sumstats_1 $sumstats_1</span>
+<span class="s2">    --sumstats_2 $sumstats_2</span>
+<span class="s2">    --toptitle $toptitle</span>
+<span class="s2">    --bottomtitle $bottomtitle</span>
+<span class="s2">    --job_size $job_size</span>
+<span class="s2">    --highlight_p_top $highlight_p_top</span>
+<span class="s2">    --highlight_p_bottom $highlight_p_bottom</span>
+<span class="s2">    --pval_filter $pval_filter</span>
+<span class="s2">    --annotate_snp $annotate_snp</span>
+<span class="s2">    --container_lmm $container_lmm</span>
+<span class="s2">    --phenocol1 $phenocol1</span>
+<span class="s2">    --phenocol2 $phenocol2</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">hudson_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">hudson_sbatch</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$hudson_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Asthma-vs-INT-WAIST">Asthma vs INT-WAIST<a class="anchor-link" href="#Asthma-vs-INT-WAIST">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">tpl_file</span><span class="o">=../</span><span class="n">farnam</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">hudson_sos</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Hudson_plot</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="n">hudson_dir</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">hudson_plots</span><span class="o">/</span><span class="n">pleiotropy</span><span class="o">/</span><span class="n">asthma_INT</span><span class="o">-</span><span class="n">WAIST</span>
+<span class="n">hudson_sbatch</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_asthma_vs_WAIST_hudson</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">sumstats_1</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720_ASTHMA</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">sumstats_2</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">BOLTLMM_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">INT</span><span class="o">-</span><span class="n">WAIST</span><span class="o">/</span><span class="n">UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT</span><span class="o">-</span><span class="n">WAIST_withagesex_042020_rankNorm_WAIST</span><span class="o">.</span><span class="n">boltlmm</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">toptitle</span><span class="o">=</span><span class="s2">&quot;Asthma_fastGWA&quot;</span>
+<span class="n">bottomtitle</span><span class="o">=</span><span class="s2">&quot;INT-WAIST_boltlmm&quot;</span>
+<span class="n">highlight_p_top</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">highlight_p_bottom</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">pval_filter</span><span class="o">=</span><span class="mf">5e-06</span>
+<span class="n">job_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">container_lmm</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">lmm</span><span class="o">.</span><span class="n">sif</span>
+<span class="c1">#highlight_snp=</span>
+<span class="n">annotate_snp</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">phenocol1</span><span class="o">=</span><span class="s1">&#39;asthma&#39;</span>
+<span class="n">phenocol2</span><span class="o">=</span><span class="s1">&#39;INT-WAIST&#39;</span>
+
+<span class="n">hudson_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;hudson</span>
+<span class="s2">    --cwd $hudson_dir</span>
+<span class="s2">    --sumstats_1 $sumstats_1</span>
+<span class="s2">    --sumstats_2 $sumstats_2</span>
+<span class="s2">    --toptitle $toptitle</span>
+<span class="s2">    --bottomtitle $bottomtitle</span>
+<span class="s2">    --job_size $job_size</span>
+<span class="s2">    --highlight_p_top $highlight_p_top</span>
+<span class="s2">    --highlight_p_bottom $highlight_p_bottom</span>
+<span class="s2">    --pval_filter $pval_filter</span>
+<span class="s2">    --annotate_snp $annotate_snp</span>
+<span class="s2">    --phenocol1 $phenocol1</span>
+<span class="s2">    --phenocol2 $phenocol2</span>
+<span class="s2">    --container_lmm $container_lmm</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">hudson_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">hudson_sbatch</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$hudson_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Asthma-vs-T2D">Asthma vs T2D<a class="anchor-link" href="#Asthma-vs-T2D">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">tpl_file</span><span class="o">=../</span><span class="n">farnam</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">hudson_sos</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Hudson_plot</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="n">hudson_dir</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">hudson_plots</span><span class="o">/</span><span class="n">pleiotropy</span><span class="o">/</span><span class="n">asthma_T2D</span>
+<span class="n">hudson_sbatch</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_asthma_vs_T2D_hudson</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">sumstats_1</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720_ASTHMA</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">sumstats_2</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">T2D_091120</span><span class="o">/</span><span class="n">diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_030720_T2D</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">toptitle</span><span class="o">=</span><span class="s2">&quot;Asthma_fastGWA&quot;</span>
+<span class="n">bottomtitle</span><span class="o">=</span><span class="s2">&quot;T2D_fastGWA&quot;</span>
+<span class="n">highlight_p_top</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">highlight_p_bottom</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">pval_filter</span><span class="o">=</span><span class="mf">5e-06</span>
+<span class="n">job_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">container_lmm</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">lmm</span><span class="o">.</span><span class="n">sif</span>
+<span class="c1">#highlight_snp=</span>
+<span class="n">annotate_snp</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">phenocol1</span><span class="o">=</span><span class="s1">&#39;asthma&#39;</span>
+<span class="n">phenocol2</span><span class="o">=</span><span class="s1">&#39;T2D&#39;</span>
+
+<span class="n">hudson_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;hudson</span>
+<span class="s2">    --cwd $hudson_dir</span>
+<span class="s2">    --sumstats_1 $sumstats_1</span>
+<span class="s2">    --sumstats_2 $sumstats_2</span>
+<span class="s2">    --toptitle $toptitle</span>
+<span class="s2">    --bottomtitle $bottomtitle</span>
+<span class="s2">    --job_size $job_size</span>
+<span class="s2">    --highlight_p_top $highlight_p_top</span>
+<span class="s2">    --highlight_p_bottom $highlight_p_bottom</span>
+<span class="s2">    --pval_filter $pval_filter</span>
+<span class="s2">    --annotate_snp $annotate_snp</span>
+<span class="s2">    --phenocol1 $phenocol1</span>
+<span class="s2">    --phenocol2 $phenocol2</span>
+<span class="s2">    --container_lmm $container_lmm</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">hudson_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">hudson_sbatch</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$hudson_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Epistasis-job-with-PLINK">Epistasis job with PLINK<a class="anchor-link" href="#Epistasis-job-with-PLINK">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">epistasis_dir</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">interaction</span><span class="o">/</span><span class="n">set2_chr11_chr20</span>
+<span class="n">bfile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">interaction</span><span class="o">/</span><span class="n">ukb_asthma_interaction</span><span class="o">.</span><span class="n">bed</span>
+<span class="n">phenoFile</span><span class="o">=~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720_epistasis</span>
+<span class="n">setFile</span><span class="o">=~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">set2_chr11_chr20</span>
+<span class="n">epistasis_sos</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_dev</span><span class="o">/</span><span class="n">workflow</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="n">epistasis_sbatch</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_asthma</span><span class="o">-</span><span class="n">set2_chr11_chr20</span><span class="o">-</span><span class="n">epistasis</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">numThreads</span><span class="o">=</span><span class="mi">20</span>
+<span class="n">job_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">tpl_file</span><span class="o">=../</span><span class="n">farnam</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">container_lmm</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">lmm</span><span class="o">.</span><span class="n">sif</span>
+
+<span class="n">epistasis_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;epistasis</span>
+<span class="s2">    --cwd $epistasis_dir </span>
+<span class="s2">    --bfile $bfile</span>
+<span class="s2">    --phenoFile $phenoFile</span>
+<span class="s2">    --setFile $setFile</span>
+<span class="s2">    --numThreads $numThreads</span>
+<span class="s2">    --job_size $job_size</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">epistasis_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">epistasis_sbatch</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$epistasis_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>INFO: Running <span class="ansi-green-fg">farnam</span>: Configuration for Yale `farnam` cluster
+INFO: <span class="ansi-green-fg">farnam</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">farnam</span> output:   <span class="ansi-green-fg">../output/2020-10-02_asthma-set2_chr11_chr20-epistasis.sbatch</span>
+INFO: Workflow farnam (ID=5a1b05b3001b354a) is executed successfully with 1 completed step.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">chr3_filter</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 4</span>
+<span class="c1">#SBATCH --mem 40G</span>
+<span class="c1">#SBATCH --time 1-0:00:00</span>
+<span class="c1">#SBATCH --job-name ../output/chr3</span>
+<span class="c1">#SBATCH --output ../output/chr3-%J.out</span>
+<span class="c1">#SBATCH --error ../output/chr3-%J.log</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PLINK</span><span class="o">/</span><span class="mi">2</span><span class="n">_x86_64_20180428</span>
+<span class="n">plink2</span> \
+   <span class="o">--</span><span class="n">bgen</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb_imp_chr3_v3</span><span class="o">.</span><span class="n">bgen</span> \
+   <span class="o">--</span><span class="n">sample</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb32285_imputedindiv</span><span class="o">.</span><span class="n">sample</span> \
+   <span class="o">--</span><span class="n">keep</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">unrelated_n307259</span><span class="o">/</span><span class="n">UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620</span> \
+   <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> <span class="o">--</span><span class="n">out</span> <span class="o">~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr3_v3_unrelated</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="chr3_filter.sh" target="_blank">chr3_filter.sh</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">chr3_filter_exclude</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 4</span>
+<span class="c1">#SBATCH --mem 40G</span>
+<span class="c1">#SBATCH --time 1-0:00:00</span>
+<span class="c1">#SBATCH --job-name ../output/chr3</span>
+<span class="c1">#SBATCH --output ../output/chr3-%J.out</span>
+<span class="c1">#SBATCH --error ../output/chr3-%J.log</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PLINK</span><span class="o">/</span><span class="mi">2</span><span class="n">_x86_64_20180428</span>
+<span class="n">plink2</span> \
+   <span class="o">--</span><span class="n">bfile</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr3_v3_unrelated</span> \
+   <span class="o">--</span><span class="n">exclude</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_asthma_interaction</span><span class="o">-</span><span class="n">merge</span><span class="o">.</span><span class="n">missnp</span> \
+   <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> <span class="o">--</span><span class="n">out</span> <span class="o">~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr3_v3_unrelated_exclude</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="chr3_filter_exclude.sh" target="_blank">chr3_filter_exclude.sh</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">chr3_filter_exclude_maf</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 4</span>
+<span class="c1">#SBATCH --mem 40G</span>
+<span class="c1">#SBATCH --time 1-0:00:00</span>
+<span class="c1">#SBATCH --job-name ../output/chr3_maf</span>
+<span class="c1">#SBATCH --output ../output/chr3_maf-%J.out</span>
+<span class="c1">#SBATCH --error ../output/chr3_maf-%J.log</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PLINK</span><span class="o">/</span><span class="mi">2</span><span class="n">_x86_64_20180428</span>
+<span class="n">plink2</span> \
+   <span class="o">--</span><span class="n">bfile</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr3_v3_unrelated_exclude</span> \
+   <span class="o">--</span><span class="n">maf</span> <span class="mf">0.05</span> \
+   <span class="o">--</span><span class="n">geno</span> <span class="mf">0.1</span> \
+   <span class="o">--</span><span class="n">mind</span> <span class="mf">0.1</span> \
+   <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> <span class="o">--</span><span class="n">out</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">interaction</span><span class="o">/</span><span class="n">ukb_imp_chr3_v3_unrelated_exclude_maf</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="chr3_filter_exclude_maf.sh" target="_blank">chr3_filter_exclude_maf.sh</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">chr11_filter</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 4</span>
+<span class="c1">#SBATCH --mem 40G</span>
+<span class="c1">#SBATCH --time 1-0:00:00</span>
+<span class="c1">#SBATCH --job-name ../output/chr11</span>
+<span class="c1">#SBATCH --output ../output/chr11-%J.out</span>
+<span class="c1">#SBATCH --error ../output/chr11-%J.log</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PLINK</span><span class="o">/</span><span class="mi">2</span><span class="n">_x86_64_20180428</span>
+<span class="n">plink2</span> \
+   <span class="o">--</span><span class="n">bgen</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb_imp_chr11_v3</span><span class="o">.</span><span class="n">bgen</span> \
+   <span class="o">--</span><span class="n">sample</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb32285_imputedindiv</span><span class="o">.</span><span class="n">sample</span> \
+   <span class="o">--</span><span class="n">keep</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">unrelated_n307259</span><span class="o">/</span><span class="n">UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620</span> \
+   <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> <span class="o">--</span><span class="n">out</span> <span class="o">~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr11_v3_unrelated</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="chr11_filter.sh" target="_blank">chr11_filter.sh</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">chr11_filter_exclude</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 4</span>
+<span class="c1">#SBATCH --mem 40G</span>
+<span class="c1">#SBATCH --time 1-0:00:00</span>
+<span class="c1">#SBATCH --job-name ../output/chr11</span>
+<span class="c1">#SBATCH --output ../output/chr11-%J.out</span>
+<span class="c1">#SBATCH --error ../output/chr11-%J.log</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PLINK</span><span class="o">/</span><span class="mi">2</span><span class="n">_x86_64_20180428</span>
+<span class="n">plink2</span> \
+   <span class="o">--</span><span class="n">bfile</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr11_v3_unrelated</span> \
+   <span class="o">--</span><span class="n">exclude</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_asthma_interaction</span><span class="o">-</span><span class="n">merge</span><span class="o">.</span><span class="n">missnp</span> \
+   <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> <span class="o">--</span><span class="n">out</span> <span class="o">~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr11_v3_unrelated_exclude</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="chr11_filter_exclude.sh" target="_blank">chr11_filter_exclude.sh</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">chr11_filter_exclude_maf</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 4</span>
+<span class="c1">#SBATCH --mem 40G</span>
+<span class="c1">#SBATCH --time 1-0:00:00</span>
+<span class="c1">#SBATCH --job-name ../output/chr11_maf</span>
+<span class="c1">#SBATCH --output ../output/chr11_maf-%J.out</span>
+<span class="c1">#SBATCH --error ../output/chr11_maf-%J.log</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PLINK</span><span class="o">/</span><span class="mi">2</span><span class="n">_x86_64_20180428</span>
+<span class="n">plink2</span> \
+   <span class="o">--</span><span class="n">bfile</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr11_v3_unrelated_exclude</span> \
+   <span class="o">--</span><span class="n">maf</span> <span class="mf">0.05</span> \
+   <span class="o">--</span><span class="n">geno</span> <span class="mf">0.1</span> \
+   <span class="o">--</span><span class="n">mind</span> <span class="mf">0.1</span> \
+   <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> <span class="o">--</span><span class="n">out</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">interaction</span><span class="o">/</span><span class="n">ukb_imp_chr11_v3_unrelated_exclude_maf</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="chr11_filter_exclude_maf.sh" target="_blank">chr11_filter_exclude_maf.sh</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">chr20_filter</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 4</span>
+<span class="c1">#SBATCH --mem 40G</span>
+<span class="c1">#SBATCH --time 1-0:00:00</span>
+<span class="c1">#SBATCH --job-name ../output/chr20</span>
+<span class="c1">#SBATCH --output ../output/chr20-%J.out</span>
+<span class="c1">#SBATCH --error ../output/chr20-%J.log</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PLINK</span><span class="o">/</span><span class="mi">2</span><span class="n">_x86_64_20180428</span>
+<span class="n">plink2</span> \
+   <span class="o">--</span><span class="n">bgen</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb_imp_chr20_v3</span><span class="o">.</span><span class="n">bgen</span> \
+   <span class="o">--</span><span class="n">sample</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb32285_imputedindiv</span><span class="o">.</span><span class="n">sample</span> \
+   <span class="o">--</span><span class="n">keep</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">unrelated_n307259</span><span class="o">/</span><span class="n">UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620</span> \
+   <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> <span class="o">--</span><span class="n">out</span> <span class="o">~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr20_v3_unrelated</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="chr20_filter.sh" target="_blank">chr20_filter.sh</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">chr20_filter_exclude</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 4</span>
+<span class="c1">#SBATCH --mem 40G</span>
+<span class="c1">#SBATCH --time 1-0:00:00</span>
+<span class="c1">#SBATCH --job-name ../output/chr20</span>
+<span class="c1">#SBATCH --output ../output/chr20-%J.out</span>
+<span class="c1">#SBATCH --error ../output/chr20-%J.log</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PLINK</span><span class="o">/</span><span class="mi">2</span><span class="n">_x86_64_20180428</span>
+<span class="n">plink2</span> \
+   <span class="o">--</span><span class="n">bfile</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr20_v3_unrelated</span> \
+   <span class="o">--</span><span class="n">exclude</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_asthma_interaction</span><span class="o">-</span><span class="n">merge</span><span class="o">.</span><span class="n">missnp</span> \
+   <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> <span class="o">--</span><span class="n">out</span> <span class="o">~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr20_v3_unrelated_exclude</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="chr20_filter_exclude.sh" target="_blank">chr20_filter_exclude.sh</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">chr20_filter_exclude_maf</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 4</span>
+<span class="c1">#SBATCH --mem 40G</span>
+<span class="c1">#SBATCH --time 1-0:00:00</span>
+<span class="c1">#SBATCH --job-name ../output/chr20_maf</span>
+<span class="c1">#SBATCH --output ../output/chr20_maf-%J.out</span>
+<span class="c1">#SBATCH --error ../output/chr20_maf-%J.log</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PLINK</span><span class="o">/</span><span class="mi">2</span><span class="n">_x86_64_20180428</span>
+<span class="n">plink2</span> \
+   <span class="o">--</span><span class="n">bfile</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr20_v3_unrelated_exclude</span> \
+   <span class="o">--</span><span class="n">maf</span> <span class="mf">0.05</span> \
+   <span class="o">--</span><span class="n">geno</span> <span class="mf">0.1</span> \
+   <span class="o">--</span><span class="n">mind</span> <span class="mf">0.1</span> \
+   <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> <span class="o">--</span><span class="n">out</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">interaction</span><span class="o">/</span><span class="n">ukb_imp_chr20_v3_unrelated_exclude_maf</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="chr20_filter_exclude_maf.sh" target="_blank">chr20_filter_exclude_maf.sh</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">chr2_filter</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 4</span>
+<span class="c1">#SBATCH --mem 40G</span>
+<span class="c1">#SBATCH --time 1-0:00:00</span>
+<span class="c1">#SBATCH --job-name ../output/chr2</span>
+<span class="c1">#SBATCH --output ../output/chr2-%J.out</span>
+<span class="c1">#SBATCH --error ../output/chr2-%J.log</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PLINK</span><span class="o">/</span><span class="mi">2</span><span class="n">_x86_64_20180428</span>
+<span class="n">plink2</span> \
+   <span class="o">--</span><span class="n">bgen</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb_imp_chr2_v3</span><span class="o">.</span><span class="n">bgen</span> \
+   <span class="o">--</span><span class="n">sample</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb32285_imputedindiv</span><span class="o">.</span><span class="n">sample</span> \
+   <span class="o">--</span><span class="n">keep</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">unrelated_n307259</span><span class="o">/</span><span class="n">UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620</span> \
+   <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> <span class="o">--</span><span class="n">out</span> <span class="o">~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr2_v3_unrelated</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="chr2_filter.sh" target="_blank">chr2_filter.sh</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">chr2_filter_exclude</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 4</span>
+<span class="c1">#SBATCH --mem 40G</span>
+<span class="c1">#SBATCH --time 1-0:00:00</span>
+<span class="c1">#SBATCH --job-name ../output/chr2</span>
+<span class="c1">#SBATCH --output ../output/chr2-%J.out</span>
+<span class="c1">#SBATCH --error ../output/chr2-%J.log</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PLINK</span><span class="o">/</span><span class="mi">2</span><span class="n">_x86_64_20180428</span>
+<span class="n">plink2</span> \
+   <span class="o">--</span><span class="n">bfile</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr2_v3_unrelated</span> \
+   <span class="o">--</span><span class="n">exclude</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_asthma_interaction</span><span class="o">-</span><span class="n">merge</span><span class="o">.</span><span class="n">missnp</span> \
+   <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> <span class="o">--</span><span class="n">out</span> <span class="o">~/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr2_v3_unrelated_exclude</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="chr2_filter_exclude.sh" target="_blank">chr2_filter_exclude.sh</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">chr2_filter_exclude_maf</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 4</span>
+<span class="c1">#SBATCH --mem 40G</span>
+<span class="c1">#SBATCH --time 1-0:00:00</span>
+<span class="c1">#SBATCH --job-name ../output/chr2_maf</span>
+<span class="c1">#SBATCH --output ../output/chr2_maf-%J.out</span>
+<span class="c1">#SBATCH --error ../output/chr2_maf-%J.log</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PLINK</span><span class="o">/</span><span class="mi">2</span><span class="n">_x86_64_20180428</span>
+<span class="n">plink2</span> \
+   <span class="o">--</span><span class="n">bfile</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr2_v3_unrelated_exclude</span> \
+   <span class="o">--</span><span class="n">maf</span> <span class="mf">0.05</span> \
+   <span class="o">--</span><span class="n">geno</span> <span class="mf">0.1</span> \
+   <span class="o">--</span><span class="n">mind</span> <span class="mf">0.1</span> \
+   <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> <span class="o">--</span><span class="n">out</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">interaction</span><span class="o">/</span><span class="n">ukb_imp_chr2_v3_unrelated_exclude_maf</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="chr2_filter_exclude_maf.sh" target="_blank">chr2_filter_exclude_maf.sh</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">merge_filter</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 4</span>
+<span class="c1">#SBATCH --mem 60G</span>
+<span class="c1">#SBATCH --time 1-0:00:00</span>
+<span class="c1">#SBATCH --job-name ../output/allchr</span>
+<span class="c1">#SBATCH --output ../output/allchr-%J.out</span>
+<span class="c1">#SBATCH --error ../output/allchr-%J.log</span>
+<span class="c1">#for chr in {&#39;chr3&#39;,&#39;chr11&#39;,&#39;chr20&#39;}; do echo &quot;/home/dc2325/scratch60/Epistasis/asthma/ukb_imp_${chr}_v3_unrelated.bed /home/dc2325/scratch60/Epistasis/asthma/ukb_imp_${chr}_v3_unrelated.bim /home/dc2325/scratch60/Epistasis/asthma/ukb_imp_${chr}_v3_unrelated.fam\n&quot; &gt;&gt; list_beds.txt; done</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PLINK</span><span class="o">/</span><span class="mf">1.90</span><span class="o">-</span><span class="n">beta5</span><span class="o">.</span><span class="mi">3</span>
+<span class="n">plink</span> \
+  <span class="o">--</span><span class="n">bfile</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">ukb_imp_chr2_v3_unrelated_exclude</span> \
+  <span class="o">--</span><span class="n">merge</span><span class="o">-</span><span class="nb">list</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">list_beds</span><span class="o">.</span><span class="n">txt</span> \
+  <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> <span class="o">--</span><span class="n">out</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">ukb_asthma_interaction</span> \
+  <span class="o">&amp;&gt;</span> <span class="o">../</span><span class="n">output</span><span class="o">/</span><span class="n">plink_interaction</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="merge_filter.sh" target="_blank">merge_filter.sh</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="o">%</span><span class="n">save</span> <span class="n">merge_filter_maf</span><span class="o">.</span><span class="n">sh</span> <span class="o">-</span><span class="n">f</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1">#SBATCH --partition general</span>
+<span class="c1">#SBATCH --nodes 1</span>
+<span class="c1">#SBATCH --ntasks-per-node 1</span>
+<span class="c1">#SBATCH --cpus-per-task 4</span>
+<span class="c1">#SBATCH --mem 80G</span>
+<span class="c1">#SBATCH --time 1-0:00:00</span>
+<span class="c1">#SBATCH --job-name ../output/allchr-maf</span>
+<span class="c1">#SBATCH --output ../output/allchr_maf-%J.out</span>
+<span class="c1">#SBATCH --error ../output/allchr_maf-%J.log</span>
+<span class="c1">#for chr in {&#39;chr3&#39;,&#39;chr11&#39;,&#39;chr20&#39;}; do echo &quot;/gpfs/gibbs/pi/dewan/data/UKBiobank/results/interaction/ukb_imp_${chr}_v3_unrelated_exclude_maf.bed /gpfs/gibbs/pi/dewan/data/UKBiobank/results/interaction/ukb_imp_${chr}_v3_unrelated_exclude_maf.bim /gpfs/gibbs/pi/dewan/data/UKBiobank/results/interaction/ukb_imp_${chr}_v3_unrelated_exclude_maf.fam\n&quot; &gt;&gt; list_beds.txt; done</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PLINK</span><span class="o">/</span><span class="mf">1.90</span><span class="o">-</span><span class="n">beta5</span><span class="o">.</span><span class="mi">3</span>
+<span class="n">plink</span> \
+  <span class="o">--</span><span class="n">bfile</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">interaction</span><span class="o">/</span><span class="n">ukb_imp_chr2_v3_unrelated_exclude_maf</span> \
+  <span class="o">--</span><span class="n">merge</span><span class="o">-</span><span class="nb">list</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">interaction</span><span class="o">/</span><span class="n">list_beds</span><span class="o">.</span><span class="n">txt</span> \
+  <span class="o">--</span><span class="n">make</span><span class="o">-</span><span class="n">bed</span> <span class="o">--</span><span class="n">out</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">interaction</span><span class="o">/</span><span class="n">ukb_asthma_interaction</span> \
+  <span class="o">&amp;&gt;</span> <span class="o">../</span><span class="n">output</span><span class="o">/</span><span class="n">asthma_interaction_maf</span><span class="o">.</span><span class="n">log</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div class="sos_hint">Cell content saved to <a href="merge_filter_maf.sh" target="_blank">merge_filter_maf.sh</a>, use option -r to also execute the cell.</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<hr>
+&copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/804a49e20903d8a6a7eafcb7472453c5ea2dcde8/analysis/cluster_scripts/asthma_scripts.ipynb"><code>analysis/cluster_scripts/asthma_scripts.ipynb</code></a> committed by dc2325 on Fri Feb 19 22:22:36 2021 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/804a49e20903d8a6a7eafcb7472453c5ea2dcde8">revision 1, 804a49e</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+</div>
+</div>
+</body>
+</html>
