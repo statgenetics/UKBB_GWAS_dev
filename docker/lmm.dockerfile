@@ -52,9 +52,11 @@ RUN wget https://www.well.ox.ac.uk/~gav/resources/qctool_v2.0.6-Ubuntu16.04-x86_
     cp qctool /usr/local/bin/
 
 #Download and install R packages
-RUN Rscript -e 'p = c("ggplot2", "ggrepel", "dplyr", "qqman", "remotes","scales"); install.packages(p, repos="https://cloud.r-project.org")'
+RUN Rscript -e 'p = c("ggplot2", "ggrepel", "dplyr", "qqman", "remotes","scales", "stats", "matrixStats", "gridExtra"); install.packages(p, repos="https://cloud.r-project.org")'
 RUN Rscript -e 'remotes::install_github("anastasia-lucas/hudson")'
 RUN Rscript -e 'remotes::install_github("stephenslab/susieR")'
+RUN Rscript -e 'remotes::install_github("gabraham/flashpca/flashpcaR")'
+
 #Download and intall BOLT-LMM
 
 ADD https://data.broadinstitute.org/alkesgroup/BOLT-LMM/downloads/BOLT-LMM_v2.3.4.tar.gz /tmp/BOLT-LMM_v2.3.4.tar.gz
