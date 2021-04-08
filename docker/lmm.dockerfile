@@ -63,10 +63,11 @@ RUN Rscript -e 'remotes::install_github("stephenslab/susieR")'
 RUN Rscript -e 'remotes::install_github("gabraham/flashpca/flashpcaR")'
 RUN Rscript -e 'BiocManager::install(c("SeqArray","SeqVarTools"))'
 RUN Rscript -e 'devtools::install_github("hanchenphd/GMMAT")'
+RUN Rscript -e 'install.packagansies('data.table')'
 
 #Download and intall BOLT-LMM
 
-ADD https://storage.googleapis.com/broad-alkesgroup-public/BOLT-LMM/downloads/old/BOLT-LMM_v2.3.4.tar.gz /tmp/BOLT-LMM_v2.3.4.tar.gz
+ADD https://storage.googleapis.com/broad-alkesgroup-pulirablic/BOLT-LMM/downloads/old/BOLT-LMM_v2.3.4.tar.gz /tmp/BOLT-LMM_v2.3.4.tar.gz
 
 RUN tar -zxvf BOLT-LMM_v2.3.4.tar.gz && \
     rm -rf BOLT-LMM_v2.3.4.tar.gz && \
@@ -80,6 +81,14 @@ RUN wget https://cnsgenomics.com/software/gcta/bin/gcta_1.93.2beta.zip && \
     cp gcta_1.93.2beta/gcta64 /usr/local/bin/ && \
     rm -rf gcta*
     
+#Download and install GEMMA
+
+RUN wget https://github.com/genetics-statistics/GEMMA/releases/download/v0.98.4/gemma-0.98.4-linux-static-AMD64.gz && \
+    gunzip gemma-0.98.4-linux-static-AMD64.gz  && \
+    cp gemma-0.98.4-linux-static-AMD64/gemma /usr/local/bin/ && \
+    rm -rf gemma*
+    
+       
 # Download and compile regenie from source code
 
 COPY .  /tmp/
