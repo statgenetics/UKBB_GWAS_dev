@@ -85,7 +85,7 @@ RUN wget https://cnsgenomics.com/software/gcta/bin/gcta_1.93.2beta.zip && \
 RUN wget https://github.com/genetics-statistics/GEMMA/releases/download/v0.98.4/gemma-0.98.4-linux-static-AMD64.gz && \
     gunzip gemma-0.98.4-linux-static-AMD64.gz && \
     chmod a+x gemma-0.98.4-linux-static-AMD64 && \
-    cp gemma-0.98.4-linux-static-AMD64.gz /usr/local/bin && \
+    cp gemma-0.98.4-linux-static-AMD64 /usr/local/bin && \
     rm gemma-0.98.4-linux-static-AMD64.*
     
        
