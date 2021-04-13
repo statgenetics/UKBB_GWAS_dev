@@ -1,0 +1,184 @@
+---
+title: "hearing aid Phenotype (3393)"
+output:
+  html_document:
+    toc: TRUE
+    depth: 3
+editor_options: 
+  chunk_output_type: console
+chunk_output_type: console
+---
+***
+
+## Read in dataset
+
+```{r load_data}
+data.geno.pheno <- read.csv("./010521_UKBB_HI_genotypeqc_expandedwhite_396974indiv_excr.csv") #cleaned data
+
+
+
+library(dplyr)
+
+```
+
+
+
+### hearing aids (3393)
+### step 1: classify cases and controls
+```{r get cases and controls, warning=FALSE, collapse=FALSE, echo=T}
+library(tidyverse)
+
+hearing_all = data.geno.pheno %>% 
+  select(IID,FID,f.31.0.0,f.34.0.0, f.21003.0.0,f.21003.1.0,f.21003.2.0,f.21003.3.0,f.3393.0.0,f.3393.1.0,f.3393.2.0,f.3393.3.0,f.2247.0.0,f.2247.1.0,f.2247.2.0,f.2247.3.0,f.2257.0.0, f.2257.1.0, f.2257.2.0, f.2257.3.0,starts_with("f.41270"),starts_with("f.41280")) 
+
+
+#classify the cases and controls hearing aid, based on Z974
+hearing_all = hearing_all %>% 
+  mutate(cases_Z974 = apply(select(hearing_all,starts_with("f.41270")), 1, function(x) any(x %in% c("Z974"))
+  )) 
+
+
+#classify the cases and controls for hearing aid, based on 3393
+#hearing_all = hearing_all %>% mutate(cases_3393 = apply(select(hearing_all,starts_with("f.3393")), 1, function(x) length(which(x == "Yes")) > 0 & max(which(x != "Yes")) < min(which(x == "Yes"))))
+
+
+hearing_all = hearing_all %>% 
+  mutate(cases_3393 = apply(select(hearing_all,starts_with("f.3393")), 1, function(x) length(which(x == "Yes")) > 0 & max(which(x == "No")) < min(which(x == "Yes")))
+  )
+
+
+
+hearing_all = hearing_all %>% 
+      mutate(control_3393 = ifelse(apply(hearing_all, 1, function(x){
+              col_names = names(x)[grep("f.3393", names(x))]
+              condition1 = sapply(col_names, function(y){
+                x[y] %in% c("No",NA)
+              })
+              
+              condition2 = sapply(col_names, function(y){
+                x[y] %in% c(NA)
+              })
+              
+              all(condition1) & !all(condition2)
+            }),
+            "FALSE",
+            "NA"
+            )
+         ) 
+
+                                     
+#hearing_all$cases = apply(select(hearing_all,starts_with("f.3393")), 1, function(x) length(which(x == "Yes")) > 0 & max(which(x != "Yes")) < min(which(x == "Yes")))
+
+#148 individuals are true for Z974 but controls for 3393
+hearing_aid_trial <- hearing_all %>% 
+  filter(cases_Z974 == "TRUE" & control_3393 == "FALSE")
+
+hearing_all <- hearing_all %>% 
+  mutate(reclass_aid= case_when(
+    cases_Z974 == "TRUE" & control_3393 == "FALSE" ~ "TRUE",
+    cases_Z974 == "TRUE" & control_3393 == "NA"  ~ "TRUE",
+    TRUE ~"FALSE") ) 
+
+#13808 individuals are cases for either Z947 or 3393
+hearing_aid_cases <- hearing_all %>% 
+ filter(reclass_aid == "TRUE" | cases_3393 == "TRUE")
+
+#245157 individuals are controls for either Z947 or 3393
+hearing_aid_control <- hearing_all %>% 
+ filter(reclass_aid == "FALSE" & control_3393 == "FALSE")
+
+
+#merge cases and controls
+hearing_all <- hearing_all %>% 
+  mutate(hearing_aid_cat= case_when(
+    reclass_aid == "TRUE" | cases_3393 == "TRUE" ~ "case",
+    reclass_aid == "FALSE" & control_3393 == "FALSE" ~ "control",
+    TRUE ~"NA")
+    ) 
+
+
+#258965 are either cases or controls after reclassification
+hear_aid <- hearing_all %>% 
+  filter( hearing_aid_cat == "case" | hearing_aid_cat == "control")
+
+```
+
+
+
+
+
+
+### step 2: get the ages for hearing aids (3393)
+### Extract age for Control (3393)
+```{r age for control,warning=FALSE, collapse=FALSE,echo=T}
+aid_age_control <- hearing_all %>% 
+  filter(hearing_aid_cat == "control") 
+
+
+#find out the age at the last visit (control)
+
+offset = which(colnames(aid_age_control) == 'f.21003.0.0') - which(colnames(aid_age_control) == 'f.3393.0.0')
+
+aid_age_control$age_aid = apply(aid_age_control, 1, function(x) {
+  hear_aid = which(x[grep("f.3393", names(x))] == "No")
+  first_index_offset = grep("f.3393", names(x))[1] - 1
+  unlist(x[hear_aid[length(hear_aid)] + first_index_offset + offset])
+})
+
+res<-head(aid_age_control)
+
+```
+
+
+### Extract age for Cases (3393)
+```{r age for cases,warning=FALSE, collapse=FALSE,echo=T}
+#first category of cases (3393 true, Z974 False)
+aid_age_case1 <- hearing_all %>% 
+  filter(hearing_aid_cat == "case" & reclass_aid == "FALSE") 
+
+#find out the age at the first visit (case)
+
+offset = which(colnames(aid_age_case1) == 'f.21003.0.0') - which(colnames(aid_age_case1) == 'f.3393.0.0')
+
+aid_age_case1$age_aid = apply(aid_age_case1, 1, function(x) {
+  hear_aid =  which(x[grep("f.3393", names(x))] == "Yes")
+  first_index_offset = grep("f.3393", names(x))[1] - 1
+  unlist(x[min(hear_aid) + first_index_offset + offset])
+})
+
+res<-head(aid_age_case1)
+
+#second category of cases (3393 false, Z974 true)
+aid_age_case2 <- hearing_all %>% 
+  filter(hearing_aid_cat == "case" & reclass_aid == "TRUE") 
+
+#age for hearing aid based on Z974
+offset = which(colnames(aid_age_case2) == 'f.41280.0.0') - which(colnames(aid_age_case2) == 'f.41270.0.0')
+
+aid_age_case2$age_aid = apply(aid_age_case2, 1, function(x) {
+  hear_aid = which(x[grep("f.41270", names(x))] == "Z974")
+  first_index_offset = grep("f.41270", names(x))[1] - 1
+  unlist(x[hear_aid[length(hear_aid)] + first_index_offset + offset])
+})
+
+hearing_aid_new <- aid_age_case2%>% 
+  separate(age_aid, into = c("year", "month", "day"), sep = "-") %>% 
+  mutate(num_year=as.numeric(year))
+  
+hearing_aid_new2 <- hearing_aid_new %>%   
+  mutate(age_aid= num_year - f.34.0.0) %>% 
+  select(-year, -month, -day, -num_year)
+
+#merge age for cases and controls
+hearing_clean <- rbind(aid_age_case1,hearing_aid_new2, aid_age_control) 
+dim(hearing_clean)
+
+#merge back to the origical data set
+hearing_clean <- merge(x = hearing_all, y = hearing_clean, by = c("IID","FID") ,all.x = TRUE) %>% 
+  select(-ends_with(".y")) %>% 
+  dplyr::rename_all(
+    ~stringr::str_replace_all(., ".x", "")
+    )
+```
+
+
