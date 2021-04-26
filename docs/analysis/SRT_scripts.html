@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="ipynb_website:version" content="0.9.7" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link rel="stylesheet" type="text/css" href="../css/jt.css">
+
+<link rel="stylesheet" type="text/css" href="../css/toc2.css">
+
+<link href="../site_libs/jqueryui-1.11.4/jquery-ui.css">
+<link rel="stylesheet" href="../site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="../site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+
+<link rel="stylesheet"
+      href="../site_libs/highlightjs/null.min.css"
+      type="text/css" />
+
+<script src="../site_libs/highlightjs/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+<script src="../js/doc_toc.js"></script>
+<script src="../js/docs.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script>
+    MathJax.Hub.Config({
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+        },
+        "HTML-CSS": {
+            preferredFont: "TeX",
+            availableFonts: ["TeX"],
+            styles: {
+                scale: 110,
+                ".MathJax_Display": {
+                    "font-size": "110%",
+                }
+            }
+        }
+    });
+</script>
+<script>
+function filterDataFrame(id) {
+    var input = document.getElementById("search_" + id);
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("dataframe_" + id);
+    var tr = table.getElementsByTagName("tr");
+    // Loop through all table rows, and hide those who don't match the search query
+    for (var i = 1; i < tr.length; i++) {
+        for (var j = 0; j < tr[i].cells.length; ++j) {
+            var matched = false;
+            if (tr[i].cells[j].innerHTML.toUpperCase().indexOf(filter) != -1) {
+                tr[i].style.display = "";
+                matched = true
+                break;
+            }
+            if (!matched)
+                tr[i].style.display = "none";
+        }
+    }
+}
+function sortDataFrame(id, n, dtype) {
+    var table = document.getElementById("dataframe_" + id);
+    var tb = table.tBodies[0]; // use `<tbody>` to ignore `<thead>` and `<tfoot>` rows
+    var tr = Array.prototype.slice.call(tb.rows, 0); // put rows into array
+    if (dtype === 'numeric') {
+        var fn = function(a, b) { 
+            return parseFloat(a.cells[n].textContent) <= parseFloat(b.cells[n].textContent) ? -1 : 1;
+        }
+    } else {
+        var fn = function(a, b) {
+            var c = a.cells[n].textContent.trim().localeCompare(b.cells[n].textContent.trim()); 
+            return c > 0 ? 1 : (c < 0 ? -1 : 0) }
+    }
+    var isSorted = function(array, fn) {
+        if (array.length < 2)
+            return 1;
+        var direction = fn(array[0], array[1]); 
+        for (var i = 1; i < array.length - 1; ++i) {
+            var d = fn(array[i], array[i+1]);
+            if (d == 0)
+                continue;
+            else if (direction == 0)
+                direction = d;
+            else if (direction != d)
+                return 0;
+            }
+        return direction;
+    }
+    var sorted = isSorted(tr, fn);
+    if (sorted == 1 || sorted == -1) {
+        // if sorted already, reverse it
+        for(var i = tr.length - 1; i >= 0; --i)
+            tb.appendChild(tr[i]); // append each row in order
+    } else {
+        tr = tr.sort(fn);
+        for(var i = 0; i < tr.length; ++i)
+            tb.appendChild(tr[i]); // append each row in order
+    }
+}
+</script>
+
+<script>
+$( document ).ready(function(){
+            var cfg={'threshold':3,     // depth of toc (number of levels)
+             'number_sections': false,
+             'toc_cell': false,          // useless here
+             'toc_window_display': true, // display the toc window
+             "toc_section_display": "block", // display toc contents in the window
+             'sideBar':true,       // sidebar or floating window
+             'navigate_menu':false       // navigation menu (only in liveNotebook -- do not change)
+            }
+            var st={};                  // some variables used in the script
+            st.rendering_toc_cell = false;
+            st.config_loaded = false;
+            st.extension_initialized=false;
+            st.nbcontainer_marginleft = $('#notebook-container').css('margin-left')
+            st.nbcontainer_marginright = $('#notebook-container').css('margin-right')
+            st.nbcontainer_width = $('#notebook-container').css('width')
+            st.oldTocHeight = undefined
+            st.cell_toc = undefined;
+            st.toc_index=0;
+            // fire the main function with these parameters
+            table_of_contents(cfg, st);
+            var file=analysisDict[$("h1:first").attr("id")];
+            $("#toc-level0 a").css("color","#126dce");
+            $('a[href="#'+$("h1:first").attr("id")+'"]').hide()
+            var docs=analysisArray;
+            var docs_map=analysisArrayMap;
+            var pos=analysisArray.indexOf(file);
+            for (var a=pos;a>=0;a--){
+                  $('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>').insertBefore("#toc-level0 li:eq(0)");
+            }
+            $('a[href="'+file+'.html'+'"]').css("color","#126dce");
+            for (var a=pos+1;a<docs.length;a++){
+                  $(".toc #toc-level0").append('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>');
+            }
+            // $("#toc-header").hide(); // comment out because it prevents search bar from displaying
+    });
+</script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+  // mark it active
+  menuAnchor.parent().addClass('active');
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+<div class="container-fluid main-container">
+<!-- tabsets -->
+<script src="../site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+
+
+<title>Pleiotropy analysis in UKBB</title>
+
+<style type = "text/css">
+body {
+  font-family: "Droid Sans";
+  padding-top: 66px;
+  padding-bottom: 40px;
+}
+</style>
+</head>
+
+<body>
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+<div class="container" id="notebook-container">
+
+<!-- code folding -->
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="../index.html">Pleiotropy analysis in UKBB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+<li>
+  <a href="../index.html">Overview</a>
+</li>
+        
+<li>
+  <a href="../workflow.html">Workflow</a>
+</li>
+        
+<li>
+  <a href="../analysis.html">Analysis</a>
+</li>
+        
+      </ul>
+        
+<ul class="nav navbar-nav navbar-right">
+<li>
+   <a href="http://github.com/dianacornejo/pleiotropy_UKB"> <span class="fa fa-github"></span> </a>
+</li>
+</ul>
+        
+      </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Analysis-of-SRT-phenotypes">Analysis of SRT phenotypes<a class="anchor-link" href="#Analysis-of-SRT-phenotypes">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This notebook applies the <code>Get_Job_Script.ipynb</code> to automatically generate the sbatch scripts to run in Yale's cluster. The end result is to apply <a href="https://github.com/statgenetics/UKBB_GWAS_dev/tree/master/workflow">various LMM workflows</a> to perform association analysis in different hearing impairment traits, do clumping analysis and extract associated regions.</p>
+<p>The phenotypes analyzed are:</p>
+<ol>
+<li>Left ear f.20019</li>
+<li>Right ear f.20021</li>
+<li>Best ear (create a new variable extracting the min SRT value among f.20019 and f.20021)</li>
+<li>Worst ear (create a new variable extracting the max SRT value among f.20019 and f.20021)</li>
+<li>Dichotomous trait: </li>
+</ol>
+<ul>
+<li>controls are those at the bottom 25% for left ear (&lt; -7.5) and right ear (&lt; -7.5)</li>
+<li>cases are those at the top 25% for left (&gt;-5) and right ear (&gt;-5)</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Phenotype-file-names">Phenotype file names<a class="anchor-link" href="#Phenotype-file-names">&#182;</a></h2><ol>
+<li>200904_UKBB_SRT_cat_cc</li>
+<li>200904_UKBB_SRT_int_best_cc</li>
+<li>200904_UKBB_SRT_int_left_cc</li>
+<li>200904_UKBB_SRT_int_right_cc</li>
+<li>200904_UKBB_SRT_int_worst_cc</li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="File-paths-on-Yale-cluster">File paths on Yale cluster<a class="anchor-link" href="#File-paths-on-Yale-cluster">&#182;</a></h2><ul>
+<li>Genotype files in PLINK format:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/pleiotropy_geneticfiles/UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv</code></li>
+<li>Genotype files in bgen format:
+<code>SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/</code></li>
+<li>Summary stats for imputed variants BOLT-LMM:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/BOLTLMM_results/results_imputed_data</code></li>
+<li>Summary stats for inputed variants FastGWA:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/FastGWA_results/results_imputed_data</code></li>
+<li>Phenotype files:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/phenotype_files/hearing_impairment</code></li>
+<li>Relationship file:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/pleiotropy_geneticfiles/unrelated_n307259/UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620</code></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Bash-variables-for-workflow-configuration">Bash variables for workflow configuration<a class="anchor-link" href="#Bash-variables-for-workflow-configuration">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Common variables</span>
+<span class="n">tpl_file</span><span class="o">=../</span><span class="n">farnam</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">bfile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">UKB_Caucasians_phenotypeindepqc120319_updated082020removedwithdrawnindiv</span><span class="o">.</span><span class="n">bed</span>
+<span class="n">sampleFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">ukb39554_imputeddataset</span><span class="o">/</span><span class="n">ukb32285_imputedindiv</span><span class="o">.</span><span class="n">sample</span>
+<span class="n">bgenFile</span><span class="o">=</span><span class="sb">`echo /gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb_imp_chr{1..22}_v3.bgen`</span>
+<span class="n">unrelated_samples</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genotype_files</span><span class="o">/</span><span class="n">pleiotropy_geneticfiles</span><span class="o">/</span><span class="n">unrelated_n307259</span><span class="o">/</span><span class="n">UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620</span>
+<span class="n">formatFile_fastgwa</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_dev</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">fastGWA_template</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">formatFile_bolt</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_dev</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">boltlmm_template</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">formatFile_saige</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_dev</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">saige_template</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">formatFile_regenie</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_dev</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">regenie_template</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">container_lmm</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">lmm</span><span class="o">.</span><span class="n">sif</span>
+<span class="n">container_marp</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">marp</span><span class="o">.</span><span class="n">sif</span>
+<span class="c1"># LMM directories</span>
+<span class="n">lmm_dir_fastgwa</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span>
+<span class="n">lmm_dir_bolt</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">BOLTLMM_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span>
+<span class="n">lmm_dir_saige</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">SAIGE_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span>
+<span class="n">lmm_dir_regenie</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">REGENIE_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span>
+<span class="n">lmm_sos</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">LMM</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="n">lmm_sbatch_fastgwa</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_imp</span><span class="o">-</span><span class="n">fastgwa</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">lmm_sbatch_bolt</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_imp</span><span class="o">-</span><span class="n">bolt</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">lmm_sbatch_saige</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_imp</span><span class="o">-</span><span class="n">saige</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">lmm_sbatch_regenie</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_imp</span><span class="o">-</span><span class="n">regenie</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="c1">## LMM variables </span>
+<span class="n">LDscoresFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">LDSCORE</span><span class="o">.</span><span class="mi">1000</span><span class="n">G_EUR</span><span class="o">.</span><span class="n">tab</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">geneticMapFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">genetic_map_hg19_withX</span><span class="o">.</span><span class="n">txt</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">covarMaxLevels</span><span class="o">=</span><span class="mi">10</span>
+<span class="n">numThreads</span><span class="o">=</span><span class="mi">20</span>
+<span class="n">bgenMinMAF</span><span class="o">=</span><span class="mf">0.001</span>
+<span class="n">bgenMinINFO</span><span class="o">=</span><span class="mf">0.8</span>
+<span class="n">lmm_job_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">ylim</span><span class="o">=</span><span class="mi">0</span>
+<span class="c1">### Specific to FastGWA</span>
+<span class="n">grmFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv</span><span class="o">.</span><span class="n">grm</span><span class="o">.</span><span class="n">sp</span>
+<span class="c1">### Specific to SAIGE</span>
+<span class="n">bgenMinMAC</span><span class="o">=</span><span class="mi">4</span>
+<span class="n">trait_type</span><span class="o">=</span><span class="n">binary</span>
+<span class="n">loco</span><span class="o">=</span><span class="n">TRUE</span>
+<span class="n">sampleCol</span><span class="o">=</span><span class="n">IID</span>
+<span class="c1">### Specific to REGENIE</span>
+<span class="n">bsize</span><span class="o">=</span><span class="mi">1000</span>
+<span class="n">lowmem</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">REGENIE_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span>
+<span class="n">trait</span><span class="o">=</span><span class="n">bt</span>
+<span class="n">minMAC</span><span class="o">=</span><span class="mi">5</span>
+<span class="n">reverse_log_p</span><span class="o">=</span><span class="bp">True</span>
+<span class="c1"># LD clumping directories</span>
+<span class="n">clumping_dir</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">LD_clumping</span><span class="o">/</span>
+<span class="n">clumping_sos</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">LD_Clumping</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="n">clumping_sbatch</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_imp_ldclumping</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="c1">## LD clumping variables</span>
+<span class="c1"># For sumtastsFiles if more than one provide each path</span>
+<span class="n">bfile_ref</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">LD_clumping</span><span class="o">/</span><span class="n">UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv</span><span class="o">.</span><span class="mf">1210.</span><span class="n">ref_geno</span><span class="o">.</span><span class="n">bed</span>
+<span class="c1"># Changes dependending upon which traits are analyzed</span>
+<span class="c1"># In this case tinnitus only</span>
+<span class="n">sumstatsFiles</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">tinnitus</span><span class="o">/*.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">ld_sample_size</span><span class="o">=</span><span class="mi">1210</span>
+<span class="n">clump_field</span><span class="o">=</span><span class="n">P</span>
+<span class="n">clump_p1</span><span class="o">=</span><span class="mf">5e-08</span>
+<span class="n">clump_p2</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">clump_r2</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="n">clump_kb</span><span class="o">=</span><span class="mi">2000</span>
+<span class="n">clump_annotate</span><span class="o">=</span><span class="n">BP</span>
+<span class="n">numThreads</span><span class="o">=</span><span class="mi">20</span>
+<span class="n">clump_job_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">clumpFile</span><span class="o">=</span> 
+<span class="n">clumregionFile</span><span class="o">=</span>
+<span class="c1"># Region extraction directories</span>
+<span class="n">extract_dir</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">region_extraction</span><span class="o">/</span><span class="n">tinnitus</span>
+<span class="n">extract_sos</span><span class="o">=~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Region_Extraction</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="n">extract_sbatch</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_tinnitus_imp</span><span class="o">-</span><span class="n">region</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="c1">## Region extraction variables</span>
+<span class="n">region_file</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">LD_clumping</span><span class="o">/</span><span class="n">tinnitus</span><span class="o">/*.</span><span class="n">clumped_region</span>
+<span class="n">geno_path</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">UKBB_bgenfilepath</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">sumstats_path</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">tinnitus</span><span class="o">/*.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">extract_job_size</span><span class="o">=</span><span class="mi">10</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Left-ear-f.20019">Left ear f.20019<a class="anchor-link" href="#Left-ear-f.20019">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">lmm_dir_fastgwa</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">f20019_srt_int_left</span>
+<span class="n">lmm_sbatch_fastgwa</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_srt_int_left_imp</span><span class="o">-</span><span class="n">fastgwa</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">phenoFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">hearing_impairment</span><span class="o">/</span><span class="mi">200904</span><span class="n">_UKBB_SRT_int_left_cc</span>
+<span class="n">covarFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">hearing_impairment</span><span class="o">/</span><span class="mi">200904</span><span class="n">_UKBB_SRT_int_left_cc</span>
+<span class="n">phenoCol</span><span class="o">=</span><span class="s2">&quot;srt_int_left&quot;</span>
+<span class="n">covarCol</span><span class="o">=</span><span class="s2">&quot;sex left_volume noise_wp loud_music&quot;</span>
+<span class="n">qCovarCol</span><span class="o">=</span><span class="n">age</span>
+
+<span class="n">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;fastGWA</span>
+<span class="s2">    --cwd $lmm_dir_fastgwa </span>
+<span class="s2">    --bfile $bfile </span>
+<span class="s2">    --sampleFile $sampleFile</span>
+<span class="s2">    --bgenFile $bgenFile </span>
+<span class="s2">    --phenoFile $phenoFile </span>
+<span class="s2">    --formatFile $formatFile_fastgwa </span>
+<span class="s2">    --covarFile $covarFile </span>
+<span class="s2">    --LDscoresFile $LDscoresFile </span>
+<span class="s2">    --geneticMapFile $geneticMapFile </span>
+<span class="s2">    --phenoCol $phenoCol </span>
+<span class="s2">    --covarCol $covarCol </span>
+<span class="s2">    --covarMaxLevels $covarMaxLevels </span>
+<span class="s2">    --qCovarCol $qCovarCol </span>
+<span class="s2">    --numThreads $numThreads </span>
+<span class="s2">    --bgenMinMAF $bgenMinMAF </span>
+<span class="s2">    --bgenMinINFO $bgenMinINFO </span>
+<span class="s2">    --job_size $lmm_job_size</span>
+<span class="s2">    --grmFile $grmFile</span>
+<span class="s2">    --ylim $ylim</span>
+<span class="s2">    --container_lmm $container_lmm</span>
+<span class="s2">    --container_marp $container_marp</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">lmm_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">lmm_sbatch_fastgwa</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$lmm_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>INFO: Running <span class="ansi-green-fg">farnam</span>: Configuration for Yale `farnam` cluster
+INFO: <span class="ansi-green-fg">farnam</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">farnam</span> output:   <span class="ansi-green-fg">../output/2020-09-08_srt_int_left_imp-fastgwa.sbatch</span>
+INFO: Workflow farnam (ID=9c4efd0f4a3a02ee) is executed successfully with 1 completed step.
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Right-ear-f.20021">Right ear f.20021<a class="anchor-link" href="#Right-ear-f.20021">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">lmm_dir_fastgwa</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">f20021_srt_int_right</span>
+<span class="n">lmm_sbatch_fastgwa</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_srt_int_right_imp</span><span class="o">-</span><span class="n">fastgwa</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">phenoFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">hearing_impairment</span><span class="o">/</span><span class="mi">200904</span><span class="n">_UKBB_SRT_int_right_cc</span>
+<span class="n">covarFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">hearing_impairment</span><span class="o">/</span><span class="mi">200904</span><span class="n">_UKBB_SRT_int_right_cc</span>
+<span class="n">phenoCol</span><span class="o">=</span><span class="s2">&quot;srt_int_right&quot;</span>
+<span class="n">covarCol</span><span class="o">=</span><span class="s2">&quot;sex right_volume noise_wp loud_music&quot;</span>
+<span class="n">qCovarCol</span><span class="o">=</span><span class="n">age</span>
+
+<span class="n">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;fastGWA</span>
+<span class="s2">    --cwd $lmm_dir_fastgwa </span>
+<span class="s2">    --bfile $bfile </span>
+<span class="s2">    --sampleFile $sampleFile</span>
+<span class="s2">    --bgenFile $bgenFile </span>
+<span class="s2">    --phenoFile $phenoFile </span>
+<span class="s2">    --formatFile $formatFile_fastgwa </span>
+<span class="s2">    --covarFile $covarFile </span>
+<span class="s2">    --LDscoresFile $LDscoresFile </span>
+<span class="s2">    --geneticMapFile $geneticMapFile </span>
+<span class="s2">    --phenoCol $phenoCol </span>
+<span class="s2">    --covarCol $covarCol </span>
+<span class="s2">    --covarMaxLevels $covarMaxLevels </span>
+<span class="s2">    --qCovarCol $qCovarCol </span>
+<span class="s2">    --numThreads $numThreads </span>
+<span class="s2">    --bgenMinMAF $bgenMinMAF </span>
+<span class="s2">    --bgenMinINFO $bgenMinINFO </span>
+<span class="s2">    --job_size $lmm_job_size</span>
+<span class="s2">    --grmFile $grmFile</span>
+<span class="s2">    --ylim $ylim</span>
+<span class="s2">    --container_lmm $container_lmm</span>
+<span class="s2">    --container_marp $container_marp</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">lmm_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">lmm_sbatch_fastgwa</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$lmm_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>INFO: Running <span class="ansi-green-fg">farnam</span>: Configuration for Yale `farnam` cluster
+INFO: <span class="ansi-green-fg">farnam</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">farnam</span> output:   <span class="ansi-green-fg">../output/2020-09-08_srt_int_right_imp-fastgwa.sbatch</span>
+INFO: Workflow farnam (ID=cdda4a239f738fc0) is executed successfully with 1 completed step.
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Best-ear">Best ear<a class="anchor-link" href="#Best-ear">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">lmm_dir_fastgwa</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">srt_int_best</span>
+<span class="n">lmm_sbatch_fastgwa</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_srt_int_best_imp</span><span class="o">-</span><span class="n">fastgwa</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">phenoFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">hearing_impairment</span><span class="o">/</span><span class="mi">200904</span><span class="n">_UKBB_SRT_int_best_cc</span>
+<span class="n">covarFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">hearing_impairment</span><span class="o">/</span><span class="mi">200904</span><span class="n">_UKBB_SRT_int_best_cc</span>
+<span class="n">phenoCol</span><span class="o">=</span><span class="s2">&quot;srt_int_best&quot;</span>
+<span class="n">covarCol</span><span class="o">=</span><span class="s2">&quot;sex volume_mean noise_wp loud_music&quot;</span>
+<span class="n">qCovarCol</span><span class="o">=</span><span class="n">age</span>
+
+<span class="n">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;fastGWA</span>
+<span class="s2">    --cwd $lmm_dir_fastgwa </span>
+<span class="s2">    --bfile $bfile </span>
+<span class="s2">    --sampleFile $sampleFile</span>
+<span class="s2">    --bgenFile $bgenFile </span>
+<span class="s2">    --phenoFile $phenoFile </span>
+<span class="s2">    --formatFile $formatFile_fastgwa </span>
+<span class="s2">    --covarFile $covarFile </span>
+<span class="s2">    --LDscoresFile $LDscoresFile </span>
+<span class="s2">    --geneticMapFile $geneticMapFile </span>
+<span class="s2">    --phenoCol $phenoCol </span>
+<span class="s2">    --covarCol $covarCol </span>
+<span class="s2">    --covarMaxLevels $covarMaxLevels </span>
+<span class="s2">    --qCovarCol $qCovarCol </span>
+<span class="s2">    --numThreads $numThreads </span>
+<span class="s2">    --bgenMinMAF $bgenMinMAF </span>
+<span class="s2">    --bgenMinINFO $bgenMinINFO </span>
+<span class="s2">    --job_size $lmm_job_size</span>
+<span class="s2">    --grmFile $grmFile</span>
+<span class="s2">    --ylim $ylim</span>
+<span class="s2">    --container_lmm $container_lmm</span>
+<span class="s2">    --container_marp $container_marp</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">lmm_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">lmm_sbatch_fastgwa</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$lmm_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>INFO: Running <span class="ansi-green-fg">farnam</span>: Configuration for Yale `farnam` cluster
+INFO: <span class="ansi-green-fg">farnam</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">farnam</span> output:   <span class="ansi-green-fg">../output/2020-09-08_srt_int_best_imp-fastgwa.sbatch</span>
+INFO: Workflow farnam (ID=11fbf2fe22682791) is executed successfully with 1 completed step.
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Worst-ear">Worst ear<a class="anchor-link" href="#Worst-ear">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">lmm_dir_fastgwa</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">srt_int_worst</span>
+<span class="n">lmm_sbatch_fastgwa</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_srt_int_worst_imp</span><span class="o">-</span><span class="n">fastgwa</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">phenoFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">hearing_impairment</span><span class="o">/</span><span class="mi">200904</span><span class="n">_UKBB_SRT_int_worst_cc</span>
+<span class="n">covarFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">hearing_impairment</span><span class="o">/</span><span class="mi">200904</span><span class="n">_UKBB_SRT_int_worst_cc</span>
+<span class="n">phenoCol</span><span class="o">=</span><span class="s2">&quot;srt_int_worst&quot;</span>
+<span class="n">covarCol</span><span class="o">=</span><span class="s2">&quot;sex volume_mean noise_wp loud_music&quot;</span>
+<span class="n">qCovarCol</span><span class="o">=</span><span class="n">age</span>
+
+<span class="n">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;fastGWA</span>
+<span class="s2">    --cwd $lmm_dir_fastgwa </span>
+<span class="s2">    --bfile $bfile </span>
+<span class="s2">    --sampleFile $sampleFile</span>
+<span class="s2">    --bgenFile $bgenFile </span>
+<span class="s2">    --phenoFile $phenoFile </span>
+<span class="s2">    --formatFile $formatFile_fastgwa </span>
+<span class="s2">    --covarFile $covarFile </span>
+<span class="s2">    --LDscoresFile $LDscoresFile </span>
+<span class="s2">    --geneticMapFile $geneticMapFile </span>
+<span class="s2">    --phenoCol $phenoCol </span>
+<span class="s2">    --covarCol $covarCol </span>
+<span class="s2">    --covarMaxLevels $covarMaxLevels </span>
+<span class="s2">    --qCovarCol $qCovarCol </span>
+<span class="s2">    --numThreads $numThreads </span>
+<span class="s2">    --bgenMinMAF $bgenMinMAF </span>
+<span class="s2">    --bgenMinINFO $bgenMinINFO </span>
+<span class="s2">    --job_size $lmm_job_size</span>
+<span class="s2">    --grmFile $grmFile</span>
+<span class="s2">    --ylim $ylim</span>
+<span class="s2">    --container_lmm $container_lmm</span>
+<span class="s2">    --container_marp $container_marp</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">lmm_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">lmm_sbatch_fastgwa</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$lmm_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>INFO: Running <span class="ansi-green-fg">farnam</span>: Configuration for Yale `farnam` cluster
+INFO: <span class="ansi-green-fg">farnam</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">farnam</span> output:   <span class="ansi-green-fg">../output/2020-09-08_srt_int_worst_imp-fastgwa.sbatch</span>
+INFO: Workflow farnam (ID=8af458a0bf46fed1) is executed successfully with 1 completed step.
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Dichotomous-trait">Dichotomous trait<a class="anchor-link" href="#Dichotomous-trait">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">lmm_dir_fastgwa</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">srt_cat</span>
+<span class="n">lmm_sbatch_fastgwa</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_srt_cat_imp</span><span class="o">-</span><span class="n">fastgwa</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">phenoFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">hearing_impairment</span><span class="o">/</span><span class="mi">200904</span><span class="n">_UKBB_SRT_cat_cc</span>
+<span class="n">covarFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">hearing_impairment</span><span class="o">/</span><span class="mi">200904</span><span class="n">_UKBB_SRT_cat_cc</span>
+<span class="n">phenoCol</span><span class="o">=</span><span class="s2">&quot;srt_cat&quot;</span>
+<span class="n">covarCol</span><span class="o">=</span><span class="s2">&quot;sex volume_mean noise_wp loud_music&quot;</span>
+<span class="n">qCovarCol</span><span class="o">=</span><span class="n">age</span>
+
+<span class="n">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;fastGWA</span>
+<span class="s2">    --cwd $lmm_dir_fastgwa </span>
+<span class="s2">    --bfile $bfile </span>
+<span class="s2">    --sampleFile $sampleFile</span>
+<span class="s2">    --bgenFile $bgenFile </span>
+<span class="s2">    --phenoFile $phenoFile </span>
+<span class="s2">    --formatFile $formatFile_fastgwa </span>
+<span class="s2">    --covarFile $covarFile </span>
+<span class="s2">    --LDscoresFile $LDscoresFile </span>
+<span class="s2">    --geneticMapFile $geneticMapFile </span>
+<span class="s2">    --phenoCol $phenoCol </span>
+<span class="s2">    --covarCol $covarCol </span>
+<span class="s2">    --covarMaxLevels $covarMaxLevels </span>
+<span class="s2">    --qCovarCol $qCovarCol </span>
+<span class="s2">    --numThreads $numThreads </span>
+<span class="s2">    --bgenMinMAF $bgenMinMAF </span>
+<span class="s2">    --bgenMinINFO $bgenMinINFO </span>
+<span class="s2">    --job_size $lmm_job_size</span>
+<span class="s2">    --grmFile $grmFile</span>
+<span class="s2">    --ylim $ylim</span>
+<span class="s2">    --container_lmm $container_lmm</span>
+<span class="s2">    --container_marp $container_marp</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">lmm_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">lmm_sbatch_fastgwa</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$lmm_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>INFO: Running <span class="ansi-green-fg">farnam</span>: Configuration for Yale `farnam` cluster
+INFO: <span class="ansi-green-fg">farnam</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">farnam</span> output:   <span class="ansi-green-fg">../output/2020-09-08_srt_cat_imp-fastgwa.sbatch</span>
+INFO: Workflow farnam (ID=0b9dd8a8c9cede9a) is executed successfully with 1 completed step.
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Dichotomous-trait:-35%-and-65%-threshold">Dichotomous trait: 35% and 65% threshold<a class="anchor-link" href="#Dichotomous-trait:-35%-and-65%-threshold">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">lmm_dir_fastgwa</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">SRT_cat_35_65</span>
+<span class="n">lmm_sbatch_fastgwa</span><span class="o">=../</span><span class="n">output</span><span class="o">/</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="n">_srt_cat_35_65_imp</span><span class="o">-</span><span class="n">fastgwa</span><span class="o">.</span><span class="n">sbatch</span>
+<span class="n">phenoFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">hearing_impairment</span><span class="o">/</span><span class="mi">200904</span><span class="n">_UKBB_SRT_cat_cc_35_65</span>
+<span class="n">covarFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">phenotype_files</span><span class="o">/</span><span class="n">hearing_impairment</span><span class="o">/</span><span class="mi">200904</span><span class="n">_UKBB_SRT_cat_cc_35_65</span>
+<span class="n">phenoCol</span><span class="o">=</span><span class="s2">&quot;srt_cat_35_65&quot;</span>
+<span class="n">covarCol</span><span class="o">=</span><span class="s2">&quot;sex volume_mean noise_wp loud_music&quot;</span>
+<span class="n">qCovarCol</span><span class="o">=</span><span class="n">age</span>
+
+<span class="n">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;fastGWA</span>
+<span class="s2">    --cwd $lmm_dir_fastgwa </span>
+<span class="s2">    --bfile $bfile </span>
+<span class="s2">    --sampleFile $sampleFile</span>
+<span class="s2">    --bgenFile $bgenFile </span>
+<span class="s2">    --phenoFile $phenoFile </span>
+<span class="s2">    --formatFile $formatFile_fastgwa </span>
+<span class="s2">    --covarFile $covarFile </span>
+<span class="s2">    --LDscoresFile $LDscoresFile </span>
+<span class="s2">    --geneticMapFile $geneticMapFile </span>
+<span class="s2">    --phenoCol $phenoCol </span>
+<span class="s2">    --covarCol $covarCol </span>
+<span class="s2">    --covarMaxLevels $covarMaxLevels </span>
+<span class="s2">    --qCovarCol $qCovarCol </span>
+<span class="s2">    --numThreads $numThreads </span>
+<span class="s2">    --bgenMinMAF $bgenMinMAF </span>
+<span class="s2">    --bgenMinINFO $bgenMinINFO </span>
+<span class="s2">    --job_size $lmm_job_size</span>
+<span class="s2">    --grmFile $grmFile</span>
+<span class="s2">    --ylim $ylim</span>
+<span class="s2">    --container_lmm $container_lmm</span>
+<span class="s2">    --container_marp $container_marp</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">bioworkflows</span><span class="o">/</span><span class="n">GWAS</span><span class="o">/</span><span class="n">Get_Job_Script</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">farnam</span> \
+    <span class="o">--</span><span class="n">template</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">tpl_file</span> \
+    <span class="o">--</span><span class="n">workflow</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="n">lmm_sos</span> \
+    <span class="o">--</span><span class="n">to</span><span class="o">-</span><span class="n">script</span> <span class="err">$</span><span class="n">lmm_sbatch_fastgwa</span> \
+    <span class="o">--</span><span class="n">args</span> <span class="s2">&quot;$lmm_args&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>INFO: Running <span class="ansi-green-fg">farnam</span>: Configuration for Yale `farnam` cluster
+INFO: <span class="ansi-green-fg">farnam</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">farnam</span> output:   <span class="ansi-green-fg">../output/2020-10-13_srt_cat_35_65_imp-fastgwa.sbatch</span>
+INFO: Workflow farnam (ID=c58d6e2a5bcc0dc8) is executed successfully with 1 completed step.
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<hr>
+&copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/804a49e20903d8a6a7eafcb7472453c5ea2dcde8/analysis/cluster_scripts/SRT_scripts.ipynb"><code>analysis/cluster_scripts/SRT_scripts.ipynb</code></a> committed by dc2325 on Fri Feb 19 22:22:36 2021 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/804a49e20903d8a6a7eafcb7472453c5ea2dcde8">revision 1, 804a49e</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+</div>
+</div>
+</body>
+</html>

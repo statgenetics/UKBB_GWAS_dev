@@ -202,14 +202,49 @@ $(document).ready(function () {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Pleiotropy-Project-UKB">Pleiotropy Project UKB<a class="anchor-link" href="#Pleiotropy-Project-UKB">&#182;</a></h1><h2 id="Goals"><strong>Goals</strong><a class="anchor-link" href="#Goals">&#182;</a></h2><ol>
+<h1 id="Pleiotropy-Project-UKBB">Pleiotropy Project UKBB<a class="anchor-link" href="#Pleiotropy-Project-UKBB">&#182;</a></h1><h2 id="Overview">Overview<a class="anchor-link" href="#Overview">&#182;</a></h2><p>This project aims to elucidate variants which play a role in pleiotropy for complex diseases and traits with high public health significance.</p>
+<p>We investigate phenotypes of strong public health significance, for which there is support for potential pleiotropy.
+For example, there may exist pleiotropic relationships between asthma-adiposity, asthma-T2D, adiposity-T2D,
+ blood lipids-adiposity, CVD-Alzhemier's disease, and age related hearing impairment (ARHI)-tinnitus. A formal evaluation of pleiotropy for these phenotypes may
+reveal novel loci and shed light on the mechanistic relationship between these variants and phenotypes.</p>
+<p>We use UK Biobank data for these phenotypes, and perform genome-wide association scan for both genotyped and imputed variants,
+analyzing association for both common and rare variants using linear mixed model (LMM).
+We then look for evidence of pleiotropy in regions where more than one phenotype have detectable association signals, focusing on
+the following pairs of traits: asthma-adiposity, T2D-adiposity, asthma-T2D, LDL-HDL, LDL-TG, HDL-TG, adiposity-LDL, adiposity-HDL,
+adiposity-TG, T2G-LDL, T2D-HDL, T2D-TG and ARHI-tinnitus. Methods for fine-mapping, pleiotropy
+and mediation analysis will be applied to these regions. We use TOPMed as a secondary replication dataset.</p>
+<h2 id="Goals">Goals<a class="anchor-link" href="#Goals">&#182;</a></h2><ol>
 <li><strong>Extension of methods for rare and imputed variants and implementation in SEQSpark</strong></li>
 <li><strong>Detect pleiotropic effects for a variety of diseases and complex traits using rare variant and imputed data</strong></li>
 <li><strong>Determine tissue types most relevant to complex trait/disease etiology</strong></li>
 <li><strong>Analysis of tissue-specific expression levels with phenotype data to biologically validate pleiotropic effects</strong></li>
 </ol>
 <p>The main goal here is to analyze imputed and rare variants for association with different traits (asthma, BMI, waist-to-hip ratio, diabetes, waist circumference). First through a single variant analysis using Linear Mixed Models.</p>
-<p>To update the website run <code>./release</code></p>
+<h2 id="Association-scans-using-LMM">Association scans using LMM<a class="anchor-link" href="#Association-scans-using-LMM">&#182;</a></h2><p>FIXME: add links and status</p>
+<h2 id="Candidate-region-analysis">Candidate region analysis<a class="anchor-link" href="#Candidate-region-analysis">&#182;</a></h2><p>For given regions of interest across multiple phenotypes, a number of statistical workflows will be developed for fine-mapping, pleiotropy, and mediation analysis. Candidate regions will be examined with a number of published &amp; in-house methods looking to reveal
+the possible causal relationship between genetic variants and multiple phenotypes. The approach developed can also be applied to looking at a number of molecular phenotypes
+such as gene expression, splicing, methylation, etc.</p>
+<p>Additionally, some of these methods can be generated to analyzing rare variants in the context of multiple phenotypes.</p>
+<p>FIXME: add links to relevant issues on this page:</p>
+<p><a href="https://github.com/statgenetics/UKBB_GWAS_dev/issues">https://github.com/statgenetics/UKBB_GWAS_dev/issues</a></p>
+<h1 id="Hearing-impairment-Project-UKBB">Hearing impairment Project UKBB<a class="anchor-link" href="#Hearing-impairment-Project-UKBB">&#182;</a></h1><h2 id="Documents"><strong>Documents</strong><a class="anchor-link" href="#Documents">&#182;</a></h2><ol>
+<li><p>Analisis plan for each phenotype can be found <a href="https://docs.google.com/document/d/1cpxTzElpsEkwmBDjnMBHg2wW7CL1AcG_b0_0wE_k5rQ/edit">here</a></p>
+</li>
+<li><p>Exclusion criteria applied to the data set is <a href="https://docs.google.com/spreadsheets/d/12L7Cx4Ov8FppGVmG0DxL9uG-lVRHM5QJSea0nORyirQ/edit#gid=0">here</a></p>
+</li>
+</ol>
+<p><strong>Location of the files on Yale's cluster:</strong></p>
+<p><strong>Hard-called genotype files:</strong> /SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/UKB_Caucasians_phenotypeindepqc120319_updated082020removedwithdrawnindiv.bed</p>
+<p><strong>Imputed genotypes:</strong> /SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/</p>
+<p><strong>Unrelated samples:</strong> /SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/unrelated_n307259/UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620</p>
+<p><strong>Results:</strong> /SAY/dbgapstg/scratch/UKBiobank/results/</p>
+<p><strong>Phenotype files:</strong> /SAY/dbgapstg/scratch/UKBiobank/phenotype_files/</p>
+<p><strong>Location of the files on Columbias's cluster:</strong></p>
+<p><strong>Results:</strong> /mnt/mfs/statgen/UKBiobank/results</p>
+<h1 id="Release-website">Release website<a class="anchor-link" href="#Release-website">&#182;</a></h1><p>To generate the website,</p>
+
+<pre><code>source jnbinder-docker.sh
+jnbinder</code></pre>
 
 </div>
 </div>
