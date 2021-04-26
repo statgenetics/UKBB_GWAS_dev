@@ -1,0 +1,45 @@
+---
+title: "Hearing_aid"
+author: "Ran Wang"
+date: "3/17/2021"
+output: html_document
+---
+
+
+```{r load_data}
+hear_aid <- read.csv("./031221_UKBB_HI_genotypeqc_onlybritish_354343indiv_excr.csv") #cleaned data
+
+```
+
+
+
+### hearing aids 
+```{r , warning=FALSE, collapse=FALSE, echo=T}
+library(tidyverse)
+
+hearing_aid =hear_aid %>% 
+  select(IID,FID,f.31.0.0,f.34.0.0, starts_with("f.41270"),starts_with("f.41280")
+  )
+
+
+hearing_aid_new = hearing_aid %>% 
+  mutate(cases = apply(select(hearing_aid,starts_with("f.41270")), 1, function(x) any(x %in% c("Z974"))
+  )) %>% 
+    filter(cases == 'TRUE')
+
+offset = which(colnames(hearing_aid_new) == 'f.41280.0.0') - which(colnames(hearing_aid_new) == 'f.41270.0.0')
+
+hearing_aid_new$age_aid = apply(hearing_aid_new, 1, function(x) {
+  hear_aid = which(x[grep("f.41270", names(x))] == "Z974")
+  first_index_offset = grep("f.41270", names(x))[1] - 1
+  unlist(x[hear_aid[length(hear_aid)] + first_index_offset + offset])
+})
+
+hearing_aid_new2 <- hearing_aid_new %>% 
+  separate(age_aid, into = c("year", "month", "day"), sep = "-") %>% 
+  mutate(num_year=as.numeric(year))
+  
+hearing_aid_new3 <- hearing_aid_new2 %>%   
+  mutate(age_onset= num_year-f.34.0.0)
+
+```
