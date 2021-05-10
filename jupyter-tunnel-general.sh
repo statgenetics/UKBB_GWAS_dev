@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition pi_dewan
+#SBATCH --partition general
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
 #SBATCH --mem-per-cpu 30G
