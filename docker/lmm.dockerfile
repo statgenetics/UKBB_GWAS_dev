@@ -87,30 +87,33 @@ RUN wget https://cnsgenomics.com/software/gcta/bin/gcta_1.93.2beta.zip && \
 RUN wget https://github.com/genetics-statistics/GEMMA/releases/download/v0.98.4/gemma-0.98.4-linux-static-AMD64.gz && \
     gunzip gemma-0.98.4-linux-static-AMD64.gz && \
     chmod a+x gemma-0.98.4-linux-static-AMD64 && \
-    cp gemma-0.98.4-linux-static-AMD64 /usr/local/bin && \
-    rm gemma-0.98.4-linux-static-AMD64.*
+    cp gemma-0.98.4-linux-static-AMD64 /usr/local/bin/gemma && \
+    rm gemma-0.98.4-linux-static-AMD64*
     
        
-# Download and compile regenie from source code
+# Download regenie v2.0.2 executable for Linux
 
-COPY .  /tmp/
-
-WORKDIR /tmp/regenie
-
-RUN  make BGEN_PATH=/tmp/BGEN-7aa2c109c6 HAS_BOOST_IOSTREAM=$BOOST_IO
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      libgomp1 $LIB_INSTALL \
-     &&  cp /tmp/regenie/regenie /usr/local/bin
-
+RUN wget https://github.com/rgcgithub/regenie/releases/download/v2.0.2/regenie_v2.0.2.gz_x86_64_Linux.zip && \
+    unzip regenie_v2.0.2.gz_x86_64_Linux.zip && chmod a+x regenie_v2.0.2.gz_x86_64_Linux && mv regenie_v2.0.2.gz_x86_64_Linux regenie && \
+    cp regenie /usr/local/bin && \
+    rm regenie_v2.0.2.gz_x86_64_Linux*
 
 #Install bcftools
-RUN wget https://github.com/samtools/bcftools/releases/download/1.3.1/bcftools-1.3.1.tar.bz2 -O bcftools.tar.bz2 && \
+RUN wget https://github.com/samtools/bcftools/releases/download/1.12/bcftools-1.12.tar.bz2 -O bcftools.tar.bz2 && \
   tar -xjvf bcftools.tar.bz2 && \
-  cd bcftools-1.3.1 && \
+  cd bcftools-1.12 && \
   make && \
   make prefix=/usr/local/bin install && \
   ln -s /usr/local/bin/bin/bcftools /usr/bin/bcftools
+
+#Install htslib that includes tabix
+RUN wget https://github.com/samtools/htslib/releases/download/1.12/htslib-1.12.tar.bz2 -O htslib-1.12.tar.bz2 && \
+    tar -xjvf htslib-1.12.tar.bz2 && \
+    cd htslib-1.12 && \
+    ./configure --prefix=/usr/local/bin && \
+    make && \
+    make install && \
+    cp tabix bgzip htsfile /usr/local/bin
 
 USER jovyan
 
