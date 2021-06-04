@@ -62,6 +62,7 @@ RUN Rscript -e 'remotes::install_github("anastasia-lucas/hudson")'
 RUN Rscript -e 'remotes::install_github("stephenslab/susieR")'
 RUN Rscript -e 'remotes::install_github("gabraham/flashpca/flashpcaR")'
 RUN Rscript -e 'BiocManager::install(c("SeqArray","SeqVarTools"))'
+RUN Rscript -e 'devtools::install_github("hanchenphd/GMMAT")'
 RUN Rscript -e 'devtools::install_github("zhengxwen/gdsfmt")'
 RUN Rscript -e 'devtools::install_github("zhengxwen/SNPRelate")'
 
