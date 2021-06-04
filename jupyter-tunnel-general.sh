@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --partition pi_dewan
+#SBATCH --partition general
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
-#SBATCH --mem-per-cpu 10G
+#SBATCH --mem-per-cpu 30G
 #SBATCH --time 24:00:00
 #SBATCH --job-name jupyter-notebook
 #SBATCH --output jupyter-notebook-%J.log
