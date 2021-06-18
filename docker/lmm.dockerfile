@@ -115,6 +115,10 @@ RUN wget https://github.com/samtools/htslib/releases/download/1.12/htslib-1.12.t
     make install && \
     cp tabix bgzip htsfile /usr/local/bin
 
+ENV BCFTOOLS_PLUGINS=/tmp/bcftools-1.12/plugins  
+
 USER jovyan
 
 WORKDIR /home/jovyan
+
+
