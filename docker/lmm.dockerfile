@@ -101,7 +101,8 @@ RUN wget https://github.com/rgcgithub/regenie/releases/download/v2.0.2/regenie_v
 #Install bcftools
 RUN wget https://github.com/samtools/bcftools/releases/download/1.12/bcftools-1.12.tar.bz2 -O bcftools.tar.bz2 && \
   tar -xjvf bcftools.tar.bz2 && \
-  cd bcftools-1.12 && \
+  cp -r bcftools-1.12 /opt && \
+  cd /opt/bcftools-1.12 && \
   make && \
   make prefix=/usr/local/bin install && \
   ln -s /usr/local/bin/bin/bcftools /usr/bin/bcftools
@@ -115,7 +116,7 @@ RUN wget https://github.com/samtools/htslib/releases/download/1.12/htslib-1.12.t
     make install && \
     cp tabix bgzip htsfile /usr/local/bin
 
-ENV BCFTOOLS_PLUGINS=/tmp/bcftools-1.12/plugins  
+ENV BCFTOOLS_PLUGINS=/opt/bcftools-1.12/plugins  
 
 USER jovyan
 
