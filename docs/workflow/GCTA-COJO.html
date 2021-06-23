@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="ipynb_website:version" content="0.9.7" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link rel="stylesheet" type="text/css" href="../css/jt.css">
+
+<link rel="stylesheet" type="text/css" href="../css/toc2.css">
+
+<link href="../site_libs/jqueryui-1.11.4/jquery-ui.css">
+<link rel="stylesheet" href="../site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="../site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+
+<link rel="stylesheet"
+      href="../site_libs/highlightjs/null.min.css"
+      type="text/css" />
+
+<script src="../site_libs/highlightjs/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+<script src="../js/doc_toc.js"></script>
+<script src="../js/docs.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script>
+    MathJax.Hub.Config({
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+        },
+        "HTML-CSS": {
+            preferredFont: "TeX",
+            availableFonts: ["TeX"],
+            styles: {
+                scale: 110,
+                ".MathJax_Display": {
+                    "font-size": "110%",
+                }
+            }
+        }
+    });
+</script>
+<script>
+function filterDataFrame(id) {
+    var input = document.getElementById("search_" + id);
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("dataframe_" + id);
+    var tr = table.getElementsByTagName("tr");
+    // Loop through all table rows, and hide those who don't match the search query
+    for (var i = 1; i < tr.length; i++) {
+        for (var j = 0; j < tr[i].cells.length; ++j) {
+            var matched = false;
+            if (tr[i].cells[j].innerHTML.toUpperCase().indexOf(filter) != -1) {
+                tr[i].style.display = "";
+                matched = true
+                break;
+            }
+            if (!matched)
+                tr[i].style.display = "none";
+        }
+    }
+}
+function sortDataFrame(id, n, dtype) {
+    var table = document.getElementById("dataframe_" + id);
+    var tb = table.tBodies[0]; // use `<tbody>` to ignore `<thead>` and `<tfoot>` rows
+    var tr = Array.prototype.slice.call(tb.rows, 0); // put rows into array
+    if (dtype === 'numeric') {
+        var fn = function(a, b) { 
+            return parseFloat(a.cells[n].textContent) <= parseFloat(b.cells[n].textContent) ? -1 : 1;
+        }
+    } else {
+        var fn = function(a, b) {
+            var c = a.cells[n].textContent.trim().localeCompare(b.cells[n].textContent.trim()); 
+            return c > 0 ? 1 : (c < 0 ? -1 : 0) }
+    }
+    var isSorted = function(array, fn) {
+        if (array.length < 2)
+            return 1;
+        var direction = fn(array[0], array[1]); 
+        for (var i = 1; i < array.length - 1; ++i) {
+            var d = fn(array[i], array[i+1]);
+            if (d == 0)
+                continue;
+            else if (direction == 0)
+                direction = d;
+            else if (direction != d)
+                return 0;
+            }
+        return direction;
+    }
+    var sorted = isSorted(tr, fn);
+    if (sorted == 1 || sorted == -1) {
+        // if sorted already, reverse it
+        for(var i = tr.length - 1; i >= 0; --i)
+            tb.appendChild(tr[i]); // append each row in order
+    } else {
+        tr = tr.sort(fn);
+        for(var i = 0; i < tr.length; ++i)
+            tb.appendChild(tr[i]); // append each row in order
+    }
+}
+</script>
+
+<script>
+$( document ).ready(function(){
+            var cfg={'threshold':3,     // depth of toc (number of levels)
+             'number_sections': false,
+             'toc_cell': false,          // useless here
+             'toc_window_display': true, // display the toc window
+             "toc_section_display": "block", // display toc contents in the window
+             'sideBar':true,       // sidebar or floating window
+             'navigate_menu':false       // navigation menu (only in liveNotebook -- do not change)
+            }
+            var st={};                  // some variables used in the script
+            st.rendering_toc_cell = false;
+            st.config_loaded = false;
+            st.extension_initialized=false;
+            st.nbcontainer_marginleft = $('#notebook-container').css('margin-left')
+            st.nbcontainer_marginright = $('#notebook-container').css('margin-right')
+            st.nbcontainer_width = $('#notebook-container').css('width')
+            st.oldTocHeight = undefined
+            st.cell_toc = undefined;
+            st.toc_index=0;
+            // fire the main function with these parameters
+            table_of_contents(cfg, st);
+            var file=workflowDict[$("h1:first").attr("id")];
+            $("#toc-level0 a").css("color","#126dce");
+            $('a[href="#'+$("h1:first").attr("id")+'"]').hide()
+            var docs=workflowArray;
+            var docs_map=workflowArrayMap;
+            var pos=workflowArray.indexOf(file);
+            for (var a=pos;a>=0;a--){
+                  $('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>').insertBefore("#toc-level0 li:eq(0)");
+            }
+            $('a[href="'+file+'.html'+'"]').css("color","#126dce");
+            for (var a=pos+1;a<docs.length;a++){
+                  $(".toc #toc-level0").append('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>');
+            }
+            // $("#toc-header").hide(); // comment out because it prevents search bar from displaying
+    });
+</script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+  // mark it active
+  menuAnchor.parent().addClass('active');
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+<div class="container-fluid main-container">
+<!-- tabsets -->
+<script src="../site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+
+
+<title>Pleiotropy analysis in UKBB</title>
+
+<style type = "text/css">
+body {
+  font-family: "Droid Sans";
+  padding-top: 66px;
+  padding-bottom: 40px;
+}
+</style>
+</head>
+
+<body>
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+<div class="container" id="notebook-container">
+
+<!-- code folding -->
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="../index.html">Pleiotropy analysis in UKBB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+<li>
+  <a href="../index.html">Overview</a>
+</li>
+        
+<li>
+  <a href="../workflow.html">Workflow</a>
+</li>
+        
+<li>
+  <a href="../analysis.html">Analysis</a>
+</li>
+        
+      </ul>
+        
+<ul class="nav navbar-nav navbar-right">
+<li>
+   <a href="http://github.com/dianacornejo/pleiotropy_UKB"> <span class="fa fa-github"></span> </a>
+</li>
+</ul>
+        
+      </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="GCTA-COJO:-multi-SNP-based-conditional-&amp;-joint-association-analysis-using-GWAS-summary-data">GCTA-COJO: multi-SNP-based conditional &amp; joint association analysis using GWAS summary data<a class="anchor-link" href="#GCTA-COJO:-multi-SNP-based-conditional-&amp;-joint-association-analysis-using-GWAS-summary-data">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Aim">Aim<a class="anchor-link" href="#Aim">&#182;</a></h2><p>The purpose of this pipeline is to analyze the GWAS results for the UKBB data to identify secondary association signals to different traits, using both conditional and joint association analyses.</p>
+<p>Normally, the top SNP in the region is reported to represent association to the region. However, some assumptions need to be made:</p>
+<ol>
+<li>The top SNP captures the maximum amount of variation in the region because of its LD with an unknow causal variant</li>
+<li>Neighbor SNPs show association because they are correlated to the top SNP</li>
+</ol>
+<p>These assumptions are not met if:</p>
+<ol>
+<li>Even if there is a single casual variant, it may not capture the overall variation at the locus.</li>
+<li>There can be multiple causal variants in a locus, therefore a single SNPs won't capture all the LD between the unkown causal variants and the genotyped/imputed SNPs at the locus</li>
+</ol>
+<p>Conditional analysis: perform association analysis conditioning on the primary associated SNP at the locus to test whether there are any other SNPs significantly associated</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Method">Method<a class="anchor-link" href="#Method">&#182;</a></h2><p>Genome-wide stepwise selection procedure to select SNPs based on their conditional P values, then estimate the joint effects of all selected SNPs after the model is optimized</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Input-files">Input files<a class="anchor-link" href="#Input-files">&#182;</a></h2><p>Summary statistics format</p>
+
+<pre><code>SNP A1 A2 freq b se p N
+rs1001 A G 0.8493 0.0024 0.0055 0.6653 129850 
+rs1002 C G 0.0306 0.0034 0.0115 0.7659 129799 
+rs1003 A C 0.5128 0.0045 0.0038 0.2319 129830</code></pre>
+<p>Columns are:</p>
+<ul>
+<li>SNP</li>
+<li>A1: the effect allele</li>
+<li>A2: the other allele</li>
+<li>freq: frequency of the effect allele A1</li>
+<li>b: effect size</li>
+<li>se: standard error</li>
+<li>p: p-value</li>
+<li>N: sample size.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Software-options:">Software options:<a class="anchor-link" href="#Software-options:">&#182;</a></h2><p>Dor more info refer to the <a href="https://cnsgenomics.com/software/gcta/#COJO">documentation</a></p>
+<p>--cojo-slct : stepwise model selection procedure to select independently associated SNPs</p>
+<p>--cojo-top-SNPs 10 : Perform a stepwise model selection procedure to select a fixed number of independently associated SNPs without a p-value threshold</p>
+<p>--cojo-joint: Fit all the included SNPs to estimate their joint effects without model selection</p>
+<p>--cojo-cond SNP_file : Perform association analysis of the included SNPs conditional on the given list of SNPs</p>
+<p>--cojo-p 5e-8: Threshold p-value to declare a genome-wide significant hit</p>
+<p>--cojo-wind 10000: Specify a distance d (in Kb unit). It is assumed that SNPs more than d Kb away from each other are in complete linkage equilibrium</p>
+<p>--cojo-collinear 0.9: During the model selection procedure, the program will check the collinearity between the SNPs that have already been selected and a SNP to be tested. The testing SNP will not be selected if its multiple regression R2 on the selected SNPs is greater than the cutoff value</p>
+<p>--diff-freq 0.2: To check the difference in allele frequency of each SNP between the GWAS summary datasets and the LD reference sample. SNPs with allele frequency differences greater than the specified threshold value will be excluded from the analysis</p>
+<p>--cojo-gc : If this option is specified, p-values will be adjusted by the genomic control method. By default, the genomic inflation factor will be calculated from the summary-level statistics of all the SNPs unless you specify a value</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Illustration-with-minimal-working-examples">Illustration with minimal working examples<a class="anchor-link" href="#Illustration-with-minimal-working-examples">&#182;</a></h2>
+<pre><code>sos run ~/project/UKBB_GWAS_dev/workflow/GCTA-COJO gcta_cojo \
+    --cwd output \
+    --bfile MWE/genotypes.bed \
+    --sampleFile MWE/imputed_genotypes.sample \
+    --bgenFile MWE/imputed_genotypes_chr*.bgen \
+    --formatFile MWE/gcat-cojo_template \
+    --numThreads 5 \
+    --bgenMinMAF 0.001 \
+    --bgenMinINFO 0.1 \
+    --cojo-cond MWE/phenotypes_BMI.fastGWA.snp_stats.gz \
+    --job-size 1 \
+    --container_lmm lmm.sif</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Global-parameter-setting">Global parameter setting<a class="anchor-link" href="#Global-parameter-setting">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="k">global</span><span class="p">]</span>
+<span class="c1"># the output directory for generated files</span>
+<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span>
+<span class="c1"># Path to summary stats file</span>
+<span class="kn">parameter:</span> <span class="n">sumstatsFile</span> <span class="o">=</span> <span class="n">path</span>
+<span class="c1"># Genotype files in plink binary this is used for computing the GRM</span>
+<span class="kn">parameter:</span> <span class="n">bfile</span> <span class="o">=</span> <span class="n">path</span>
+<span class="c1"># Summary statistics format file path used for unifying input column names. Will not unify names if empty</span>
+<span class="kn">parameter:</span> <span class="n">formatFile</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+<span class="c1"># Specific number of threads to use</span>
+<span class="kn">parameter:</span> <span class="n">numThreads</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="c1"># Minimum MAF to be used</span>
+<span class="kn">parameter:</span> <span class="n">maf</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="c1"># For cluster jobs, number commands to run per job</span>
+<span class="kn">parameter:</span> <span class="n">job_size</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="c1"># The container with the lmm software. Can be either a dockerhub image or a singularity `sif` file.</span>
+<span class="kn">parameter:</span> <span class="n">container_lmm</span> <span class="o">=</span> <span class="s1">&#39;statisticalgenetics/lmm:1.4&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="n">top_SNPs</span><span class="p">:</span> <span class="kp">provides</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{sumstatsFile:bnn}.top_SNPs.txt&#39;</span> <span class="p">]</span>
+<span class="kn">input:</span> <span class="n">sumstatsFile</span>
+<span class="kn">output:</span> <span class="n">topSNPs</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{sumstatsFile:bnn}.top_SNPs.txt&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;48G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output[0]:bn}&#39;</span>
+<span class="kn">R:</span> <span class="n">container</span><span class="o">=</span><span class="n">container_lmm</span><span class="p">,</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.stdout&#39;</span>
+  <span class="n">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span>  
+  <span class="n">sumstat</span> <span class="o">=</span> <span class="n">read</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">:</span><span class="n">r</span><span class="p">},</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>  
+  <span class="n">sumstat_top</span> <span class="o">&lt;-</span> <span class="n">sumstat</span> <span class="o">%&gt;%</span> 
+      <span class="n">top_n</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">)</span> <span class="o">%&gt;%</span>
+      <span class="n">select</span><span class="p">(</span><span class="s2">&quot;SNP&quot;</span><span class="p">)</span>
+  <span class="n">write</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">sumstat_top</span><span class="p">,</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">r</span><span class="p">},</span> <span class="n">append</span> <span class="o">=</span> <span class="n">T</span><span class="p">,</span> <span class="n">quote</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">,</span> <span class="n">col</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">FALSE</span> <span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Select multiple associated SNPs through a stepwise selection procedure or a fixed number of top associated SNPs</span>
+<span class="p">[</span><span class="n">gcta_cojo_1</span><span class="p">:</span> <span class="kp">provides</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="s1">&#39;{cwd}/{sumstatsFile:bnn}.gcta_cojo.snp_stats&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{sumstatsFile:bnn}.cojo_slct.jma&#39;</span><span class="p">]]</span>
+<span class="c1"># If you want a fixed number of SNPs to be selected</span>
+<span class="kn">parameter:</span> <span class="n">cojo_top_SNPs</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="kn">input:</span> <span class="n">bfile</span>
+<span class="kn">output:</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{sumstatsFile:bnn}.gcta_cojo.snp_stats&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{sumstatsFile:bnn}.cojo_slct.jma&#39;</span>
+<span class="c1"># extract and prepare phenotype &amp; covariate files</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;48G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output[0]:bn}&#39;</span>
+<span class="kn">python:</span> <span class="n">container</span><span class="o">=</span><span class="n">container_lmm</span><span class="p">,</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span>
+    <span class="k">if</span> <span class="err">$</span><span class="p">{</span><span class="n">formatFile</span><span class="o">.</span><span class="n">is_file</span><span class="p">()}:</span>
+        <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+        <span class="n">sumstats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">sumstatsFile</span><span class="p">:</span><span class="n">r</span><span class="p">},</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;gzip&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span> 
+        <span class="k">if</span> <span class="err">$</span><span class="p">{</span><span class="n">formatFile</span><span class="o">.</span><span class="n">is_file</span><span class="p">()}:</span>
+            <span class="kn">import</span> <span class="nn">yaml</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">formatFile</span><span class="p">:</span><span class="n">r</span><span class="p">},</span> <span class="s1">&#39;r&#39;</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sumstats</span> <span class="o">=</span> <span class="n">sumstats</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">values</span><span class="p">())]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;According to ${formatFile}, input summary statistics should have the following columns: {list(config.values())}.&#39;</span><span class="p">)</span>
+        <span class="n">sumstats</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">sumstats</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">r</span><span class="p">},</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+<span class="kn">bash:</span> <span class="n">container</span><span class="o">=</span><span class="n">container_lmm</span><span class="p">,</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output[1]:n}.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output[1]:n}.stdout&#39;</span>
+    <span class="n">gcta64</span> \
+    <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">:</span><span class="n">n</span><span class="p">}</span> \
+    <span class="o">--</span><span class="n">autosome</span> \
+    <span class="o">--</span><span class="n">maf</span> <span class="err">$</span><span class="p">{</span><span class="n">maf</span><span class="p">}</span> \
+    <span class="o">--</span><span class="n">cojo</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> \
+    <span class="o">--</span><span class="n">cojo</span><span class="o">-</span><span class="n">slct</span> \
+    <span class="err">$</span><span class="p">{(</span><span class="s1">&#39;--cojo-top-SNPs </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">cojo_top_SNPs</span><span class="p">)</span> <span class="k">if</span> <span class="n">cojo_top_SNPs</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">}</span>\
+    <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">n</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Perform single-SNP association analyses conditional on a set of SNPs without model selection</span>
+<span class="p">[</span><span class="n">gcta_cojo_2</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">bfile</span><span class="p">,</span> <span class="n">group_by</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="kn">output:</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{sumstatsFile:bnn}.cojo_cond.cma&#39;</span>
+<span class="kn">depends:</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{sumstatsFile:bnn}.gcta_cojo.snp_stats&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{sumstatsFile:bnn}.top_SNPs.txt&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;48G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output[0]:bn}&#39;</span>
+<span class="kn">bash:</span> <span class="n">container</span><span class="o">=</span><span class="n">container_lmm</span><span class="p">,</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output[0]:n}.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output[0]:n}.stdout&#39;</span>
+    <span class="n">gcta64</span> \
+    <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">:</span><span class="n">n</span><span class="p">}</span> \
+    <span class="o">--</span><span class="n">autosome</span> \
+    <span class="o">--</span><span class="n">cojo</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="p">{</span><span class="n">_depends</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> \
+    <span class="o">--</span><span class="n">cojo</span><span class="o">-</span><span class="n">p</span> <span class="mf">5e-8</span> \
+    <span class="o">--</span><span class="n">cojo</span><span class="o">-</span><span class="n">wind</span> <span class="mi">10000</span> \
+    <span class="o">--</span><span class="n">cojo</span><span class="o">-</span><span class="n">collinear</span> <span class="mf">0.9</span> \
+    <span class="o">--</span><span class="n">cojo</span><span class="o">-</span><span class="n">cond</span> <span class="err">$</span><span class="p">{</span><span class="n">_depends</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> \
+    <span class="o">--</span><span class="n">thread</span><span class="o">-</span><span class="n">num</span> <span class="err">$</span><span class="p">{</span><span class="n">numThreads</span><span class="p">}</span> \
+    <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Estimate the joint effects of a subset of SNPs (given in the file test.snplist) without model selection</span>
+<span class="p">[</span><span class="n">gcta_cojo_3</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">bfile</span><span class="p">,</span> <span class="n">group_by</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="kn">output:</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{sumstatsFile:bnn}.cojo_slct.snplist&#39;</span><span class="p">,</span>  <span class="n">f</span><span class="s1">&#39;{cwd}/{sumstatsFile:bnn}.cojo_joint.jma&#39;</span>
+<span class="kn">depends:</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{sumstatsFile:bnn}.cojo_slct.jma&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;48h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;48G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output[0]:bn}&#39;</span>
+<span class="kn">python:</span> <span class="n">container</span><span class="o">=</span><span class="n">container_lmm</span><span class="p">,</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output[0]:n}.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output[0]:n}.stdout&#39;</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+    <span class="n">snplist</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">_depends</span><span class="p">},</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+    <span class="n">snplist</span> <span class="o">=</span> <span class="n">snplist</span><span class="o">.</span><span class="n">SNP</span>
+    <span class="n">snplist</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">r</span><span class="p">},</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+
+<span class="kn">bash:</span> <span class="n">container</span><span class="o">=</span><span class="n">container_lmm</span><span class="p">,</span> <span class="n">expand</span> <span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output[0]:n}.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output[0]:n}.stdout&#39;</span>
+    <span class="n">gcta64</span> \
+    <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">:</span><span class="n">n</span><span class="p">}</span> \
+    <span class="o">--</span><span class="n">autosome</span> \
+    <span class="o">--</span><span class="n">extract</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> \
+    <span class="o">--</span><span class="n">cojo</span><span class="o">-</span><span class="nb">file</span> <span class="err">$</span><span class="p">{</span><span class="n">_depends</span><span class="p">}</span> \
+    <span class="o">--</span><span class="n">cojo</span><span class="o">-</span><span class="n">joint</span> \
+    <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<hr>
+&copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/65141e66788ea1dbad0ffc5b4ccdc3fe0d65f871/workflow/GCTA-COJO.ipynb"><code>workflow/GCTA-COJO.ipynb</code></a> committed by dc2325 on Thu Nov 5 18:14:50 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/65141e66788ea1dbad0ffc5b4ccdc3fe0d65f871">revision 5, 65141e6</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+</div>
+</div>
+</body>
+</html>

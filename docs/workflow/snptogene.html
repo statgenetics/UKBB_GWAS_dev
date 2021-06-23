@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="ipynb_website:version" content="0.9.7" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link rel="stylesheet" type="text/css" href="../css/jt.css">
+
+<link rel="stylesheet" type="text/css" href="../css/toc2.css">
+
+<link href="../site_libs/jqueryui-1.11.4/jquery-ui.css">
+<link rel="stylesheet" href="../site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="../site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+
+<link rel="stylesheet"
+      href="../site_libs/highlightjs/null.min.css"
+      type="text/css" />
+
+<script src="../site_libs/highlightjs/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+<script src="../js/doc_toc.js"></script>
+<script src="../js/docs.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script>
+    MathJax.Hub.Config({
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+        },
+        "HTML-CSS": {
+            preferredFont: "TeX",
+            availableFonts: ["TeX"],
+            styles: {
+                scale: 110,
+                ".MathJax_Display": {
+                    "font-size": "110%",
+                }
+            }
+        }
+    });
+</script>
+<script>
+function filterDataFrame(id) {
+    var input = document.getElementById("search_" + id);
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("dataframe_" + id);
+    var tr = table.getElementsByTagName("tr");
+    // Loop through all table rows, and hide those who don't match the search query
+    for (var i = 1; i < tr.length; i++) {
+        for (var j = 0; j < tr[i].cells.length; ++j) {
+            var matched = false;
+            if (tr[i].cells[j].innerHTML.toUpperCase().indexOf(filter) != -1) {
+                tr[i].style.display = "";
+                matched = true
+                break;
+            }
+            if (!matched)
+                tr[i].style.display = "none";
+        }
+    }
+}
+function sortDataFrame(id, n, dtype) {
+    var table = document.getElementById("dataframe_" + id);
+    var tb = table.tBodies[0]; // use `<tbody>` to ignore `<thead>` and `<tfoot>` rows
+    var tr = Array.prototype.slice.call(tb.rows, 0); // put rows into array
+    if (dtype === 'numeric') {
+        var fn = function(a, b) { 
+            return parseFloat(a.cells[n].textContent) <= parseFloat(b.cells[n].textContent) ? -1 : 1;
+        }
+    } else {
+        var fn = function(a, b) {
+            var c = a.cells[n].textContent.trim().localeCompare(b.cells[n].textContent.trim()); 
+            return c > 0 ? 1 : (c < 0 ? -1 : 0) }
+    }
+    var isSorted = function(array, fn) {
+        if (array.length < 2)
+            return 1;
+        var direction = fn(array[0], array[1]); 
+        for (var i = 1; i < array.length - 1; ++i) {
+            var d = fn(array[i], array[i+1]);
+            if (d == 0)
+                continue;
+            else if (direction == 0)
+                direction = d;
+            else if (direction != d)
+                return 0;
+            }
+        return direction;
+    }
+    var sorted = isSorted(tr, fn);
+    if (sorted == 1 || sorted == -1) {
+        // if sorted already, reverse it
+        for(var i = tr.length - 1; i >= 0; --i)
+            tb.appendChild(tr[i]); // append each row in order
+    } else {
+        tr = tr.sort(fn);
+        for(var i = 0; i < tr.length; ++i)
+            tb.appendChild(tr[i]); // append each row in order
+    }
+}
+</script>
+
+<script>
+$( document ).ready(function(){
+            var cfg={'threshold':3,     // depth of toc (number of levels)
+             'number_sections': false,
+             'toc_cell': false,          // useless here
+             'toc_window_display': true, // display the toc window
+             "toc_section_display": "block", // display toc contents in the window
+             'sideBar':true,       // sidebar or floating window
+             'navigate_menu':false       // navigation menu (only in liveNotebook -- do not change)
+            }
+            var st={};                  // some variables used in the script
+            st.rendering_toc_cell = false;
+            st.config_loaded = false;
+            st.extension_initialized=false;
+            st.nbcontainer_marginleft = $('#notebook-container').css('margin-left')
+            st.nbcontainer_marginright = $('#notebook-container').css('margin-right')
+            st.nbcontainer_width = $('#notebook-container').css('width')
+            st.oldTocHeight = undefined
+            st.cell_toc = undefined;
+            st.toc_index=0;
+            // fire the main function with these parameters
+            table_of_contents(cfg, st);
+            var file=workflowDict[$("h1:first").attr("id")];
+            $("#toc-level0 a").css("color","#126dce");
+            $('a[href="#'+$("h1:first").attr("id")+'"]').hide()
+            var docs=workflowArray;
+            var docs_map=workflowArrayMap;
+            var pos=workflowArray.indexOf(file);
+            for (var a=pos;a>=0;a--){
+                  $('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>').insertBefore("#toc-level0 li:eq(0)");
+            }
+            $('a[href="'+file+'.html'+'"]').css("color","#126dce");
+            for (var a=pos+1;a<docs.length;a++){
+                  $(".toc #toc-level0").append('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>');
+            }
+            // $("#toc-header").hide(); // comment out because it prevents search bar from displaying
+    });
+</script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+  // mark it active
+  menuAnchor.parent().addClass('active');
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+<div class="container-fluid main-container">
+<!-- tabsets -->
+<script src="../site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+
+
+<title>Pleiotropy analysis in UKBB</title>
+
+<style type = "text/css">
+body {
+  font-family: "Droid Sans";
+  padding-top: 66px;
+  padding-bottom: 40px;
+}
+</style>
+</head>
+
+<body>
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+<div class="container" id="notebook-container">
+
+<!-- code folding -->
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="../index.html">Pleiotropy analysis in UKBB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+<li>
+  <a href="../index.html">Overview</a>
+</li>
+        
+<li>
+  <a href="../workflow.html">Workflow</a>
+</li>
+        
+<li>
+  <a href="../analysis.html">Analysis</a>
+</li>
+        
+      </ul>
+        
+<ul class="nav navbar-nav navbar-right">
+<li>
+   <a href="http://github.com/dianacornejo/pleiotropy_UKB"> <span class="fa fa-github"></span> </a>
+</li>
+</ul>
+        
+      </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Post-GWAS-analyses">Post-GWAS analyses<a class="anchor-link" href="#Post-GWAS-analyses">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Aim">Aim<a class="anchor-link" href="#Aim">&#182;</a></h1><p>The aim of this notebook is to be able to carry out post-GWAS analyses such as SNP annotation to genes, expression pathway and other.</p>
+<p>Here <a href="https://www.umc.edu/SoPH/Departments-and-Faculty/Data-Science/Research/Services/Software.html">spnGeneSets v1.12</a> is used, however FUMA is a web-based resource that is also useful for this purpose</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Usage">Usage<a class="anchor-link" href="#Usage">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="k">global</span><span class="p">]</span>
+<span class="c1"># the output directory for generated files</span>
+<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span>
+<span class="c1"># Path sumstats file</span>
+<span class="kn">parameter:</span> <span class="n">sumstatsFile</span> <span class="o">=</span> <span class="n">path</span>
+<span class="c1"># Genome assembly hg_37, hg_38</span>
+<span class="kn">parameter:</span> <span class="n">hg</span> <span class="o">=</span> <span class="nb">int</span>
+<span class="c1">#Job size</span>
+<span class="kn">parameter:</span><span class="n">job_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="c1"># Load annovar module from cluster</span>
+<span class="kn">parameter:</span> <span class="n">annovar_module</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">module load ANNOVAR/2020Jun08-foss-2018b-Perl-5.28.0</span>
+<span class="s1">echo &quot;Module annovar loaded&quot;</span>
+<span class="s1">{cmd}</span>
+<span class="s1">&#39;&#39;&#39;</span>
+<span class="c1"># Software container option</span>
+<span class="kn">parameter:</span> <span class="n">container_annovar</span> <span class="o">=</span> <span class="s1">&#39;gaow/gatk4-annovar&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Annotate snps to gene</span>
+<span class="p">[</span><span class="n">snp_to_gene</span><span class="p">]</span>
+<span class="c1"># Column name for BP</span>
+<span class="kn">parameter:</span> <span class="n">bp</span> <span class="o">=</span> <span class="s1">&#39;POS&#39;</span>
+<span class="c1"># Column name for p-value</span>
+<span class="kn">parameter:</span> <span class="n">pval</span> <span class="o">=</span> <span class="s1">&#39;P&#39;</span>
+<span class="c1"># Column name for SNP</span>
+<span class="kn">parameter:</span> <span class="n">snp</span> <span class="o">=</span> <span class="s1">&#39;SNP&#39;</span>
+<span class="kn">input:</span> <span class="n">sumstatsFile</span>
+<span class="kn">output:</span> <span class="n">f</span><span class="s1">&#39;{_input:nn}.gene_ann&#39;</span>      
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;3h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;10G&#39;</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output:bn}&#39;</span>
+<span class="kn">R:</span> <span class="n">expand</span><span class="o">=</span><span class="s1">&#39;${ }&#39;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.stdout&#39;</span>
+    <span class="n">library</span><span class="p">(</span><span class="s1">&#39;snpGeneSets&#39;</span><span class="p">)</span>
+    <span class="n">library</span><span class="p">(</span><span class="s1">&#39;dplyr&#39;</span><span class="p">)</span>
+    <span class="c1"># Import the sumstats file as dataframe</span>
+    <span class="n">data</span> <span class="o">&lt;-</span> <span class="n">read</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">gzfile</span><span class="p">(</span><span class="s1">&#39;${_input}&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">head</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="c1"># Filter SNPs with p-val &lt;5e-06</span>
+    <span class="c1"># Subset data to obtain only chr, pos and snp for gene mapping</span>
+    <span class="n">sig</span><span class="o">.</span><span class="n">p</span> <span class="o">&lt;-</span> <span class="n">data</span> <span class="o">%&gt;%</span>
+      <span class="nb">filter</span><span class="p">(</span><span class="n">P</span> <span class="o">&lt;</span> <span class="mf">5e-8</span><span class="p">)</span> <span class="o">%&gt;%</span>
+      <span class="n">mutate</span><span class="p">(</span><span class="nb">chr</span> <span class="o">=</span> <span class="n">CHR</span><span class="p">,</span>
+             <span class="n">pos</span> <span class="o">=</span> <span class="err">$</span><span class="p">{</span><span class="n">bp</span><span class="p">},</span>
+             <span class="n">snp</span> <span class="o">=</span> <span class="k">as</span><span class="o">.</span><span class="n">character</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">snp</span><span class="p">}))</span> <span class="o">%&gt;%</span>
+      <span class="n">select</span><span class="p">(</span><span class="nb">chr</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">snp</span><span class="p">)</span>
+    <span class="n">head</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
+    <span class="c1"># Get the annotation of SNPs with different genome assemblies</span>
+    <span class="n">snpMapAnn</span><span class="o">&lt;-</span> <span class="n">getSNPMap</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">p</span><span class="err">$</span><span class="n">snp</span><span class="p">,</span> <span class="n">GRCh</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="n">hg</span><span class="p">})</span>
+    <span class="c1"># Mapping SNPs to genes (define gene boundary ‘up’ for the upstream region and ‘down’ for the downstream region with default value of 2,000 bp for both)</span>
+    <span class="n">snpGeneMapAnn</span><span class="o">&lt;-</span> <span class="n">snp2Gene</span><span class="p">(</span><span class="n">snpMapAnn</span><span class="err">$</span><span class="n">rsid_map</span><span class="err">$</span><span class="n">snp</span><span class="p">)</span>
+    <span class="n">cat</span><span class="p">(</span><span class="s2">&quot;The unique number of genes is&quot;</span><span class="p">,</span><span class="n">length</span><span class="p">(</span><span class="n">unique</span><span class="p">(</span><span class="n">snpGeneMapAnn</span><span class="err">$</span><span class="nb">map</span><span class="err">$</span><span class="n">gene_id</span><span class="p">),</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
+    <span class="n">cat</span><span class="p">(</span><span class="s2">&quot;The number of variants that could not be mapped to a gene is:&quot;</span><span class="p">,</span><span class="n">length</span><span class="p">(</span><span class="n">snpGeneMapAnn</span><span class="err">$</span><span class="n">other</span><span class="p">),</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1">#Get the gene-name and gene-id for the mapped variants</span>
+    <span class="n">gene_mapped</span> <span class="o">&lt;-</span> <span class="n">getGeneMap</span><span class="p">(</span><span class="n">snpGeneMapAnn</span><span class="err">$</span><span class="nb">map</span><span class="err">$</span><span class="n">gene_id</span><span class="p">)</span><span class="err">$</span><span class="n">gene_map</span>
+    <span class="c1"># Merge the datasets</span>
+    <span class="n">snp_gene</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">snpMapAnn37</span><span class="err">$</span><span class="n">rsid_map</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">snpGeneMapAnn</span><span class="err">$</span><span class="nb">map</span><span class="p">[,</span><span class="n">c</span><span class="p">(</span><span class="s2">&quot;snp&quot;</span><span class="p">,</span> <span class="s2">&quot;gene_id&quot;</span><span class="p">)],</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;snp&quot;</span><span class="p">,</span> <span class="nb">all</span><span class="o">.</span><span class="n">x</span><span class="o">=</span><span class="n">TRUE</span><span class="p">)</span>
+    <span class="n">snp_gene_2</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">snp_gene</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">gene_mapped</span><span class="p">[,</span><span class="n">c</span><span class="p">(</span><span class="s2">&quot;gene_id&quot;</span><span class="p">,</span> <span class="s2">&quot;gene_name&quot;</span><span class="p">)],</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;gene_id&quot;</span><span class="p">,</span> <span class="nb">all</span><span class="o">.</span><span class="n">x</span><span class="o">=</span><span class="n">TRUE</span><span class="p">)</span>
+    <span class="n">names</span><span class="p">(</span><span class="n">snp_gene_2</span><span class="p">)[</span><span class="n">names</span><span class="p">(</span><span class="n">snp_gene_2</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;snp&#39;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="s1">&#39;SNP&#39;</span>
+    <span class="n">snp_gene_3</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">snp_gene_2</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[,</span><span class="n">c</span><span class="p">(</span><span class="s2">&quot;A1&quot;</span><span class="p">,</span> <span class="s2">&quot;A2&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;AF1&quot;</span><span class="p">,</span><span class="s2">&quot;P&quot;</span><span class="p">,</span><span class="s2">&quot;BETA&quot;</span><span class="p">,</span> <span class="s2">&quot;SE&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span><span class="s2">&quot;SNP&quot;</span><span class="p">)],</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;SNP&quot;</span><span class="p">,</span> <span class="nb">all</span><span class="o">.</span><span class="n">x</span><span class="o">=</span><span class="n">TRUE</span><span class="p">)</span>
+    <span class="c1"># Get the final table with ordered pval</span>
+    <span class="n">final_gene_set</span> <span class="o">&lt;-</span> <span class="n">snp_gene_3</span> <span class="o">%&gt;%</span>
+     <span class="n">select</span><span class="p">(</span><span class="nb">chr</span><span class="p">,</span> <span class="err">$</span><span class="p">{</span><span class="n">snp</span><span class="p">},</span> <span class="n">pos</span><span class="p">,</span> <span class="n">A1</span><span class="p">,</span> <span class="n">A2</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">AF1</span><span class="p">,</span> <span class="n">BETA</span><span class="p">,</span> <span class="n">SE</span><span class="p">,</span> <span class="err">$</span><span class="p">{</span><span class="n">pval</span><span class="p">},</span> <span class="n">INFO</span><span class="p">,</span> <span class="n">gene_id</span><span class="p">,</span> <span class="n">gene_name</span><span class="p">)</span> <span class="o">%&gt;%</span>
+     <span class="n">arrange</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+    <span class="n">names</span><span class="p">(</span><span class="n">final_gene_set</span><span class="p">)[</span><span class="n">names</span><span class="p">(</span><span class="n">final_gene_set</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;chr&#39;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="s1">&#39;CHR&#39;</span>
+    <span class="n">names</span><span class="p">(</span><span class="n">final_gene_set</span><span class="p">)[</span><span class="n">names</span><span class="p">(</span><span class="n">final_gene_set</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;pos&#39;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="s1">&#39;POS&#39;</span>
+    <span class="c1"># Write results to a table</span>
+    <span class="n">write</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">final_gene_set</span><span class="p">,</span> <span class="s1">&#39;${_output}&#39;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">quote</span><span class="o">=</span><span class="n">FALSE</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">names</span><span class="o">=</span><span class="n">FALSE</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Merge all the bimfiles into a single file to use later with awk</span>
+<span class="c1"># Only need to run this cell once</span>
+<span class="p">[</span><span class="n">bim_merge</span><span class="p">]</span>
+<span class="c1"># Path to the original bim files</span>
+<span class="kn">paremeter:</span> <span class="n">bimfiles</span> <span class="o">=</span> <span class="n">path</span>
+<span class="c1"># Name for the merged bim files</span>
+<span class="kn">parameter:</span> <span class="n">bim_name</span> <span class="o">=</span> <span class="n">path</span>
+<span class="kn">input:</span> <span class="n">bimfiles</span>
+<span class="kn">output:</span> <span class="n">bim_name</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;10h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;10G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output:bn}&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.stdout&#39;</span> 
+      <span class="n">cat</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Get the list of significantly associated SNPs</span>
+<span class="p">[</span><span class="n">annovar_1</span><span class="p">]</span>
+<span class="c1"># Column name for BP</span>
+<span class="kn">parameter:</span> <span class="n">bp</span> <span class="o">=</span> <span class="s1">&#39;POS&#39;</span>
+<span class="c1"># Column name for p-value</span>
+<span class="kn">parameter:</span> <span class="n">pval</span> <span class="o">=</span> <span class="s1">&#39;P&#39;</span>
+<span class="c1"># Column name for SNP</span>
+<span class="kn">parameter:</span> <span class="n">snp</span> <span class="o">=</span> <span class="s1">&#39;SNP&#39;</span>
+<span class="kn">input:</span> <span class="n">sumstatsFile</span>
+<span class="kn">output:</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{_input:bnn}.snp_annotate&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">trunk_size</span> <span class="o">=</span> <span class="n">job_size</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;3h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;10G&#39;</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output:bn}&#39;</span>
+<span class="kn">R:</span> <span class="n">expand</span><span class="o">=</span><span class="s1">&#39;${ }&#39;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output}.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output}.stdout&#39;</span>
+    <span class="n">library</span><span class="p">(</span><span class="s1">&#39;dplyr&#39;</span><span class="p">)</span>
+    <span class="c1"># Import the sumstats file as dataframe</span>
+    <span class="n">data</span> <span class="o">&lt;-</span> <span class="n">read</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">gzfile</span><span class="p">(</span><span class="s1">&#39;${_input}&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="n">T</span><span class="p">)</span>
+    <span class="c1"># Filter SNPs with p-val &lt;5e-06</span>
+    <span class="c1"># Subset data to obtain only chr, pos and snp for gene mapping</span>
+    <span class="n">sig</span><span class="o">.</span><span class="n">p</span> <span class="o">&lt;-</span> <span class="n">data</span> <span class="o">%&gt;%</span>
+      <span class="nb">filter</span><span class="p">(</span><span class="n">P</span> <span class="o">&lt;</span> <span class="mf">5e-8</span><span class="p">)</span> <span class="o">%&gt;%</span>
+      <span class="n">select</span><span class="p">(</span><span class="n">SNP</span><span class="p">)</span>
+    <span class="n">write</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="s1">&#39;${_output}&#39;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">quote</span><span class="o">=</span><span class="n">FALSE</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">names</span><span class="o">=</span><span class="n">FALSE</span><span class="p">,</span> <span class="n">col</span><span class="o">.</span><span class="n">names</span><span class="o">=</span><span class="n">FALSE</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Get chr, start, end, ref_allele, alt_allele format</span>
+<span class="p">[</span><span class="n">annovar_2</span><span class="p">]</span>
+<span class="kn">parameter:</span> <span class="n">bim_name</span> <span class="o">=</span> <span class="n">path</span>
+<span class="kn">output:</span> <span class="n">f</span><span class="s1">&#39;{_input:n}.avinput&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;10h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;10G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output:bn}&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output}.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output}.stdout&#39;</span> 
+    <span class="n">awk</span> <span class="o">-</span><span class="n">F</span><span class="s2">&quot; &quot;</span> <span class="s1">&#39;FNR==NR {lines[$1]; next} $2 in lines &#39;</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> <span class="err">$</span><span class="p">{</span><span class="n">bim_name</span><span class="p">}</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span><span class="o">.</span><span class="n">tmp</span>
+    <span class="n">awk</span> <span class="s1">&#39;{if ($2 ~ /D/) {print $1, $4, $4 + (length ($6) - length ($5)), $6, $5 } else {print $1, $4, $4, $6, $5 }}&#39;</span>  <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span><span class="o">.</span><span class="n">tmp</span> <span class="o">&gt;</span>  <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span>
+    <span class="c1"># remove temporary files</span>
+    <span class="n">rm</span> <span class="o">-</span><span class="n">f</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span><span class="o">.</span><span class="n">tmp</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Annotate variants file using ANNOVAR</span>
+<span class="p">[</span><span class="n">annovar_3</span><span class="p">]</span>
+<span class="c1"># humandb path for ANNOVAR</span>
+<span class="kn">parameter:</span> <span class="n">humandb</span> <span class="o">=</span> <span class="n">path</span>
+<span class="kn">parameter:</span> <span class="n">ukbb</span> <span class="o">=</span> <span class="n">path</span>
+<span class="c1"># Human genome build</span>
+<span class="kn">parameter:</span> <span class="n">build</span> <span class="o">=</span> <span class="s1">&#39;hg38&#39;</span>
+<span class="c1">#add xreffile to option without -exonicsplicing</span>
+<span class="c1">#mart_export_2019_LOFtools3.txt #xreffile latest option -&gt; Phenotype description,HGNC symbol,MIM morbid description,CGD_CONDITION,CGD_inh,CGD_man,CGD_comm,LOF_tools</span>
+<span class="kn">parameter:</span> <span class="n">x_ref</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{ukbb}/mart_export_2019_LOFtools3.txt&quot;</span><span class="p">)</span>
+<span class="c1"># Annovar protocol</span>
+<span class="kn">parameter:</span> <span class="n">protocol</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;refGene&#39;</span><span class="p">,</span> <span class="s1">&#39;refGeneWithVer&#39;</span><span class="p">,</span> <span class="s1">&#39;knownGene&#39;</span><span class="p">,</span> <span class="s1">&#39;ensGene&#39;</span><span class="p">,</span> <span class="s1">&#39;phastConsElements30way&#39;</span><span class="p">,</span> <span class="s1">&#39;encRegTfbsClustered&#39;</span><span class="p">,</span> <span class="s1">&#39;gwasCatalog&#39;</span><span class="p">,</span> <span class="s1">&#39;gnomad211_genome&#39;</span><span class="p">,</span> <span class="s1">&#39;gnomad211_exome&#39;</span><span class="p">,</span> <span class="s1">&#39;gme&#39;</span><span class="p">,</span> <span class="s1">&#39;kaviar_20150923&#39;</span><span class="p">,</span> <span class="s1">&#39;abraom&#39;</span><span class="p">,</span> <span class="s1">&#39;avsnp150&#39;</span><span class="p">,</span> <span class="s1">&#39;dbnsfp41a&#39;</span><span class="p">,</span> <span class="s1">&#39;dbscsnv11&#39;</span><span class="p">,</span> <span class="s1">&#39;regsnpintron&#39;</span><span class="p">,</span> <span class="s1">&#39;clinvar_20200316&#39;</span><span class="p">,</span> <span class="s1">&#39;gene4denovo201907&#39;</span><span class="p">]</span>
+<span class="c1"># Annovar operation</span>
+<span class="kn">parameter:</span> <span class="n">operation</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;gx&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">]</span>
+<span class="c1"># Annovar args</span>
+<span class="kn">parameter:</span> <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&quot;-splicing 12 -exonicsplicing&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;-splicing 30&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;-splicing 12 -exonicsplicing&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;-splicing 12&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+<span class="kn">output:</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{_input:bn}.{build}_multianno.csv&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;10h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;30G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output:bn}&#39;</span><span class="p">,</span> <span class="n">template</span> <span class="o">=</span> <span class="s1">&#39;{cmd}&#39;</span> <span class="k">if</span> <span class="n">executable</span><span class="p">(</span><span class="s1">&#39;annotate_variation.pl&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">target_exists</span><span class="p">()</span> <span class="k">else</span> <span class="n">annovar_module</span>
+<span class="kn">bash:</span> <span class="n">container</span><span class="o">=</span><span class="n">container_annovar</span><span class="p">,</span> <span class="n">volumes</span><span class="o">=</span><span class="p">[</span><span class="n">f</span><span class="s1">&#39;{humandb:a}:{humandb:a}&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;{x_ref:ad}:{x_ref:ad}&#39;</span><span class="p">],</span> <span class="n">expand</span><span class="o">=</span><span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;{_output:n}.err&#39;</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;{_output:n}.out&#39;</span>
+    <span class="c1">#do not add -intronhgvs as option -&gt; writes cDNA variants as HGVS but creates issues (+2 splice site reported only)</span>
+    <span class="c1">#-nastring . can only be . for VCF files</span>
+    <span class="c1">#regsnpintron might cause shifted lines (be carefull using)</span>
+    <span class="n">table_annovar</span><span class="o">.</span><span class="n">pl</span> \
+        <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> \
+        <span class="err">$</span><span class="p">{</span><span class="n">humandb</span><span class="p">}</span> \
+        <span class="o">-</span><span class="n">buildver</span> <span class="err">$</span><span class="p">{</span><span class="n">build</span><span class="p">}</span> \
+        <span class="o">-</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">nn</span><span class="p">}</span>\
+        <span class="o">-</span><span class="n">remove</span> \
+        <span class="o">-</span><span class="n">polish</span> \
+        <span class="o">-</span><span class="n">nastring</span> <span class="o">.</span> \
+        <span class="o">-</span><span class="n">protocol</span> <span class="err">$</span><span class="p">{</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">protocol</span><span class="p">)}</span> \
+        <span class="o">-</span><span class="n">operation</span> <span class="err">$</span><span class="p">{</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">operation</span><span class="p">)}</span> \
+        <span class="o">-</span><span class="n">arg</span> <span class="err">$</span><span class="p">{</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">arg</span><span class="p">)}</span> \
+        <span class="o">-</span><span class="n">csvout</span> \
+        <span class="o">-</span><span class="n">xreffile</span> <span class="err">$</span><span class="p">{</span><span class="n">x_ref</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="To-run-this-notebook">To run this notebook<a class="anchor-link" href="#To-run-this-notebook">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">cwd</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span>
+<span class="n">sumstatsFile</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">REGENIE_results</span><span class="o">/</span><span class="n">results_exome_data</span><span class="o">/</span><span class="n">f3393_hearing_aid_exomes</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_aid_f3393_128254ind_exomes_hearing_aid_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">hg</span><span class="o">=</span><span class="mi">38</span>
+<span class="n">job_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">container_annovar</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">annovar</span><span class="o">.</span><span class="n">sif</span>
+<span class="n">bimfiles</span><span class="o">=</span><span class="sb">`echo /gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/ukb28374_exomedata/exome_data_OCT2020/ukb23155_c{1..22}_b0_v1.bim`</span>
+<span class="n">bim_name</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">ukb23155_chr1_chr22</span><span class="o">.</span><span class="n">bim</span>
+<span class="n">humandb</span><span class="o">=/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">ysm</span><span class="o">/</span><span class="n">datasets</span><span class="o">/</span><span class="n">db</span><span class="o">/</span><span class="n">annovar</span><span class="o">/</span><span class="n">humandb</span>
+
+<span class="n">sos</span> <span class="n">run</span> <span class="o">~/</span><span class="n">project</span><span class="o">/</span><span class="n">UKBB_GWAS_dev</span><span class="o">/</span><span class="n">workflow</span><span class="o">/</span><span class="n">snptogene</span><span class="o">.</span><span class="n">ipynb</span> <span class="n">annovar</span> \
+    <span class="o">--</span><span class="n">cwd</span> <span class="err">$</span><span class="n">cwd</span> \
+    <span class="o">--</span><span class="n">sumstatsFile</span> <span class="err">$</span><span class="n">sumstatsFile</span>\
+    <span class="o">--</span><span class="n">bim_name</span> <span class="err">$</span><span class="n">bim_name</span> \
+    <span class="o">--</span><span class="n">hg</span> <span class="err">$</span><span class="n">hg</span> \
+    <span class="o">--</span><span class="n">job_size</span> <span class="err">$</span><span class="n">job_size</span> \
+    <span class="o">--</span><span class="n">humandb</span> <span class="err">$</span><span class="n">humandb</span>\
+    <span class="o">--</span><span class="n">container_annovar</span> <span class="err">$</span><span class="n">container_annovar</span>\
+    <span class="o">-</span><span class="n">s</span> <span class="n">build</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>INFO: Running <span class="ansi-green-fg">annovar_1</span>: Get the list of significantly associated SNPs
+INFO: <span class="ansi-green-fg">annovar_1</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">annovar_1</span> output:   <span class="ansi-green-fg">/home/dc2325/scratch60/output/010421_UKBB_Hearing_aid_f3393_128254ind_exomes_hearing_aid_cat.regenie.snp_annotate</span>
+INFO: Running <span class="ansi-green-fg">annovar_2</span>: Get chr, start, end, ref_allele, alt_allele format
+INFO: <span class="ansi-green-fg">annovar_2</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">annovar_2</span> output:   <span class="ansi-green-fg">/home/dc2325/scratch60/output/010421_UKBB_Hearing_aid_f3393_128254ind_exomes_hearing_aid_cat.regenie.avinput</span>
+INFO: Running <span class="ansi-green-fg">annovar_3</span>: Annotate variants file using ANNOVAR
+INFO: <span class="ansi-green-fg">annovar_3</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">annovar_3</span> output:   <span class="ansi-green-fg">/home/dc2325/scratch60/output/010421_UKBB_Hearing_aid_f3393_128254ind_exomes_hearing_aid_cat.regenie.hg38_multianno.csv</span>
+INFO: Workflow annovar (ID=w85450d9626e3d7a0) is executed successfully with 3 completed steps.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span>
+<span class="n">awk</span> <span class="s1">&#39;NR==FNR{seen[$0]=1; next} seen[$0]&#39;</span> <span class="mo">010421</span><span class="n">_UKBB_f2247_f2257_136862ind_exomes_f2247_f2257</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">avinput</span> <span class="mo">010421</span><span class="n">_UKBB_Hearing_difficulty_f2247_171970ind_exomes_hearing_diff_new</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">avinput</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1 58468867 58468867 T C
+1 58468874 58468874 T C
+1 58468970 58468970 G T
+1 58506159 58506159 G A
+1 58506268 58506268 C A
+1 58539307 58539307 C T
+5 272741 272741 A G
+5 272748 272748 G C
+5 272755 272755 A G
+5 73773756 73773756 A G
+5 73776529 73776529 T C
+5 73780632 73780632 G A
+5 73780649 73780650 GT G
+5 73780686 73780686 C A
+5 73794340 73794340 A AGTT
+5 73794436 73794436 T C
+5 73795301 73795301 T A
+5 73795403 73795403 C T
+6 43301291 43301291 A C
+6 43302413 43302413 C T
+6 43305866 43305866 A G
+6 43308652 43308652 G A
+6 75841299 75841299 A G
+6 158071628 158071628 C T
+8 86556416 86556416 T G
+8 86558437 86558437 A C
+8 86558500 86558500 C T
+22 38086345 38086387 GTGCGGGAGCGGGACTGGCCATCCCAGTACTCCGAGGGTGCTA G
+22 50549676 50549676 G A
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">awk</span> <span class="s1">&#39;NR==FNR{seen[$0]=1; next} seen[$0]&#39;</span> <span class="mo">010421</span><span class="n">_UKBB_Hearing_difficulty_f2247_171970ind_exomes_hearing_diff_new</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">avinput</span> <span class="mo">010421</span><span class="n">_UKBB_Hearing_background_noise_f2257_175531ind_exomes_hearing_noise_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">avinput</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>5 272741 272741 A G
+5 272748 272748 G C
+5 272755 272755 A G
+6 43301291 43301291 A C
+6 43305866 43305866 A G
+6 43308652 43308652 G A
+6 75841299 75841299 A G
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">awk</span> <span class="s1">&#39;NR==FNR{seen[$0]=1; next} seen[$0]&#39;</span> <span class="mo">010421</span><span class="n">_UKBB_Hearing_background_noise_f2257_175531ind_exomes_hearing_noise_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">avinput</span> <span class="mo">010421</span><span class="n">_UKBB_Hearing_difficulty_f2247_171970ind_exomes_hearing_diff_new</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">avinput</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>5 272741 272741 A G
+5 272748 272748 G C
+5 272755 272755 A G
+6 43301291 43301291 A C
+6 43305866 43305866 A G
+6 43308652 43308652 G A
+6 75841299 75841299 A G
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">awk</span> <span class="s1">&#39;NR==FNR{seen[$0]=1; next} seen[$0]&#39;</span> <span class="mo">010421</span><span class="n">_UKBB_Hearing_difficulty_f2247_171970ind_exomes_hearing_diff_new</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">avinput</span> <span class="mo">010421</span><span class="n">_UKBB_Hearing_aid_f3393_128254ind_exomes_hearing_aid_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">avinput</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1 58468867 58468867 T C
+1 58468874 58468874 T C
+1 58468970 58468970 G T
+1 58539307 58539307 C T
+6 75841299 75841299 A G
+8 86556416 86556416 T G
+8 86558437 86558437 A C
+8 86558500 86558500 C T
+10 7292138 7292138 G A
+17 41827392 41827392 A C
+17 44848191 44848191 C T
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">awk</span> <span class="s1">&#39;NR==FNR{seen[$0]=1; next} seen[$0]&#39;</span> <span class="mo">010421</span><span class="n">_UKBB_f2247_f2257_136862ind_exomes_f2247_f2257</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">avinput</span> <span class="mo">010421</span><span class="n">_UKBB_Hearing_aid_f3393_128254ind_exomes_hearing_aid_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">avinput</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1 58468867 58468867 T C
+1 58468874 58468874 T C
+1 58468970 58468970 G T
+1 58539307 58539307 C T
+6 75362956 75362956 T C
+6 75841299 75841299 A G
+8 86556416 86556416 T G
+8 86558437 86558437 A C
+8 86558500 86558500 C T
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">REGENIE_results</span><span class="o">/</span><span class="n">results_exome_data</span><span class="o">/</span><span class="n">f3393_hearing_aid_exomes</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_aid_f3393_128254ind_exomes_hearing_aid_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">w</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_aid_f3393_128254ind_exomes_hearing_aid_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_annotate</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1	58468867	T	C	1:58468867:T:C	-0.168986	0.021412099999999996	7.055048440506522e-16
+1	58468874	T	C	1:58468874:T:C	-0.168015	0.0213657	9.11381062129295e-16
+1	58468970	G	T	1:58468970:G:T	-0.14103	0.0156138	6.13903345360935e-20
+1	58539307	C	T	1:58539307:C:T	-0.13430799999999998	0.0143388	3.3853221281535305e-21
+2	168834219	T	C	2:168834219:T:C	-0.130908	0.021813	1.029437536659268e-09
+6	75362956	T	C	6:75362956:T:C	2.48143	0.369753	8.570575794832358e-09
+6	75841299	A	G	6:75841299:A:G	2.9806	0.407723	1.2227847112296838e-10
+8	86556416	T	G	8:86556416:T:G	-0.115771	0.017346200000000003	1.4047531026968791e-11
+8	86558437	A	C	8:86558437:A:C	-0.114282	0.0193435	2.110425374828825e-09
+8	86558500	C	T	8:86558500:C:T	-0.116954	0.019379	9.270219126904037e-10
+10	7243670	A	G	10:7243670:A:G	-0.0980153	0.0159944	1.0312880846394044e-09
+10	7276841	T	C	10:7276841:T:C	-0.133236	0.0219836	7.090877782620701e-10
+10	7277326	C	A	10:7277326:C:A	-0.143172	0.0223905	7.409689339136985e-11
+10	7292138	G	A	10:7292138:G:A	-0.11094100000000001	0.0157167	1.0779534330711129e-12
+17	41827392	A	C	17:41827392:A:C	-0.14261600000000002	0.0174949	1.2563192085812206e-16
+17	41827556	G	C	17:41827556:G:C	-0.14255299999999999	0.0175112	1.3893126817367537e-16
+17	41827568	G	A	17:41827568:G:A	-0.142571	0.0175149	1.3816562311673272e-16
+17	41827597	G	C	17:41827597:G:C	-0.136147	0.0175178	3.042986320313067e-15
+17	44848191	C	T	17:44848191:C:T	-0.14491600000000002	0.0193761	2.745364414223407e-14
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">REGENIE_results</span><span class="o">/</span><span class="n">results_exome_data</span><span class="o">/</span><span class="n">f3393_hearing_aid_exomes</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_aid_f3393_128254ind_exomes_hearing_aid_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_stats_original_columns</span><span class="o">.</span><span class="n">gz</span> <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">w</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_aid_f3393_128254ind_exomes_hearing_aid_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_annotate</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1 58468867 1:58468867:T:C T C 0.187716 ADD -0.168986 0.0214121 65.1177 15.1515 
+1 58468874 1:58468874:T:C T C 0.188739 ADD -0.168015 0.0213657 64.6132 15.0403 
+1 58468970 1:58468970:G:T G T 0.310271 ADD -0.14103 0.0156138 83.5735 19.2119 
+1 58539307 1:58539307:C:T C T 0.351207 ADD -0.134308 0.0143388 89.3042 20.4704 
+2 168834219 2:168834219:T:C T C 0.182838 ADD -0.130908 0.021813 37.2683 8.9874 
+6 75362956 6:75362956:T:C T C 0.000148152 ADD 2.48143 0.369753 33.1412 8.06699 
+6 75841299 6:75841299:A:G A G 0.000113057 ADD 2.9806 0.407723 41.4282 9.91265 
+8 86556416 8:86556416:T:G T G 0.25997 ADD -0.115771 0.0173462 45.6626 10.8524 
+8 86558437 8:86558437:A:C A C 0.2221 ADD -0.114282 0.0193435 35.869 8.67563 
+8 86558500 8:86558500:C:T C T 0.218854 ADD -0.116954 0.019379 37.4727 9.03291 
+10 7243670 10:7243670:A:G A G 0.546956 ADD -0.0980153 0.0159944 37.2648 8.98662 
+10 7276841 10:7276841:T:C T C 0.189831 ADD -0.133236 0.0219836 37.9955 9.1493 
+10 7277326 10:7277326:C:A C A 0.186652 ADD -0.143172 0.0223905 42.4078 10.1302 
+10 7292138 10:7292138:G:A G A 0.322528 ADD -0.110941 0.0157167 50.6966 11.9674 
+17 41827392 17:41827392:A:C A C 0.258296 ADD -0.142616 0.0174949 68.5193 15.9009 
+17 41827556 17:41827556:G:C G C 0.259521 ADD -0.142553 0.0175112 68.3209 15.8572 
+17 41827568 17:41827568:G:A G A 0.258333 ADD -0.142571 0.0175149 68.3322 15.8596 
+17 41827597 17:41827597:G:C G C 0.255956 ADD -0.136147 0.0175178 62.2382 14.5167 
+17 44848191 17:44848191:C:T C T 0.2226 ADD -0.144916 0.0193761 57.9092 13.5614 
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">REGENIE_results</span><span class="o">/</span><span class="n">results_exome_data</span><span class="o">/</span><span class="n">f2257_hearing_noise_exomes</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_background_noise_f2257_175531ind_exomes_hearing_noise_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span>  <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">w</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_background_noise_f2257_175531ind_exomes_hearing_noise_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_annotate</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>5	272741	A	G	5:272741:A:G	0.897546	0.128497	1.2220810223250552e-12
+5	272748	G	C	5:272748:G:C	0.8718739999999999	0.139898	2.4925277377693566e-10
+5	272755	A	G	5:272755:A:G	0.8530200000000001	0.12476400000000001	4.0766178334794515e-12
+6	43301291	A	C	6:43301291:A:C	0.04535719999999999	0.00720349	2.987376772921112e-10
+6	43305866	A	G	6:43305866:A:G	0.0454121	0.00720402	2.852462870044014e-10
+6	43308652	G	A	6:43308652:G:A	0.044663800000000003	0.00718951	5.126842785315215e-10
+6	75841299	A	G	6:75841299:A:G	2.93015	0.673602	3.333419717618388e-10
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">REGENIE_results</span><span class="o">/</span><span class="n">results_exome_data</span><span class="o">/</span><span class="n">f2257_hearing_noise_exomes</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_background_noise_f2257_175531ind_exomes_hearing_noise_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_stats_original_columns</span><span class="o">.</span><span class="n">gz</span>  <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">w</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_background_noise_f2257_175531ind_exomes_hearing_noise_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_annotate</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>5 272741 5:272741:A:G A G 0.000746392 ADD 0.897546 0.128497 50.4506 11.9129 
+5 272748 5:272748:G:C G C 0.000626873 ADD 0.871874 0.139898 40.0366 9.60336 
+5 272755 5:272755:A:G A G 0.000786226 ADD 0.85302 0.124764 48.0875 11.3897 
+6 43301291 6:43301291:A:C A C 0.608417 ADD 0.0453572 0.00720349 39.6829 9.52471 
+6 43305866 6:43305866:A:G A G 0.608452 ADD 0.0454121 0.00720402 39.7731 9.54478 
+6 43308652 6:43308652:G:A G A 0.608468 ADD 0.0446638 0.00718951 38.6284 9.29015 
+6 75841299 6:75841299:A:G A G 8.5455e-05 ADD 2.93015 0.673602 39.4688 9.47711 
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">REGENIE_results</span><span class="o">/</span><span class="n">results_exome_data</span><span class="o">/</span><span class="n">f2247_hearing_difficulty_exomes</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_difficulty_f2247_171970ind_exomes_hearing_diff_new</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">w</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_difficulty_f2247_171970ind_exomes_hearing_diff_new</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_annotate</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1	58468867	T	C	1:58468867:T:C	0.0717153	0.00923927	1.1587773561551261e-14
+1	58468874	T	C	1:58468874:T:C	0.0715995	0.00922922	1.1937132101928058e-14
+1	58468970	G	T	1:58468970:G:T	0.0593697	0.00684749	5.851941823780803e-18
+1	58506159	G	A	1:58506159:G:A	0.0802067	0.013556499999999999	4.0267994442394125e-09
+1	58506268	C	A	1:58506268:C:A	0.08213530000000001	0.013631799999999998	2.092088248507645e-09
+1	58539307	C	T	1:58539307:C:T	0.0580006	0.00632463	6.44465984741689e-20
+5	272741	A	G	5:272741:A:G	1.19275	0.125574	4.1152857843551e-21
+5	272748	G	C	5:272748:G:C	1.20544	0.13772	3.4268887043278663e-18
+5	272755	A	G	5:272755:A:G	1.17113	0.122546	2.5409727055493115e-21
+5	73773756	A	G	5:73773756:A:G	0.0452337	0.00785184	8.259999099997013e-09
+5	73776529	T	C	5:73776529:T:C	0.04761169999999999	0.0078087	1.0857754055343505e-09
+5	73780632	G	A	5:73780632:G:A	0.0471588	0.00780284	1.5153396952829279e-09
+5	73780649	GT	G	5:73780649:D:1	0.04820119999999999	0.00790071	1.0603274386034904e-09
+5	73780686	C	A	5:73780686:C:A	0.050593	0.00779941	8.741782564005269e-11
+5	73794340	A	AGTT	5:73794340:I:3	0.04749930000000001	0.00777282	9.83105215281768e-10
+5	73794436	T	C	5:73794436:T:C	0.0475961	0.00780922	1.0859254213126253e-09
+5	73795301	T	A	5:73795301:T:A	0.0451906	0.00779547	6.77002075323486e-09
+5	73795403	C	T	5:73795403:C:T	0.044505	0.00779368	1.1303944069211205e-08
+6	43301291	A	C	6:43301291:A:C	0.05248730000000001	0.007990899999999999	4.892152651344186e-11
+6	43302413	C	T	6:43302413:C:T	-0.0469717	0.00858441	4.261475539763847e-08
+6	43305866	A	G	6:43305866:A:G	0.0523539	0.00799111	5.480245321768499e-11
+6	43308652	G	A	6:43308652:G:A	0.05186	0.00797626	7.640116835170198e-11
+6	75841299	A	G	6:75841299:A:G	2.87207	0.5234880000000001	2.826832007002004e-12
+6	133468590	G	A	6:133468590:G:A	0.0478955	0.00833092	9.335336992792562e-09
+6	158071628	C	T	6:158071628:C:T	0.287393	0.0507519	2.5065132226738672e-08
+8	86556416	T	G	8:86556416:T:G	0.0503167	0.00759627	4.11149721104523e-11
+8	86558437	A	C	8:86558437:A:C	0.057500199999999994	0.00846386	1.327700136790083e-11
+8	86558500	C	T	8:86558500:C:T	0.057677599999999996	0.00846839	1.1827691816995279e-11
+10	7292138	G	A	10:7292138:G:A	0.037897900000000005	0.00689304	4.150209307142593e-08
+11	118375306	T	G	11:118375306:T:G	0.107055	0.018939599999999997	1.9533047222277816e-08
+17	41827392	A	C	17:41827392:A:C	0.0427607	0.00765119	2.524236254343612e-08
+17	44848191	C	T	17:44848191:C:T	0.0543679	0.00841803	1.250402979894237e-10
+22	38086345	GTGCGGGAGCGGGACTGGCCATCCCAGTACTCCGAGGGTGCTA	G	22:38086345:D:42	0.048302199999999997	0.00879307	4.1099827584847344e-08
+22	50549676	G	A	22:50549676:G:A	0.13020299999999999	0.018768	5.786287388179515e-12
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">REGENIE_results</span><span class="o">/</span><span class="n">results_exome_data</span><span class="o">/</span><span class="n">f2247_hearing_difficulty_exomes</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_difficulty_f2247_171970ind_exomes_hearing_diff_new</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_stats_original_columns</span><span class="o">.</span><span class="n">gz</span> <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">w</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_difficulty_f2247_171970ind_exomes_hearing_diff_new</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_annotate</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1 58468867 1:58468867:T:C T C 0.13066 ADD 0.0717153 0.00923927 59.6061 13.936 
+1 58468874 1:58468874:T:C T C 0.131478 ADD 0.0715995 0.00922922 59.5475 13.9231 
+1 58468970 1:58468970:G:T G T 0.216891 ADD 0.0593697 0.00684749 74.5703 17.2327 
+1 58506159 1:58506159:G:A G A 0.0685232 ADD 0.0802067 0.0135565 34.6107 8.39504 
+1 58506268 1:58506268:C:A C A 0.0673356 ADD 0.0821353 0.0136318 35.886 8.67942 
+1 58539307 1:58539307:C:T C T 0.245146 ADD 0.0580006 0.00632463 83.4776 19.1908 
+5 272741 5:272741:A:G A G 0.000779296 ADD 1.19275 0.125574 88.9178 20.3856 
+5 272748 5:272748:G:C G C 0.000648584 ADD 1.20544 0.13772 75.6268 17.4651 
+5 272755 5:272755:A:G A G 0.000817041 ADD 1.17113 0.122546 89.8718 20.595 
+5 73773756 5:73773756:A:G A G 0.548953 ADD 0.0452337 0.00785184 33.2129 8.08302 
+5 73776529 5:73776529:T:C T C 0.467749 ADD 0.0476117 0.0078087 37.1644 8.96426 
+5 73780632 5:73780632:G:A G A 0.465742 ADD 0.0471588 0.00780284 36.5145 8.81949 
+5 73780649 5:73780649:D:1 GT G 0.472223 ADD 0.0482012 0.00790071 37.2107 8.97456 
+5 73780686 5:73780686:C:A C A 0.501643 ADD 0.050593 0.00779941 42.0843 10.0584 
+5 73794340 5:73794340:I:3 A AGTT 0.519526 ADD 0.0474993 0.00777282 37.3581 9.0074 
+5 73794436 5:73794436:T:C T C 0.525264 ADD 0.0475961 0.00780922 37.1641 8.9642 
+5 73795301 5:73795301:T:A T A 0.479205 ADD 0.0451906 0.00779547 33.5998 8.16941 
+5 73795403 5:73795403:C:T C T 0.479288 ADD 0.044505 0.00779368 32.603 7.94677 
+6 43301291 6:43301291:A:C A C 0.607826 ADD 0.0524873 0.0079909 43.2198 10.3105 
+6 43302413 6:43302413:C:T C T 0.293957 ADD -0.0469717 0.00858441 30.0266 7.37044 
+6 43305866 6:43305866:A:G A G 0.607848 ADD 0.0523539 0.00799111 42.9977 10.2612 
+6 43308652 6:43308652:G:A G A 0.607902 ADD 0.05186 0.00797626 42.3478 10.1169 
+6 75841299 6:75841299:A:G A G 8.72245e-05 ADD 2.87207 0.523488 48.8053 11.5487 
+6 133468590 6:133468590:G:A G A 0.318255 ADD 0.0478955 0.00833092 32.975 8.02987 
+6 158071628 6:158071628:C:T C T 0.00531197 ADD 0.287393 0.0507519 31.0563 7.60093 
+8 86556416 8:86556416:T:G T G 0.180952 ADD 0.0503167 0.00759627 43.5599 10.386 
+8 86558437 8:86558437:A:C A C 0.155596 ADD 0.0575002 0.00846386 45.773 10.8769 
+8 86558500 8:86558500:C:T C T 0.15264 ADD 0.0576776 0.00846839 45.9998 10.9271 
+10 7292138 10:7292138:G:A G A 0.225962 ADD 0.0378979 0.00689304 30.078 7.38193 
+11 118375306 11:118375306:T:G T G 0.0426002 ADD 0.107055 0.0189396 31.5405 7.70923 
+17 41827392 17:41827392:A:C A C 0.179982 ADD 0.0427607 0.00765119 31.0426 7.59787 
+17 44848191 17:44848191:C:T C T 0.155716 ADD 0.0543679 0.00841803 41.3846 9.90295 
+22 38086345 22:38086345:D:42 GTGCGGGAGCGGGACTGGCCATCCCAGTACTCCGAGGGTGCTA G 0.292764 ADD 0.0483022 0.00879307 30.0969 7.38616 
+22 50549676 22:50549676:G:A G A 0.0430395 ADD 0.130203 0.018768 47.4005 11.2376 
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">REGENIE_results</span><span class="o">/</span><span class="n">results_exome_data</span><span class="o">/</span><span class="n">f2247_f2257_combined_exomes</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_f2247_f2257_136862ind_exomes_f2247_f2257</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">w</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_f2247_f2257_136862ind_exomes_f2247_f2257</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_annotate</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1	46132597	C	A	1:46132597:C:A	-0.048425199999999995	0.00873988	2.9676316895317354e-08
+1	58468867	T	C	1:58468867:T:C	0.0679535	0.010248700000000001	4.1133910615245514e-11
+1	58468874	T	C	1:58468874:T:C	0.0689153	0.0102364	2.0682355559317648e-11
+1	58468970	G	T	1:58468970:G:T	0.0606005	0.00760586	2.052579560952533e-15
+1	58506159	G	A	1:58506159:G:A	0.0846227	0.0150871	2.4171299521044176e-08
+1	58506268	C	A	1:58506268:C:A	0.0862086	0.0151635	1.5624999063995115e-08
+1	58539307	C	T	1:58539307:C:T	0.0607587	0.00701922	6.366489102003704e-18
+5	272741	A	G	5:272741:A:G	1.3423	0.14832599999999999	6.737518954705801e-20
+5	272748	G	C	5:272748:G:C	1.33381	0.162199	1.0801896208818909e-16
+5	272755	A	G	5:272755:A:G	1.30036	0.143215	6.297961479295158e-20
+5	73773756	A	G	5:73773756:A:G	0.052482299999999996	0.00871943	1.727547510306292e-09
+5	73776529	T	C	5:73776529:T:C	0.0514956	0.00867282	2.9077696549191336e-09
+5	73780632	G	A	5:73780632:G:A	0.0511833	0.00866646	3.527361740282659e-09
+5	73780649	GT	G	5:73780649:D:1	0.0524759	0.00877407	2.2297696506992548e-09
+5	73780686	C	A	5:73780686:C:A	0.05612809999999999	0.00866665	9.356210840627022e-11
+5	73794340	A	AGTT	5:73794340:I:3	0.053645500000000006	0.00863391	5.140318154262012e-10
+5	73794436	T	C	5:73794436:T:C	0.052490499999999995	0.00867174	1.4078941357986643e-09
+5	73795301	T	A	5:73795301:T:A	0.050319	0.00865905	6.219564843271939e-09
+5	73795403	C	T	5:73795403:C:T	0.0494952	0.00865717	1.0851005909504758e-08
+6	33189182	A	G	6:33189182:A:G	1.8974099999999998	0.364168	2.1426439059235436e-08
+6	43301291	A	C	6:43301291:A:C	0.0642934	0.00889483	4.634469197362865e-13
+6	43302413	C	T	6:43302413:C:T	-0.052045100000000004	0.00955062	4.8281416152936425e-08
+6	43305866	A	G	6:43305866:A:G	0.06419580000000001	0.00889485	5.025739801095915e-13
+6	43308652	G	A	6:43308652:G:A	0.0634645	0.00887844	8.336811846196331e-13
+6	75362956	T	C	6:75362956:T:C	1.85378	0.350327	1.610015288290602e-08
+6	75841299	A	G	6:75841299:A:G	3.8865	0.8627049999999999	7.549183812702828e-14
+6	158071628	C	T	6:158071628:C:T	0.32104	0.0559261	1.592172065512453e-08
+8	86556416	T	G	8:86556416:T:G	0.053445900000000005	0.00842771	2.6190874527768585e-10
+8	86558437	A	C	8:86558437:A:C	0.0615681	0.00938904	6.514783683512204e-11
+8	86558500	C	T	8:86558500:C:T	0.061608500000000004	0.00939653	6.573550444548967e-11
+22	38086345	GTGCGGGAGCGGGACTGGCCATCCCAGTACTCCGAGGGTGCTA	G	22:38086345:D:42	0.0539385	0.00977336	3.5535301125693476e-08
+22	50549676	G	A	22:50549676:G:A	0.117595	0.020826400000000002	2.0104811242075885e-08
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">REGENIE_results</span><span class="o">/</span><span class="n">results_exome_data</span><span class="o">/</span><span class="n">f2247_f2257_combined_exomes</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_f2247_f2257_136862ind_exomes_f2247_f2257</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_stats_original_columns</span><span class="o">.</span><span class="n">gz</span> <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">w</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_f2247_f2257_136862ind_exomes_f2247_f2257</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">snp_annotate</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1 46132597 1:46132597:C:A C A 0.436179 ADD -0.0484252 0.00873988 30.7286 7.52759 
+1 58468867 1:58468867:T:C T C 0.131799 ADD 0.0679535 0.0102487 43.559 10.3858 
+1 58468874 1:58468874:T:C T C 0.132606 ADD 0.0689153 0.0102364 44.9052 10.6844 
+1 58468970 1:58468970:G:T G T 0.218038 ADD 0.0606005 0.00760586 63.0138 14.6877 
+1 58506159 1:58506159:G:A G A 0.0686777 ADD 0.0846227 0.0150871 31.1268 7.6167 
+1 58506268 1:58506268:C:A C A 0.0675475 ADD 0.0862086 0.0151635 31.974 7.80618 
+1 58539307 1:58539307:C:T C T 0.2466 ADD 0.0607587 0.00701922 74.4039 17.1961 
+5 272741 5:272741:A:G A G 0.000730754 ADD 1.3423 0.148326 83.3895 19.1715 
+5 272748 5:272748:G:C G C 0.000610304 ADD 1.33381 0.162199 68.8173 15.9665 
+5 272755 5:272755:A:G A G 0.00077819 ADD 1.30036 0.143215 83.5229 19.2008 
+5 73773756 5:73773756:A:G A G 0.548568 ADD 0.0524823 0.00871943 36.2591 8.76257 
+5 73776529 5:73776529:T:C T C 0.467546 ADD 0.0514956 0.00867282 35.2447 8.53644 
+5 73780632 5:73780632:G:A G A 0.465594 ADD 0.0511833 0.00866646 34.8685 8.45255 
+5 73780649 5:73780649:D:1 GT G 0.472041 ADD 0.0524759 0.00877407 35.7618 8.65174 
+5 73780686 5:73780686:C:A C A 0.501747 ADD 0.0561281 0.00866665 41.9514 10.0289 
+5 73794340 5:73794340:I:3 A AGTT 0.519444 ADD 0.0536455 0.00863391 38.6232 9.28901 
+5 73794436 5:73794436:T:C T C 0.525102 ADD 0.0524905 0.00867174 36.6579 8.85143 
+5 73795301 5:73795301:T:A T A 0.479245 ADD 0.050319 0.00865905 33.7648 8.20624 
+5 73795403 5:73795403:C:T C T 0.479311 ADD 0.0494952 0.00865717 32.6825 7.96453 
+6 33189182 6:33189182:A:G A G 0.000138826 ADD 1.89741 0.364168 31.3608 7.66905 
+6 43301291 6:43301291:A:C A C 0.608184 ADD 0.0642934 0.00889483 52.3542 12.334 
+6 43302413 6:43302413:C:T C T 0.29373 ADD -0.0520451 0.00955062 29.7846 7.31622 
+6 43305866 6:43305866:A:G A G 0.608208 ADD 0.0641958 0.00889485 52.1948 12.2988 
+6 43308652 6:43308652:G:A G A 0.60825 ADD 0.0634645 0.00887844 51.2011 12.079 
+6 75362956 6:75362956:T:C T C 0.000146138 ADD 1.85378 0.350327 31.9158 7.79317 
+6 75841299 6:75841299:A:G A G 9.49862e-05 ADD 3.8865 0.862705 55.9198 13.1221 
+6 158071628 6:158071628:C:T C T 0.00541056 ADD 0.32104 0.0559261 31.9375 7.79801 
+8 86556416 8:86556416:T:G T G 0.182239 ADD 0.0534459 0.00842771 39.9398 9.58185 
+8 86558437 8:86558437:A:C A C 0.156703 ADD 0.0615681 0.00938904 42.6595 10.1861 
+8 86558500 8:86558500:C:T C T 0.153673 ADD 0.0616085 0.00939653 42.6421 10.1822 
+22 38086345 22:38086345:D:42 GTGCGGGAGCGGGACTGGCCATCCCAGTACTCCGAGGGTGCTA G 0.292271 ADD 0.0539385 0.00977336 30.379 7.44934 
+22 50549676 22:50549676:G:A G A 0.0433977 ADD 0.117595 0.0208264 31.4844 7.6967 
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">f2247_f2257_combined</span><span class="o">/</span><span class="mi">200828</span><span class="n">_UKBB_f2247_f2257_f2247_f2257</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> <span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;{print $5}&#39;</span> <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">w</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_f2247_f2257_136862ind_exomes_f2247_f2257</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">hg38_multianno</span><span class="o">.</span><span class="n">csv</span><span class="o">.</span><span class="n">hg38_multianno</span><span class="o">.</span><span class="n">snplist</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>rs1707304
+rs697591
+rs822062
+rs338240
+rs3087585
+rs11207245
+rs4704097
+rs7714670
+rs11949860
+rs6453022
+rs10683146
+rs7716253
+rs2973549
+rs2973548
+rs1574430
+rs2270860
+rs2242416
+rs2254303
+rs146694394
+rs2304787
+rs1062850
+rs1062851
+rs36062310
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">f2247_hearing_difficulty</span><span class="o">/</span><span class="mi">200828</span><span class="n">_UKBB_Hearing_difficulty_f2247_hearing_diff_new</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> <span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;{print $5}&#39;</span> <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">w</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_difficulty_f2247_171970ind_exomes_hearing_diff_new</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">hg38_multianno</span><span class="o">.</span><span class="n">snplist</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>rs697591
+rs822062
+rs338240
+rs3087585
+rs11207245
+rs4704097
+rs7714670
+rs11949860
+rs6453022
+rs10683146
+rs7716253
+rs2973549
+rs2973548
+rs1574430
+rs2270860
+rs2242416
+rs2254303
+rs9493627
+rs146694394
+rs2304787
+rs1062850
+rs1062851
+rs749165
+rs112243842
+rs9896766
+rs12164
+rs36062310
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">f2257_hearing_background_noise</span><span class="o">/</span><span class="mi">200828</span><span class="n">_UKBB_Hearing_background_noise_f2257_hearing_noise_cat</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> <span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;{print $5}&#39;</span> <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">w</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_background_noise_f2257_175531ind_exomes_hearing_noise_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">hg38_multianno</span><span class="o">.</span><span class="n">snplist</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>rs1574430
+rs2242416
+rs2254303
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">f3393_hearing_aid</span><span class="o">/</span><span class="mi">200828</span><span class="n">_UKBB_Hearing_aid_f3393_hearing_aid_cat</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> <span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;{print $5}&#39;</span> <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">w</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="mo">010421</span><span class="n">_UKBB_Hearing_aid_f3393_128254ind_exomes_hearing_aid_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">hg38_multianno</span><span class="o">.</span><span class="n">snplist</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="To-get-the-snps-from-the-csv-file">To get the snps from the csv file<a class="anchor-link" href="#To-get-the-snps-from-the-csv-file">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">cat</span> <span class="mo">010421</span><span class="n">_UKBB_Hearing_difficulty_f2247_171970ind_exomes_hearing_diff_new</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">hg38_multianno</span><span class="o">.</span><span class="n">csv</span> <span class="o">|</span> <span class="n">awk</span> <span class="o">-</span><span class="n">vFPAT</span><span class="o">=</span><span class="s1">&#39;([^,]*)|(&quot;[^&quot;]+&quot;)&#39;</span> <span class="o">-</span><span class="n">vOFS</span><span class="o">=</span><span class="p">,</span> <span class="s1">&#39;{print $77}&#39;</span> <span class="o">|</span> <span class="n">sed</span> <span class="s1">&#39;s/&quot;//g&#39;</span> <span class="o">&gt;</span> <span class="mo">010421</span><span class="n">_UKBB_Hearing_difficulty_f2247_171970ind_exomes_hearing_diff_new</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">hg38_multianno</span><span class="o">.</span><span class="n">snplist</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">cat</span> <span class="mo">010421</span><span class="n">_UKBB_Hearing_background_noise_f2257_175531ind_exomes_hearing_noise_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">hg38_multianno</span><span class="o">.</span><span class="n">csv</span> <span class="o">|</span> <span class="n">awk</span> <span class="o">-</span><span class="n">vFPAT</span><span class="o">=</span><span class="s1">&#39;([^,]*)|(&quot;[^&quot;]+&quot;)&#39;</span> <span class="o">-</span><span class="n">vOFS</span><span class="o">=</span><span class="p">,</span> <span class="s1">&#39;{print $77}&#39;</span> <span class="o">|</span> <span class="n">sed</span> <span class="s1">&#39;s/&quot;//g&#39;</span> <span class="o">&gt;</span> <span class="mo">010421</span><span class="n">_UKBB_Hearing_background_noise_f2257_175531ind_exomes_hearing_noise_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">hg38_multianno</span><span class="o">.</span><span class="n">snplist</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">cat</span> <span class="mo">010421</span><span class="n">_UKBB_Hearing_aid_f3393_128254ind_exomes_hearing_aid_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">hg38_multianno</span><span class="o">.</span><span class="n">csv</span> <span class="o">|</span> <span class="n">awk</span> <span class="o">-</span><span class="n">vFPAT</span><span class="o">=</span><span class="s1">&#39;([^,]*)|(&quot;[^&quot;]+&quot;)&#39;</span> <span class="o">-</span><span class="n">vOFS</span><span class="o">=</span><span class="p">,</span> <span class="s1">&#39;{print $77}&#39;</span> <span class="o">|</span> <span class="n">sed</span> <span class="s1">&#39;s/&quot;//g&#39;</span> <span class="o">&gt;</span> <span class="mo">010421</span><span class="n">_UKBB_Hearing_aid_f3393_128254ind_exomes_hearing_aid_cat</span><span class="o">.</span><span class="n">regenie</span><span class="o">.</span><span class="n">hg38_multianno</span><span class="o">.</span><span class="n">snplist</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<hr>
+&copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/804a49e20903d8a6a7eafcb7472453c5ea2dcde8/workflow/snptogene.ipynb"><code>workflow/snptogene.ipynb</code></a> committed by dc2325 on Fri Feb 19 22:22:36 2021 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/804a49e20903d8a6a7eafcb7472453c5ea2dcde8">revision 6, 804a49e</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+</div>
+</div>
+</body>
+</html>

@@ -239,7 +239,7 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Phenotype-data-summary-and-transformation">Phenotype data summary and transformation<a class="anchor-link" href="#Phenotype-data-summary-and-transformation">&#182;</a></h1><p>Here I evaluate quantitative phenotypes for normality, and explore various transformation approaches by looking at distribution of quantitative traits, qq-plots, standadization and inverse rank normalization.</p>
+<h1 id="Phenotype-data-summary-and-IRN-transformation">Phenotype data summary and IRN transformation<a class="anchor-link" href="#Phenotype-data-summary-and-IRN-transformation">&#182;</a></h1><p>Here I evaluate quantitative phenotypes for normality, and explore various transformation approaches by looking at distribution of quantitative traits, qq-plots, standadization and inverse rank normalization.</p>
 
 </div>
 </div>
@@ -247,7 +247,15 @@ body {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Motivation">Motivation<a class="anchor-link" href="#Motivation">&#182;</a></h2>
+<h2 id="Motivation">Motivation<a class="anchor-link" href="#Motivation">&#182;</a></h2><p>To understand the distribution of different traits:</p>
+<ul>
+<li>BMI</li>
+<li>WHR</li>
+<li>Waist circumference</li>
+<li>Hip circumference</li>
+<li>Waist to Hip Ratio</li>
+</ul>
+
 </div>
 </div>
 </div>
@@ -3929,7 +3937,7 @@ height=420
 
 <span class="n">bmi_qqplot</span> <span class="o">=</span> <span class="n">ggqqplot</span><span class="p">(</span><span class="n">df</span><span class="err">$</span><span class="n">BMI</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;QQ plot BMI UKB Caucasian&quot;</span><span class="p">)</span>
 <span class="n">png</span><span class="p">(</span><span class="s2">&quot;QQplot_BMI_UKB_Caucasian.png&quot;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">bmi_qqplot</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">bmi_qqplot</span><span class="p">)</span>
 <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
 </pre></div>
 
@@ -4057,7 +4065,7 @@ width=50%
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="n">waist_circum_qqplot</span> <span class="o">=</span> <span class="n">ggqqplot</span><span class="p">(</span><span class="n">df</span><span class="err">$</span><span class="n">WAIST</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;QQ plot Waist circumference UKB Caucasian&quot;</span> <span class="p">)</span>
 <span class="n">png</span><span class="p">(</span><span class="s2">&quot;QQplot_WAIST_UKB_Caucasian.png&quot;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">waist_circum_qqplot</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">waist_circum_qqplot</span><span class="p">)</span>
 <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
 </pre></div>
 
@@ -4155,7 +4163,7 @@ width=50%
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="n">hip_circum_qqplot</span> <span class="o">=</span> <span class="n">ggqqplot</span><span class="p">(</span><span class="n">df</span><span class="err">$</span><span class="n">HIP</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;QQ plot Hip circumference UKB Caucasian&quot;</span><span class="p">)</span>
 <span class="n">png</span><span class="p">(</span><span class="s2">&quot;QQplot_HIP_UKB_Caucasian.png&quot;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">hip_circum_qqplot</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">hip_circum_qqplot</span><span class="p">)</span>
 <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
 </pre></div>
 
@@ -4253,7 +4261,7 @@ width=50%
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="n">whr_qqplot</span> <span class="o">=</span> <span class="n">ggqqplot</span><span class="p">(</span><span class="n">df</span><span class="err">$</span><span class="n">WHR</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;QQ plot Waist to hip ratio UKB Caucasian&quot;</span><span class="p">)</span>
 <span class="n">png</span><span class="p">(</span><span class="s2">&quot;QQplot_WHR_UKB_Caucasian.png&quot;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">whr_qqplot</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">whr_qqplot</span><span class="p">)</span>
 <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
 </pre></div>
 
@@ -4548,7 +4556,7 @@ Traceback:
   <span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Density plot for INT-BMI&quot;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;rankNorm_BMI&quot;</span><span class="p">)</span> <span class="o">+</span> 
   <span class="n">theme_classic</span><span class="p">()</span>
 <span class="n">png</span><span class="p">(</span><span class="s2">&quot;Density_plot_INT-BMI_UKB_Caucasian.png&quot;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">INT_BMI_density_plot</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">INT_BMI_density_plot</span><span class="p">)</span>
 <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
 </pre></div>
 
@@ -4598,7 +4606,7 @@ Traceback:
   <span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;QQ plot for INT-BMI UKB-EUR&quot;</span><span class="p">)</span><span class="o">+</span>
   <span class="n">theme_classic</span><span class="p">()</span>
 <span class="n">png</span><span class="p">(</span><span class="s2">&quot;QQplot_INT-BMI_UKB_Caucasian.png&quot;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">INT_BMI_qqplot</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">INT_BMI_qqplot</span><span class="p">)</span>
 <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
 </pre></div>
 
@@ -4636,7 +4644,7 @@ Traceback:
   <span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;QQ plot for INT-WAIST UKB-EUR&quot;</span><span class="p">)</span><span class="o">+</span>
   <span class="n">theme_classic</span><span class="p">()</span>
 <span class="n">png</span><span class="p">(</span><span class="s2">&quot;QQplot_INT-WAIST_UKB_Caucasian.png&quot;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">INT_WAIST_qqplot</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">INT_WAIST_qqplot</span><span class="p">)</span>
 <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
 </pre></div>
 
@@ -4674,7 +4682,7 @@ Traceback:
   <span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;QQ plot for INT-WHR UKB-EUR&quot;</span><span class="p">)</span><span class="o">+</span>
   <span class="n">theme_classic</span><span class="p">()</span>
 <span class="n">png</span><span class="p">(</span><span class="s2">&quot;QQplot_INT-WHR_UKB_Caucasian.png&quot;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">INT_WHR_qqplot</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">INT_WHR_qqplot</span><span class="p">)</span>
 <span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
 </pre></div>
 
@@ -4709,13 +4717,13 @@ Traceback:
     <div class="input_area">
 <div class=" highlight hl-sos"><pre><span></span><span class="c1"># Write new dataframe to file</span>
 
-<span class="n">write</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">df_complete_BMI</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="s2">&quot;UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720&quot;</span><span class="p">,</span> <span class="n">append</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">dec</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
+<span class="n">write</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">df_complete_BMI</span><span class="p">,</span> <span class="nb">file</span> <span class="o">=</span> <span class="s2">&quot;UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720&quot;</span><span class="p">,</span> <span class="n">append</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">dec</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
             <span class="n">row</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">,</span> <span class="n">col</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">,</span> <span class="n">quote</span><span class="o">=</span><span class="n">FALSE</span><span class="p">)</span>
 
-<span class="n">write</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">df_complete_WHR</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="s2">&quot;UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WHR_withagesex_042020&quot;</span><span class="p">,</span> <span class="n">append</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">dec</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
+<span class="n">write</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">df_complete_WHR</span><span class="p">,</span> <span class="nb">file</span> <span class="o">=</span> <span class="s2">&quot;UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WHR_withagesex_042020&quot;</span><span class="p">,</span> <span class="n">append</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">dec</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
             <span class="n">row</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">,</span> <span class="n">col</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">,</span> <span class="n">quote</span><span class="o">=</span><span class="n">FALSE</span><span class="p">)</span>
 
-<span class="n">write</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">df_complete_WAIST</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="s2">&quot;UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WAIST_withagesex_042020&quot;</span><span class="p">,</span> <span class="n">append</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">dec</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
+<span class="n">write</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">df_complete_WAIST</span><span class="p">,</span> <span class="nb">file</span> <span class="o">=</span> <span class="s2">&quot;UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WAIST_withagesex_042020&quot;</span><span class="p">,</span> <span class="n">append</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">dec</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
             <span class="n">row</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">,</span> <span class="n">col</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">,</span> <span class="n">quote</span><span class="o">=</span><span class="n">FALSE</span><span class="p">)</span>
 </pre></div>
 
@@ -18828,8 +18836,7 @@ height=420
 </div>
 <hr>
 &copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/ef9969deb64a10116cfc1e41367e3030a705958e/analysis/phenotype_analysis.ipynb"><code>analysis/phenotype_analysis.ipynb</code></a> committed by dc2325 on Mon Nov 16 11:29:01 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/ef9969deb64a10116cfc1e41367e3030a705958e">revision 4, ef9969d</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
-<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/1b267265f1c863f5d07de63307b835883a928476/analysis/phenotype_analysis.ipynb"><code>analysis/phenotype_analysis.ipynb</code></a> committed by Gao Wang on Mon Jun 15 22:39:49 2020 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/1b267265f1c863f5d07de63307b835883a928476">revision 2, 1b26726</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/804a49e20903d8a6a7eafcb7472453c5ea2dcde8/analysis/phenotypes/pheno_analysis_pleiotropy.ipynb"><code>analysis/phenotypes/pheno_analysis_pleiotropy.ipynb</code></a> committed by dc2325 on Fri Feb 19 22:22:36 2021 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/804a49e20903d8a6a7eafcb7472453c5ea2dcde8">revision 1, 804a49e</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
 </div>
 </div>
 </body>

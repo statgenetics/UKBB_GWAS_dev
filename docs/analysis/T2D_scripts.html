@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="ipynb_website:version" content="0.9.7" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link rel="stylesheet" type="text/css" href="../css/jt.css">
+
+<link rel="stylesheet" type="text/css" href="../css/toc2.css">
+
+<link href="../site_libs/jqueryui-1.11.4/jquery-ui.css">
+<link rel="stylesheet" href="../site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="../site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+
+<link rel="stylesheet"
+      href="../site_libs/highlightjs/null.min.css"
+      type="text/css" />
+
+<script src="../site_libs/highlightjs/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+<script src="../js/doc_toc.js"></script>
+<script src="../js/docs.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script>
+    MathJax.Hub.Config({
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+        },
+        "HTML-CSS": {
+            preferredFont: "TeX",
+            availableFonts: ["TeX"],
+            styles: {
+                scale: 110,
+                ".MathJax_Display": {
+                    "font-size": "110%",
+                }
+            }
+        }
+    });
+</script>
+<script>
+function filterDataFrame(id) {
+    var input = document.getElementById("search_" + id);
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("dataframe_" + id);
+    var tr = table.getElementsByTagName("tr");
+    // Loop through all table rows, and hide those who don't match the search query
+    for (var i = 1; i < tr.length; i++) {
+        for (var j = 0; j < tr[i].cells.length; ++j) {
+            var matched = false;
+            if (tr[i].cells[j].innerHTML.toUpperCase().indexOf(filter) != -1) {
+                tr[i].style.display = "";
+                matched = true
+                break;
+            }
+            if (!matched)
+                tr[i].style.display = "none";
+        }
+    }
+}
+function sortDataFrame(id, n, dtype) {
+    var table = document.getElementById("dataframe_" + id);
+    var tb = table.tBodies[0]; // use `<tbody>` to ignore `<thead>` and `<tfoot>` rows
+    var tr = Array.prototype.slice.call(tb.rows, 0); // put rows into array
+    if (dtype === 'numeric') {
+        var fn = function(a, b) { 
+            return parseFloat(a.cells[n].textContent) <= parseFloat(b.cells[n].textContent) ? -1 : 1;
+        }
+    } else {
+        var fn = function(a, b) {
+            var c = a.cells[n].textContent.trim().localeCompare(b.cells[n].textContent.trim()); 
+            return c > 0 ? 1 : (c < 0 ? -1 : 0) }
+    }
+    var isSorted = function(array, fn) {
+        if (array.length < 2)
+            return 1;
+        var direction = fn(array[0], array[1]); 
+        for (var i = 1; i < array.length - 1; ++i) {
+            var d = fn(array[i], array[i+1]);
+            if (d == 0)
+                continue;
+            else if (direction == 0)
+                direction = d;
+            else if (direction != d)
+                return 0;
+            }
+        return direction;
+    }
+    var sorted = isSorted(tr, fn);
+    if (sorted == 1 || sorted == -1) {
+        // if sorted already, reverse it
+        for(var i = tr.length - 1; i >= 0; --i)
+            tb.appendChild(tr[i]); // append each row in order
+    } else {
+        tr = tr.sort(fn);
+        for(var i = 0; i < tr.length; ++i)
+            tb.appendChild(tr[i]); // append each row in order
+    }
+}
+</script>
+
+<script>
+$( document ).ready(function(){
+            var cfg={'threshold':3,     // depth of toc (number of levels)
+             'number_sections': false,
+             'toc_cell': false,          // useless here
+             'toc_window_display': true, // display the toc window
+             "toc_section_display": "block", // display toc contents in the window
+             'sideBar':true,       // sidebar or floating window
+             'navigate_menu':false       // navigation menu (only in liveNotebook -- do not change)
+            }
+            var st={};                  // some variables used in the script
+            st.rendering_toc_cell = false;
+            st.config_loaded = false;
+            st.extension_initialized=false;
+            st.nbcontainer_marginleft = $('#notebook-container').css('margin-left')
+            st.nbcontainer_marginright = $('#notebook-container').css('margin-right')
+            st.nbcontainer_width = $('#notebook-container').css('width')
+            st.oldTocHeight = undefined
+            st.cell_toc = undefined;
+            st.toc_index=0;
+            // fire the main function with these parameters
+            table_of_contents(cfg, st);
+            var file=analysisDict[$("h1:first").attr("id")];
+            $("#toc-level0 a").css("color","#126dce");
+            $('a[href="#'+$("h1:first").attr("id")+'"]').hide()
+            var docs=analysisArray;
+            var docs_map=analysisArrayMap;
+            var pos=analysisArray.indexOf(file);
+            for (var a=pos;a>=0;a--){
+                  $('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>').insertBefore("#toc-level0 li:eq(0)");
+            }
+            $('a[href="'+file+'.html'+'"]').css("color","#126dce");
+            for (var a=pos+1;a<docs.length;a++){
+                  $(".toc #toc-level0").append('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>');
+            }
+            // $("#toc-header").hide(); // comment out because it prevents search bar from displaying
+    });
+</script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+  // mark it active
+  menuAnchor.parent().addClass('active');
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+<div class="container-fluid main-container">
+<!-- tabsets -->
+<script src="../site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+
+
+<title>Pleiotropy analysis in UKBB</title>
+
+<style type = "text/css">
+body {
+  font-family: "Droid Sans";
+  padding-top: 66px;
+  padding-bottom: 40px;
+}
+</style>
+</head>
+
+<body>
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+<div class="container" id="notebook-container">
+
+<!-- code folding -->
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="../index.html">Pleiotropy analysis in UKBB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+<li>
+  <a href="../index.html">Overview</a>
+</li>
+        
+<li>
+  <a href="../workflow.html">Workflow</a>
+</li>
+        
+<li>
+  <a href="../analysis.html">Analysis</a>
+</li>
+        
+      </ul>
+        
+<ul class="nav navbar-nav navbar-right">
+<li>
+   <a href="http://github.com/dianacornejo/pleiotropy_UKB"> <span class="fa fa-github"></span> </a>
+</li>
+</ul>
+        
+      </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Analysis-of-type-2-diabetes-(T2D)">Analysis of type 2 diabetes (T2D)<a class="anchor-link" href="#Analysis-of-type-2-diabetes-(T2D)">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This notebook applies the <code>Get_Job_Script.ipynb</code> to automatically generate the sbatch scripts to run in Yale's cluster. The end result is to apply <a href="https://github.com/statgenetics/UKBB_GWAS_dev/tree/master/workflow">various LMM workflows</a> to perform association analysis in the T2D trait, do clumping analysis and extract associated regions.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="File-paths-on-Yale-cluster">File paths on Yale cluster<a class="anchor-link" href="#File-paths-on-Yale-cluster">&#182;</a></h2><ul>
+<li>Genotype files in PLINK format:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/pleiotropy_geneticfiles/UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv</code></li>
+<li>Genotype files in bgen format:
+<code>SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/</code></li>
+<li>Summary stats for imputed variants BOLT-LMM:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/BOLTLMM_results/results_imputed_data</code></li>
+<li>Summary stats for inputed variants FastGWA:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/FastGWA_results/results_imputed_data</code></li>
+<li>Phenotype files:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis</code></li>
+<li>Relationship file:
+<code>/gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/pleiotropy_geneticfiles/unrelated_n307259/UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620</code></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="07/01/20-analysis">07/01/20 analysis<a class="anchor-link" href="#07/01/20-analysis">&#182;</a></h2><p>On the cluster, open up this notebook using the JupyterLab server you set up via the ssh channel, then run the following cells,</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Bash-variables-for-workflow-configuration">Bash variables for workflow configuration<a class="anchor-link" href="#Bash-variables-for-workflow-configuration">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-bash"><pre><span></span><span class="c1"># Common variables</span>
+<span class="nv">tpl_file</span><span class="o">=</span>../farnam.yml
+<span class="nv">bfile</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/pleiotropy_geneticfiles/UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv.bed
+<span class="nv">sampleFile</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb32285_imputedindiv.sample
+<span class="nv">bgenFile</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> /gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/ukb39554_imputeddataset/ukb_imp_chr<span class="o">{</span><span class="m">1</span>..22<span class="o">}</span>_v3.bgen<span class="sb">`</span>
+<span class="nv">unrelated_samples</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/pleiotropy_geneticfiles/unrelated_n307259/UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620
+<span class="nv">formatFile_fastgwa</span><span class="o">=</span>~/project/UKBB_GWAS_dev/data/fastGWA_template.yml
+<span class="nv">formatFile_bolt</span><span class="o">=</span>~/project/UKBB_GWAS_dev/data/boltlmm_template.yml
+<span class="nv">formatFile_saige</span><span class="o">=</span>~/project/UKBB_GWAS_dev/data/saige_template.yml
+<span class="nv">container_lmm</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/lmm.sif
+<span class="nv">container_marp</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/marp.sif
+<span class="c1"># LMM directories</span>
+<span class="nv">lmm_dir_fastgwa</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/FastGWA_results/results_imputed_data/T2D
+<span class="nv">lmm_dir_bolt</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/BOLTLMM_results/results_imputed_data/T2D
+<span class="nv">lmm_dir_saige</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/SAIGE_results/results_imputed_data/T2D
+<span class="nv">lmm_sos</span><span class="o">=</span>../workflow/LMM.ipynb
+<span class="nv">lmm_sbatch_fastgwa</span><span class="o">=</span>../output/<span class="k">$(</span>date +<span class="s2">&quot;%Y-%m-%d&quot;</span><span class="k">)</span>_T2D-fastgwa.sbatch
+<span class="nv">lmm_sbatch_bolt</span><span class="o">=</span>../output/<span class="k">$(</span>date +<span class="s2">&quot;%Y-%m-%d&quot;</span><span class="k">)</span>_T2D-bolt.sbatch
+<span class="nv">lmm_sbatch_saige</span><span class="o">=</span>../output/<span class="k">$(</span>date +<span class="s2">&quot;%Y-%m-%d&quot;</span><span class="k">)</span>_T2D-saige.sbatch
+<span class="nv">phenoFile</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_030720
+<span class="c1">## LMM variables </span>
+<span class="nv">covarFile</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/phenotype_files/pleiotropy_R01/phenotypesforanalysis/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_030720
+<span class="nv">LDscoresFile</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/LDSCORE.1000G_EUR.tab.gz
+<span class="nv">geneticMapFile</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/genetic_map_hg19_withX.txt.gz
+<span class="nv">phenoCol</span><span class="o">=</span>T2D
+<span class="nv">covarCol</span><span class="o">=</span>SEX
+<span class="nv">covarMaxLevels</span><span class="o">=</span><span class="m">10</span>
+<span class="nv">qCovarCol</span><span class="o">=</span>AGE
+<span class="nv">numThreads</span><span class="o">=</span><span class="m">20</span>
+<span class="nv">bgenMinMAF</span><span class="o">=</span><span class="m">0</span>.001
+<span class="nv">bgenMinINFO</span><span class="o">=</span><span class="m">0</span>.8
+<span class="nv">lmm_job_size</span><span class="o">=</span><span class="m">1</span>
+<span class="c1">### Specific to SAIGE</span>
+<span class="nv">bgenMinMAC</span><span class="o">=</span><span class="m">4</span>
+<span class="nv">trait_type</span><span class="o">=</span>binary
+<span class="nv">loco</span><span class="o">=</span>TRUE
+<span class="nv">sampleCol</span><span class="o">=</span>IID
+<span class="c1"># LD clumping directories</span>
+<span class="nv">clumping_dir</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/LD_clumping/T2D
+<span class="nv">clumping_sos</span><span class="o">=</span>../workflow/LD_Clumping.ipynb
+<span class="nv">clumping_sbatch</span><span class="o">=</span>../output/<span class="k">$(</span>date +<span class="s2">&quot;%Y-%m-%d&quot;</span><span class="k">)</span>_T2D_ldclumping.sbatch
+<span class="c1">## LD clumping variables</span>
+<span class="c1"># For sumtastsFiles if more than one provide each path</span>
+<span class="nv">bfile_ref</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/LD_clumping/UKB_Caucasians_phenotypeindepqc120319_updated020720removedwithdrawnindiv.1210.ref_geno.bed
+<span class="c1"># Changes dependending upon which traits are analyzed</span>
+<span class="c1"># In this case T2D and INT-WHR</span>
+<span class="nv">sumstatsFiles</span><span class="o">=</span><span class="s2">&quot;/gpfs/gibbs/pi/dewan/data/UKBiobank/results/FastGWA_results/results_imputed_data/T2D/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_030720_T2D.fastGWA.snp_stats.gz \</span>
+<span class="s2">              /gpfs/gibbs/pi/dewan/data/UKBiobank/results/BOLTLMM_results/results_imputed_data/INT-WHR/ukb_imp_v3.UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WHR_withagesex_042020.BoltLMM.snp_stats.all_chr.gz&quot;</span>
+<span class="nv">ld_sample_size</span><span class="o">=</span><span class="m">1210</span>
+<span class="nv">clump_field</span><span class="o">=</span>P
+<span class="nv">clump_p1</span><span class="o">=</span>5e-08
+<span class="nv">clump_p2</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">clump_r2</span><span class="o">=</span><span class="m">0</span>.2
+<span class="nv">clump_kb</span><span class="o">=</span><span class="m">2000</span>
+<span class="nv">clump_annotate</span><span class="o">=</span>BP
+<span class="nv">numThreads</span><span class="o">=</span><span class="m">20</span>
+<span class="nv">clump_job_size</span><span class="o">=</span><span class="m">1</span>
+<span class="c1"># Region extraction directories</span>
+<span class="nv">extract_dir</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/region_extraction/T2D
+<span class="nv">extract_sos</span><span class="o">=</span>~/project/bioworkflows/GWAS/Region_Extraction.ipynb
+<span class="nv">extract_sbatch</span><span class="o">=</span>../output/<span class="k">$(</span>date +<span class="s2">&quot;%Y-%m-%d&quot;</span><span class="k">)</span>_T2D-region.sbatch
+<span class="c1">## Region extraction variables</span>
+<span class="nv">region_file</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/LD_clumping/asthma_INT-WHR_T2D/*.clumped_region
+<span class="nv">geno_path</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/UKBB_bgenfilepath.txt
+<span class="nv">sumstats_path</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/FastGWA_results/results_imputed_data/T2D/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_030720_T2D.fastGWA.snp_stats.gz
+<span class="nv">extract_job_size</span><span class="o">=</span><span class="m">10</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="BoltLMM-job">BoltLMM job<a class="anchor-link" href="#BoltLMM-job">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-bash"><pre><span></span><span class="nv">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;boltlmm</span>
+<span class="s2">    --cwd </span><span class="nv">$lmm_dir_bolt</span><span class="s2"> </span>
+<span class="s2">    --bfile </span><span class="nv">$bfile</span><span class="s2"> </span>
+<span class="s2">    --sampleFile </span><span class="nv">$sampleFile</span><span class="s2"></span>
+<span class="s2">    --bgenFile </span><span class="nv">$bgenFile</span><span class="s2"> </span>
+<span class="s2">    --phenoFile </span><span class="nv">$phenoFile</span><span class="s2"> </span>
+<span class="s2">    --formatFile </span><span class="nv">$formatFile_bolt</span><span class="s2"> </span>
+<span class="s2">    --covarFile </span><span class="nv">$covarFile</span><span class="s2"> </span>
+<span class="s2">    --LDscoresFile </span><span class="nv">$LDscoresFile</span><span class="s2"> </span>
+<span class="s2">    --geneticMapFile </span><span class="nv">$geneticMapFile</span><span class="s2"> </span>
+<span class="s2">    --phenoCol </span><span class="nv">$phenoCol</span><span class="s2"> </span>
+<span class="s2">    --covarCol </span><span class="nv">$covarCol</span><span class="s2"> </span>
+<span class="s2">    --covarMaxLevels </span><span class="nv">$covarMaxLevels</span><span class="s2"> </span>
+<span class="s2">    --qCovarCol </span><span class="nv">$qCovarCol</span><span class="s2"> </span>
+<span class="s2">    --numThreads </span><span class="nv">$numThreads</span><span class="s2"> </span>
+<span class="s2">    --bgenMinMAF </span><span class="nv">$bgenMinMAF</span><span class="s2"> </span>
+<span class="s2">    --bgenMinINFO </span><span class="nv">$bgenMinINFO</span><span class="s2"> </span>
+<span class="s2">    --job_size </span><span class="nv">$lmm_job_size</span><span class="s2"></span>
+<span class="s2">    --ylim </span><span class="nv">$ylim</span><span class="s2"></span>
+<span class="s2">    --container_lmm </span><span class="nv">$container_lmm</span><span class="s2"></span>
+<span class="s2">    --container_marp </span><span class="nv">$container_marp</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+sos run ../workflow/Get_Job_Script.ipynb farnam <span class="se">\</span>
+    --template-file <span class="nv">$tpl_file</span> <span class="se">\</span>
+    --workflow-file <span class="nv">$lmm_sos</span> <span class="se">\</span>
+    --to-script <span class="nv">$lmm_sbatch_bolt</span> <span class="se">\</span>
+    --args <span class="s2">&quot;</span><span class="nv">$lmm_args</span><span class="s2">&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="FastGWA-job">FastGWA job<a class="anchor-link" href="#FastGWA-job">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-bash"><pre><span></span><span class="nv">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;fastGWA</span>
+<span class="s2">    --cwd </span><span class="nv">$lmm_dir_fastgwa</span><span class="s2"> </span>
+<span class="s2">    --bfile </span><span class="nv">$bfile</span><span class="s2"> </span>
+<span class="s2">    --sampleFile </span><span class="nv">$sampleFile</span><span class="s2"></span>
+<span class="s2">    --bgenFile </span><span class="nv">$bgenFile</span><span class="s2"> </span>
+<span class="s2">    --phenoFile </span><span class="nv">$phenoFile</span><span class="s2"> </span>
+<span class="s2">    --formatFile </span><span class="nv">$formatFile_fastgwa</span><span class="s2"> </span>
+<span class="s2">    --covarFile </span><span class="nv">$covarFile</span><span class="s2"> </span>
+<span class="s2">    --LDscoresFile </span><span class="nv">$LDscoresFile</span><span class="s2"> </span>
+<span class="s2">    --geneticMapFile </span><span class="nv">$geneticMapFile</span><span class="s2"> </span>
+<span class="s2">    --phenoCol </span><span class="nv">$phenoCol</span><span class="s2"> </span>
+<span class="s2">    --covarCol </span><span class="nv">$covarCol</span><span class="s2"> </span>
+<span class="s2">    --covarMaxLevels </span><span class="nv">$covarMaxLevels</span><span class="s2"> </span>
+<span class="s2">    --qCovarCol </span><span class="nv">$qCovarCol</span><span class="s2"> </span>
+<span class="s2">    --numThreads </span><span class="nv">$numThreads</span><span class="s2"> </span>
+<span class="s2">    --bgenMinMAF </span><span class="nv">$bgenMinMAF</span><span class="s2"> </span>
+<span class="s2">    --bgenMinINFO </span><span class="nv">$bgenMinINFO</span><span class="s2"> </span>
+<span class="s2">    --job_size </span><span class="nv">$lmm_job_size</span><span class="s2"></span>
+<span class="s2">    --ylim </span><span class="nv">$ylim</span><span class="s2"></span>
+<span class="s2">    --container_lmm </span><span class="nv">$container_lmm</span><span class="s2"></span>
+<span class="s2">    --container_marp </span><span class="nv">$container_marp</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+sos run ../workflow/Get_Job_Script.ipynb farnam <span class="se">\</span>
+    --template-file <span class="nv">$tpl_file</span> <span class="se">\</span>
+    --workflow-file <span class="nv">$lmm_sos</span> <span class="se">\</span>
+    --to-script <span class="nv">$lmm_sbatch_fastgwa</span> <span class="se">\</span>
+    --args <span class="s2">&quot;</span><span class="nv">$lmm_args</span><span class="s2">&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="SAIGE-job">SAIGE job<a class="anchor-link" href="#SAIGE-job">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-bash"><pre><span></span><span class="nv">lmm_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;SAIGE</span>
+<span class="s2">    --cwd </span><span class="nv">$lmm_dir_saige</span><span class="s2"> </span>
+<span class="s2">    --bfile </span><span class="nv">$bfile</span><span class="s2"> </span>
+<span class="s2">    --sampleFile </span><span class="nv">$sampleFile</span><span class="s2"></span>
+<span class="s2">    --bgenFile </span><span class="nv">$bgenFile</span><span class="s2"> </span>
+<span class="s2">    --phenoFile </span><span class="nv">$phenoFile</span><span class="s2"> </span>
+<span class="s2">    --formatFile </span><span class="nv">$formatFile_saige</span><span class="s2"> </span>
+<span class="s2">    --covarFile </span><span class="nv">$covarFile</span><span class="s2"> </span>
+<span class="s2">    --LDscoresFile </span><span class="nv">$LDscoresFile</span><span class="s2"> </span>
+<span class="s2">    --geneticMapFile </span><span class="nv">$geneticMapFile</span><span class="s2"> </span>
+<span class="s2">    --phenoCol </span><span class="nv">$phenoCol</span><span class="s2"> </span>
+<span class="s2">    --covarCol </span><span class="nv">$covarCol</span><span class="s2"> </span>
+<span class="s2">    --covarMaxLevels </span><span class="nv">$covarMaxLevels</span><span class="s2"> </span>
+<span class="s2">    --qCovarCol </span><span class="nv">$qCovarCol</span><span class="s2"> </span>
+<span class="s2">    --numThreads </span><span class="nv">$numThreads</span><span class="s2"> </span>
+<span class="s2">    --bgenMinMAF </span><span class="nv">$bgenMinMAF</span><span class="s2"> </span>
+<span class="s2">    --bgenMinINFO </span><span class="nv">$bgenMinINFO</span><span class="s2"> </span>
+<span class="s2">    --bgenMinMAC </span><span class="nv">$bgenMinMAC</span><span class="s2"></span>
+<span class="s2">    --trait_type </span><span class="nv">$trait_type</span><span class="s2"></span>
+<span class="s2">    --loco </span><span class="nv">$loco</span><span class="s2"></span>
+<span class="s2">    --sampleCol </span><span class="nv">$sampleCol</span><span class="s2"></span>
+<span class="s2">    --job_size </span><span class="nv">$lmm_job_size</span><span class="s2"></span>
+<span class="s2">    --ylim </span><span class="nv">$ylim</span><span class="s2"></span>
+<span class="s2">    --container_lmm </span><span class="nv">$container_lmm</span><span class="s2"></span>
+<span class="s2">    --container_marp </span><span class="nv">$container_marp</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+sos run ../workflow/Get_Job_Script.ipynb farnam <span class="se">\</span>
+    --template-file <span class="nv">$tpl_file</span> <span class="se">\</span>
+    --workflow-file <span class="nv">$lmm_sos</span> <span class="se">\</span>
+    --to-script <span class="nv">$lmm_sbatch_saige</span> <span class="se">\</span>
+    --args <span class="s2">&quot;</span><span class="nv">$lmm_args</span><span class="s2">&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="LD-clumping-job">LD clumping job<a class="anchor-link" href="#LD-clumping-job">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-bash"><pre><span></span><span class="nv">clumping_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;default </span>
+<span class="s2">    --cwd </span><span class="nv">$clumping_dir</span><span class="s2"> </span>
+<span class="s2">    --bfile_ref </span><span class="nv">$bfile_ref</span><span class="s2"> </span>
+<span class="s2">    --bgenFile </span><span class="nv">$bgenFile</span><span class="s2"></span>
+<span class="s2">    --sampleFile </span><span class="nv">$sampleFile</span><span class="s2"> </span>
+<span class="s2">    --sumstatsFiles </span><span class="nv">$sumstatsFiles</span><span class="s2"> </span>
+<span class="s2">    --unrelated_samples </span><span class="nv">$unrelated_samples</span><span class="s2"> </span>
+<span class="s2">    --ld_sample_size </span><span class="nv">$ld_sample_size</span><span class="s2"> </span>
+<span class="s2">    --clump_field </span><span class="nv">$clump_field</span><span class="s2"></span>
+<span class="s2">    --clump_p1 </span><span class="nv">$clump_p1</span><span class="s2"> </span>
+<span class="s2">    --clump_p2 </span><span class="nv">$clump_p2</span><span class="s2"> </span>
+<span class="s2">    --clump_r2 </span><span class="nv">$clump_r2</span><span class="s2"> </span>
+<span class="s2">    --clump_kb </span><span class="nv">$clump_kb</span><span class="s2"> </span>
+<span class="s2">    --clump_annotate </span><span class="nv">$clump_annotate</span><span class="s2"> </span>
+<span class="s2">    --numThreads </span><span class="nv">$numThreads</span><span class="s2"> </span>
+<span class="s2">    --job_size </span><span class="nv">$clump_job_size</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+sos run ../workflow/Get_Job_Script.ipynb farnam <span class="se">\</span>
+    --template-file <span class="nv">$tpl_file</span> <span class="se">\</span>
+    --workflow-file <span class="nv">$clumping_sos</span> <span class="se">\</span>
+    --to-script <span class="nv">$clumping_sbatch</span> <span class="se">\</span>
+    --args <span class="s2">&quot;</span><span class="nv">$clumping_args</span><span class="s2">&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Region-extraction-job">Region extraction job<a class="anchor-link" href="#Region-extraction-job">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-bash"><pre><span></span><span class="nv">extract_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;default</span>
+<span class="s2">    --cwd </span><span class="nv">$extract_dir</span><span class="s2"></span>
+<span class="s2">    --region-file </span><span class="nv">$region_file</span><span class="s2"></span>
+<span class="s2">    --pheno-path </span><span class="nv">$phenoFile</span><span class="s2"></span>
+<span class="s2">    --geno-path </span><span class="nv">$geno_path</span><span class="s2"></span>
+<span class="s2">    --bgen-sample-path </span><span class="nv">$sampleFile</span><span class="s2"></span>
+<span class="s2">    --sumstats-path </span><span class="nv">$sumstats_path</span><span class="s2"></span>
+<span class="s2">    --format-config-path </span><span class="nv">$formatFile_fastgwa</span><span class="s2"></span>
+<span class="s2">    --unrelated-samples </span><span class="nv">$unrelated_samples</span><span class="s2"></span>
+<span class="s2">    --job-size </span><span class="nv">$extract_job_size</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+sos run ~/project/bioworkflows/GWAS/Get_Job_Script.ipynb farnam <span class="se">\</span>
+    --template-file <span class="nv">$tpl_file</span> <span class="se">\</span>
+    --workflow-file <span class="nv">$extract_sos</span> <span class="se">\</span>
+    --to-script <span class="nv">$extract_sbatch</span> <span class="se">\</span>
+    --args <span class="s2">&quot;</span><span class="nv">$extract_args</span><span class="s2">&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>INFO: Running <span class="ansi-green-fg">farnam</span>: Configuration for Yale `farnam` cluster
+INFO: <span class="ansi-green-fg">farnam</span> is <span class="ansi-green-fg">completed</span>.
+INFO: <span class="ansi-green-fg">farnam</span> output:   <span class="ansi-green-fg">../output/2020-09-10_T2D-region.sbatch</span>
+INFO: Workflow farnam (ID=70244e58fdd70c88) is executed successfully with 1 completed step.
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Hudson-Plots">Hudson Plots<a class="anchor-link" href="#Hudson-Plots">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="T2D-vs-INT-BMI">T2D vs INT-BMI<a class="anchor-link" href="#T2D-vs-INT-BMI">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-bash"><pre><span></span><span class="nv">tpl_file</span><span class="o">=</span>../farnam.yml
+<span class="nv">hudson_sos</span><span class="o">=</span>~/project/bioworkflows/GWAS/Hudson_plot.ipynb
+<span class="nv">hudson_dir</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/hudson_plots/pleiotropy/T2D_INT-BMI
+<span class="nv">hudson_sbatch</span><span class="o">=</span>../output/<span class="k">$(</span>date +<span class="s2">&quot;%Y-%m-%d&quot;</span><span class="k">)</span>_T2D_vs_INT-BMI_hudson.sbatch
+<span class="nv">sumstats_1</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/FastGWA_results/results_imputed_data/T2D_091120/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_030720_T2D.fastGWA.snp_stats.gz
+<span class="nv">sumstats_2</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/BOLTLMM_results/results_imputed_data/INT-BMI/UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-BMI_withagesex_041720_rankNorm_BMI.boltlmm.snp_stats.gz
+<span class="nv">toptitle</span><span class="o">=</span><span class="s2">&quot;T2D_fastGWA&quot;</span>
+<span class="nv">bottomtitle</span><span class="o">=</span><span class="s2">&quot;INT-BMI_boltlmm&quot;</span>
+<span class="nv">highlight_p_top</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">highlight_p_bottom</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">pval_filter</span><span class="o">=</span>5e-06
+<span class="nv">job_size</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">container_lmm</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/lmm.sif
+<span class="c1">#highlight_snp=</span>
+<span class="nv">annotate_snp</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">phenocol1</span><span class="o">=</span><span class="s1">&#39;T2D&#39;</span>
+<span class="nv">phenocol2</span><span class="o">=</span><span class="s1">&#39;INT-BMI&#39;</span>
+
+<span class="nv">hudson_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;hudson</span>
+<span class="s2">    --cwd </span><span class="nv">$hudson_dir</span><span class="s2"></span>
+<span class="s2">    --sumstats_1 </span><span class="nv">$sumstats_1</span><span class="s2"></span>
+<span class="s2">    --sumstats_2 </span><span class="nv">$sumstats_2</span><span class="s2"></span>
+<span class="s2">    --toptitle </span><span class="nv">$toptitle</span><span class="s2"></span>
+<span class="s2">    --bottomtitle </span><span class="nv">$bottomtitle</span><span class="s2"></span>
+<span class="s2">    --job_size </span><span class="nv">$job_size</span><span class="s2"></span>
+<span class="s2">    --highlight_p_top </span><span class="nv">$highlight_p_top</span><span class="s2"></span>
+<span class="s2">    --highlight_p_bottom </span><span class="nv">$highlight_p_bottom</span><span class="s2"></span>
+<span class="s2">    --pval_filter </span><span class="nv">$pval_filter</span><span class="s2"></span>
+<span class="s2">    --annotate_snp </span><span class="nv">$annotate_snp</span><span class="s2"></span>
+<span class="s2">    --phenocol1 </span><span class="nv">$phenocol1</span><span class="s2"></span>
+<span class="s2">    --phenocol2 </span><span class="nv">$phenocol2</span><span class="s2"></span>
+<span class="s2">    --container_lmm </span><span class="nv">$container_lmm</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span>
+sos run ~/project/bioworkflows/GWAS/Get_Job_Script.ipynb farnam <span class="se">\</span>
+    --template-file <span class="nv">$tpl_file</span> <span class="se">\</span>
+    --workflow-file <span class="nv">$hudson_sos</span> <span class="se">\</span>
+    --to-script <span class="nv">$hudson_sbatch</span> <span class="se">\</span>
+    --args <span class="s2">&quot;</span><span class="nv">$hudson_args</span><span class="s2">&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="T2D-vs-INT-WHR">T2D vs INT-WHR<a class="anchor-link" href="#T2D-vs-INT-WHR">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-bash"><pre><span></span><span class="nv">tpl_file</span><span class="o">=</span>../farnam.yml
+<span class="nv">hudson_sos</span><span class="o">=</span>~/project/bioworkflows/GWAS/Hudson_plot.ipynb
+<span class="nv">hudson_dir</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/hudson_plots/pleiotropy/T2D_INT-WHR
+<span class="nv">hudson_sbatch</span><span class="o">=</span>../output/<span class="k">$(</span>date +<span class="s2">&quot;%Y-%m-%d&quot;</span><span class="k">)</span>_T2D_vs_INT-WHR_hudson.sbatch
+<span class="nv">sumstats_1</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/FastGWA_results/results_imputed_data/T2D_091120/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_030720_T2D.fastGWA.snp_stats.gz
+<span class="nv">sumstats_2</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/BOLTLMM_results/results_imputed_data/INT-WHR/UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WHR_withagesex_042020_rankNorm_WHR.boltlmm.snp_stats.gz
+<span class="nv">toptitle</span><span class="o">=</span><span class="s2">&quot;T2D_fastGWA&quot;</span>
+<span class="nv">bottomtitle</span><span class="o">=</span><span class="s2">&quot;INT-WHR_boltlmm&quot;</span>
+<span class="nv">highlight_p_top</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">highlight_p_bottom</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">pval_filter</span><span class="o">=</span>5e-06
+<span class="nv">job_size</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">container_lmm</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/lmm.sif
+<span class="c1">#highlight_snp=</span>
+<span class="nv">annotate_snp</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">phenocol1</span><span class="o">=</span><span class="s1">&#39;T2D&#39;</span>
+<span class="nv">phenocol2</span><span class="o">=</span><span class="s1">&#39;INT-WHR&#39;</span>
+
+<span class="nv">hudson_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;hudson</span>
+<span class="s2">    --cwd </span><span class="nv">$hudson_dir</span><span class="s2"></span>
+<span class="s2">    --sumstats_1 </span><span class="nv">$sumstats_1</span><span class="s2"></span>
+<span class="s2">    --sumstats_2 </span><span class="nv">$sumstats_2</span><span class="s2"></span>
+<span class="s2">    --toptitle </span><span class="nv">$toptitle</span><span class="s2"></span>
+<span class="s2">    --bottomtitle </span><span class="nv">$bottomtitle</span><span class="s2"></span>
+<span class="s2">    --job_size </span><span class="nv">$job_size</span><span class="s2"></span>
+<span class="s2">    --highlight_p_top </span><span class="nv">$highlight_p_top</span><span class="s2"></span>
+<span class="s2">    --highlight_p_bottom </span><span class="nv">$highlight_p_bottom</span><span class="s2"></span>
+<span class="s2">    --pval_filter </span><span class="nv">$pval_filter</span><span class="s2"></span>
+<span class="s2">    --annotate_snp </span><span class="nv">$annotate_snp</span><span class="s2"></span>
+<span class="s2">    --phenocol1 </span><span class="nv">$phenocol1</span><span class="s2"></span>
+<span class="s2">    --phenocol2 </span><span class="nv">$phenocol2</span><span class="s2"></span>
+<span class="s2">    --container_lmm </span><span class="nv">$container_lmm</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span>
+sos run ~/project/bioworkflows/GWAS/Get_Job_Script.ipynb farnam <span class="se">\</span>
+    --template-file <span class="nv">$tpl_file</span> <span class="se">\</span>
+    --workflow-file <span class="nv">$hudson_sos</span> <span class="se">\</span>
+    --to-script <span class="nv">$hudson_sbatch</span> <span class="se">\</span>
+    --args <span class="s2">&quot;</span><span class="nv">$hudson_args</span><span class="s2">&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="T2D-vs-INT-WAIST">T2D vs INT-WAIST<a class="anchor-link" href="#T2D-vs-INT-WAIST">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-bash"><pre><span></span><span class="nv">tpl_file</span><span class="o">=</span>../farnam.yml
+<span class="nv">hudson_sos</span><span class="o">=</span>~/project/bioworkflows/GWAS/Hudson_plot.ipynb
+<span class="nv">hudson_dir</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/hudson_plots/pleiotropy/T2D_INT-WAIST
+<span class="nv">hudson_sbatch</span><span class="o">=</span>../output/<span class="k">$(</span>date +<span class="s2">&quot;%Y-%m-%d&quot;</span><span class="k">)</span>_T2D_vs_INT-WAIST_hudson.sbatch
+<span class="nv">sumstats_1</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/FastGWA_results/results_imputed_data/T2D_091120/diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_030720_T2D.fastGWA.snp_stats.gz
+<span class="nv">sumstats_2</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/results/BOLTLMM_results/results_imputed_data/INT-WAIST/UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WAIST_withagesex_042020_rankNorm_WAIST.boltlmm.snp_stats.gz
+<span class="nv">toptitle</span><span class="o">=</span><span class="s2">&quot;T2D_fastGWA&quot;</span>
+<span class="nv">bottomtitle</span><span class="o">=</span><span class="s2">&quot;INT-WAIST_boltlmm&quot;</span>
+<span class="nv">highlight_p_top</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">highlight_p_bottom</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">pval_filter</span><span class="o">=</span>5e-06
+<span class="nv">job_size</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">container_lmm</span><span class="o">=</span>/gpfs/gibbs/pi/dewan/data/UKBiobank/lmm.sif
+<span class="c1">#highlight_snp=</span>
+<span class="nv">annotate_snp</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">phenocol1</span><span class="o">=</span><span class="s1">&#39;T2D&#39;</span>
+<span class="nv">phenocol2</span><span class="o">=</span><span class="s1">&#39;INT-WAIST&#39;</span>
+
+<span class="nv">hudson_args</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;hudson</span>
+<span class="s2">    --cwd </span><span class="nv">$hudson_dir</span><span class="s2"></span>
+<span class="s2">    --sumstats_1 </span><span class="nv">$sumstats_1</span><span class="s2"></span>
+<span class="s2">    --sumstats_2 </span><span class="nv">$sumstats_2</span><span class="s2"></span>
+<span class="s2">    --toptitle </span><span class="nv">$toptitle</span><span class="s2"></span>
+<span class="s2">    --bottomtitle </span><span class="nv">$bottomtitle</span><span class="s2"></span>
+<span class="s2">    --job_size </span><span class="nv">$job_size</span><span class="s2"></span>
+<span class="s2">    --highlight_p_top </span><span class="nv">$highlight_p_top</span><span class="s2"></span>
+<span class="s2">    --highlight_p_bottom </span><span class="nv">$highlight_p_bottom</span><span class="s2"></span>
+<span class="s2">    --pval_filter </span><span class="nv">$pval_filter</span><span class="s2"></span>
+<span class="s2">    --annotate_snp </span><span class="nv">$annotate_snp</span><span class="s2"></span>
+<span class="s2">    --phenocol1 </span><span class="nv">$phenocol1</span><span class="s2"></span>
+<span class="s2">    --phenocol2 </span><span class="nv">$phenocol2</span><span class="s2"></span>
+<span class="s2">    --container_lmm </span><span class="nv">$container_lmm</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span>
+sos run ~/project/bioworkflows/GWAS/Get_Job_Script.ipynb farnam <span class="se">\</span>
+    --template-file <span class="nv">$tpl_file</span> <span class="se">\</span>
+    --workflow-file <span class="nv">$hudson_sos</span> <span class="se">\</span>
+    --to-script <span class="nv">$hudson_sbatch</span> <span class="se">\</span>
+    --args <span class="s2">&quot;</span><span class="nv">$hudson_args</span><span class="s2">&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<hr>
+&copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/804a49e20903d8a6a7eafcb7472453c5ea2dcde8/analysis/cluster_scripts/T2D_scripts.ipynb"><code>analysis/cluster_scripts/T2D_scripts.ipynb</code></a> committed by dc2325 on Fri Feb 19 22:22:36 2021 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/804a49e20903d8a6a7eafcb7472453c5ea2dcde8">revision 1, 804a49e</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+</div>
+</div>
+</body>
+</html>

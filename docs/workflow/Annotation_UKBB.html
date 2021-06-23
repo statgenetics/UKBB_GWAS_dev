@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="ipynb_website:version" content="0.9.7" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link rel="stylesheet" type="text/css" href="../css/jt.css">
+
+<link rel="stylesheet" type="text/css" href="../css/toc2.css">
+
+<link href="../site_libs/jqueryui-1.11.4/jquery-ui.css">
+<link rel="stylesheet" href="../site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="../site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+
+<link rel="stylesheet"
+      href="../site_libs/highlightjs/null.min.css"
+      type="text/css" />
+
+<script src="../site_libs/highlightjs/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+<script src="../js/doc_toc.js"></script>
+<script src="../js/docs.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script>
+    MathJax.Hub.Config({
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+        },
+        "HTML-CSS": {
+            preferredFont: "TeX",
+            availableFonts: ["TeX"],
+            styles: {
+                scale: 110,
+                ".MathJax_Display": {
+                    "font-size": "110%",
+                }
+            }
+        }
+    });
+</script>
+<script>
+function filterDataFrame(id) {
+    var input = document.getElementById("search_" + id);
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("dataframe_" + id);
+    var tr = table.getElementsByTagName("tr");
+    // Loop through all table rows, and hide those who don't match the search query
+    for (var i = 1; i < tr.length; i++) {
+        for (var j = 0; j < tr[i].cells.length; ++j) {
+            var matched = false;
+            if (tr[i].cells[j].innerHTML.toUpperCase().indexOf(filter) != -1) {
+                tr[i].style.display = "";
+                matched = true
+                break;
+            }
+            if (!matched)
+                tr[i].style.display = "none";
+        }
+    }
+}
+function sortDataFrame(id, n, dtype) {
+    var table = document.getElementById("dataframe_" + id);
+    var tb = table.tBodies[0]; // use `<tbody>` to ignore `<thead>` and `<tfoot>` rows
+    var tr = Array.prototype.slice.call(tb.rows, 0); // put rows into array
+    if (dtype === 'numeric') {
+        var fn = function(a, b) { 
+            return parseFloat(a.cells[n].textContent) <= parseFloat(b.cells[n].textContent) ? -1 : 1;
+        }
+    } else {
+        var fn = function(a, b) {
+            var c = a.cells[n].textContent.trim().localeCompare(b.cells[n].textContent.trim()); 
+            return c > 0 ? 1 : (c < 0 ? -1 : 0) }
+    }
+    var isSorted = function(array, fn) {
+        if (array.length < 2)
+            return 1;
+        var direction = fn(array[0], array[1]); 
+        for (var i = 1; i < array.length - 1; ++i) {
+            var d = fn(array[i], array[i+1]);
+            if (d == 0)
+                continue;
+            else if (direction == 0)
+                direction = d;
+            else if (direction != d)
+                return 0;
+            }
+        return direction;
+    }
+    var sorted = isSorted(tr, fn);
+    if (sorted == 1 || sorted == -1) {
+        // if sorted already, reverse it
+        for(var i = tr.length - 1; i >= 0; --i)
+            tb.appendChild(tr[i]); // append each row in order
+    } else {
+        tr = tr.sort(fn);
+        for(var i = 0; i < tr.length; ++i)
+            tb.appendChild(tr[i]); // append each row in order
+    }
+}
+</script>
+
+<script>
+$( document ).ready(function(){
+            var cfg={'threshold':3,     // depth of toc (number of levels)
+             'number_sections': false,
+             'toc_cell': false,          // useless here
+             'toc_window_display': true, // display the toc window
+             "toc_section_display": "block", // display toc contents in the window
+             'sideBar':true,       // sidebar or floating window
+             'navigate_menu':false       // navigation menu (only in liveNotebook -- do not change)
+            }
+            var st={};                  // some variables used in the script
+            st.rendering_toc_cell = false;
+            st.config_loaded = false;
+            st.extension_initialized=false;
+            st.nbcontainer_marginleft = $('#notebook-container').css('margin-left')
+            st.nbcontainer_marginright = $('#notebook-container').css('margin-right')
+            st.nbcontainer_width = $('#notebook-container').css('width')
+            st.oldTocHeight = undefined
+            st.cell_toc = undefined;
+            st.toc_index=0;
+            // fire the main function with these parameters
+            table_of_contents(cfg, st);
+            var file=workflowDict[$("h1:first").attr("id")];
+            $("#toc-level0 a").css("color","#126dce");
+            $('a[href="#'+$("h1:first").attr("id")+'"]').hide()
+            var docs=workflowArray;
+            var docs_map=workflowArrayMap;
+            var pos=workflowArray.indexOf(file);
+            for (var a=pos;a>=0;a--){
+                  $('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>').insertBefore("#toc-level0 li:eq(0)");
+            }
+            $('a[href="'+file+'.html'+'"]').css("color","#126dce");
+            for (var a=pos+1;a<docs.length;a++){
+                  $(".toc #toc-level0").append('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>');
+            }
+            // $("#toc-header").hide(); // comment out because it prevents search bar from displaying
+    });
+</script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+  // mark it active
+  menuAnchor.parent().addClass('active');
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+<div class="container-fluid main-container">
+<!-- tabsets -->
+<script src="../site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+
+
+<title>Pleiotropy analysis in UKBB</title>
+
+<style type = "text/css">
+body {
+  font-family: "Droid Sans";
+  padding-top: 66px;
+  padding-bottom: 40px;
+}
+</style>
+</head>
+
+<body>
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+<div class="container" id="notebook-container">
+
+<!-- code folding -->
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="../index.html">Pleiotropy analysis in UKBB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+<li>
+  <a href="../index.html">Overview</a>
+</li>
+        
+<li>
+  <a href="../workflow.html">Workflow</a>
+</li>
+        
+<li>
+  <a href="../analysis.html">Analysis</a>
+</li>
+        
+      </ul>
+        
+<ul class="nav navbar-nav navbar-right">
+<li>
+   <a href="http://github.com/dianacornejo/pleiotropy_UKB"> <span class="fa fa-github"></span> </a>
+</li>
+</ul>
+        
+      </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Quality-control,-annotation-and-rare-variant-coding-of-exomes-UKBB-Q4/2020">Quality control, annotation and rare variant coding of exomes UKBB Q4/2020<a class="anchor-link" href="#Quality-control,-annotation-and-rare-variant-coding-of-exomes-UKBB-Q4/2020">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Aim">Aim<a class="anchor-link" href="#Aim">&#182;</a></h2><p>Prepare the data for further association analyses using the LMM.ipynb on rare variants.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Data-description">Data description<a class="anchor-link" href="#Data-description">&#182;</a></h2><p>The data consists of 200,000 exomes: 50K exomes were made available in March 2019 and 150K exomes were made available in October 2020</p>
+<p>The 50K set includes the following family relationships:</p>
+<ul>
+<li>194 parent-offspring pairs</li>
+<li>613 full-sibling pairs</li>
+<li>26 trios</li>
+<li>1 monozygotic twin pair</li>
+<li>195 second degree genetically determined relationships</li>
+</ul>
+<p><strong>Quality control published for the 50K set</strong></p>
+<p>FASTQ files aligned to GRCh38 with BWA-mem and BAM files generated.</p>
+<p>In the BAM files identify and mark duplicates using PICARD</p>
+<p>gVCF files with called variants produced using WeCall</p>
+<p>Samples excluded if:</p>
+<ul>
+<li>Differences between genetic and reported sex</li>
+<li>High rates of heterozygosity/contamination (Dstat&gt;0.4)</li>
+<li>Low sequence coverage (&lt;85% of bases with 20X coverage)</li>
+<li>Sample duplicates </li>
+<li>WES variants discordant with genotyping chip</li>
+</ul>
+<p>Then creation of project-level VCF or pVCF</p>
+<p>Goldilocks:</p>
+<ul>
+<li>SNV with DP&lt;7 changed to no-call</li>
+<li>SNV heterozygotes retained if allele balance ratio was AB&gt;=0.15</li>
+<li>Multiallelic left-normalized and represented as bi-allelic</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Data-analysis">Data analysis<a class="anchor-link" href="#Data-analysis">&#182;</a></h2><h3 id="Understanding-missingness-patterns-pVCF/PLINK-files">Understanding missingness patterns pVCF/PLINK files<a class="anchor-link" href="#Understanding-missingness-patterns-pVCF/PLINK-files">&#182;</a></h3><p>This pipeline(<code>UKBB_GWAS_dev/wokflow/plink_missing.ipynb</code>)is intended to understand the rates of missing data and filter variants for later use in PCA analysis. Please refer to that specific notebook for output format and code to run it.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Filter-and-merge-exome-plink-files-(remove-duplicated-variants,-keep-SNPs-only)">Filter and merge exome plink files (remove duplicated variants, keep SNPs only)<a class="anchor-link" href="#Filter-and-merge-exome-plink-files-(remove-duplicated-variants,-keep-SNPs-only)">&#182;</a></h3><p>In order to run PCA analysis and LMM.ipynb on the exome data. We need to create a single bed file that contains only SNPs and where the duplicated variants have been removed.</p>
+<p>Refer to the <code>UKBB_GWAS_dev/wokflow/plink_snps_only.ipynb</code> for more details</p>
+<p>In Yale's cluster the filtered bed files are located here:</p>
+<p><code>/gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/ukb28374_exomedata/exome_data_OCT2020/exome_files_snpsonly/ukb23155.filtered.merged.bed</code></p>
+<p>In Columbia's cluster they are here:</p>
+<p><code>/mnt/mfs/statgen/UKBiobank/data/exome_data</code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="PCA-analysis">PCA analysis<a class="anchor-link" href="#PCA-analysis">&#182;</a></h3><p>This pipeline (<code>UKBB_GWAS_dev/wokflow/PCA.ipynb</code>) was used to generate the Principal Components.
+Sample or variants were removed if:</p>
+<ul>
+<li>Sample missingness &gt; 2%</li>
+<li>Variant missigness &gt; 1%</li>
+<li>MAF &lt; 1%</li>
+</ul>
+<p>For a more comprenhensive description of the pipeline refer to the specific notebook.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Analysis-of-common-variants">Analysis of common variants<a class="anchor-link" href="#Analysis-of-common-variants">&#182;</a></h3><p>After removing the outliers detected using the PCA and Mahalanobis distance, we can proceed to do GWAS using LMM.ipynb on the exome data:</p>
+<p>Used file <code>/gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/ukb28374_exomedata/exome_data_OCT2020/exome_files_snpsonly/ukb23155.filtered.merged.bed</code></p>
+<ul>
+<li>Retain variants with MAF&gt;0.001 (same parameters used for inputed data)</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Analysis-of-rare-variants:-quality-control-of-pVCF/PLINK-files">Analysis of rare variants: quality control of pVCF/PLINK files<a class="anchor-link" href="#Analysis-of-rare-variants:-quality-control-of-pVCF/PLINK-files">&#182;</a></h3><p>Before annotating the variants and recoding them for posterior analysis we want to make some filtering to retain only the rare variants.</p>
+<p>To run:</p>
+
+<pre><code>
+bfiles=`echo /gpfs/gibbs/pi/dewan/data/UKBiobank/genotype_files/ukb28374_exomedata/exome_data_OCT2020/ukb23155_c{1..22}_b0_v1.bed`
+
+
+sos run ~/project/UKBB_GWAS_dev/workflow/QC_Exome_UKBB.ipynb qc \
+    --cwd ~/scratch60 \
+    --bfiles $bedfiles\
+    --maf_filter 0.001 \
+    --geno_filter 0.1 \
+    --mind_filter 0.2 \
+    --build 'hg38' \
+    --container_lmm /gpfs/gibbs/pi/dewan/data/UKBiobank/lmm.sif</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Annotation">Annotation<a class="anchor-link" href="#Annotation">&#182;</a></h3><p>FIXME</p>
+<p><strong>Step 2: annotate the variants</strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="GARCOM">GARCOM<a class="anchor-link" href="#GARCOM">&#182;</a></h3><p>FIXME</p>
+<p><strong>Step 3: count the rare variants within a gene boundary and output for LMM analysis</strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Output-file-for-LMM.ipynb-for-rare-variants-(variant-coding-1/0)">Output file for LMM.ipynb for rare-variants (variant coding 1/0)<a class="anchor-link" href="#Output-file-for-LMM.ipynb-for-rare-variants-(variant-coding-1/0)">&#182;</a></h3><p>FIXME</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="p">[</span><span class="k">global</span><span class="p">]</span>
+<span class="c1"># the output directory for generated files</span>
+<span class="kn">parameter:</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">path</span>
+<span class="c1"># bed files plink format</span>
+<span class="kn">parameter:</span> <span class="n">bedfiles</span> <span class="o">=</span> <span class="n">paths</span>
+<span class="kn">parameter:</span> <span class="n">bimfiles</span> <span class="o">=</span> <span class="n">paths</span>
+<span class="c1"># Specific number of threads to use</span>
+<span class="kn">parameter:</span> <span class="n">numThreads</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="c1"># For cluster jobs, number commands to run per job</span>
+<span class="kn">parameter:</span> <span class="n">job_size</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="c1"># Human genome build</span>
+<span class="kn">parameter:</span> <span class="n">build</span> <span class="o">=</span> <span class="s1">&#39;hg38&#39;</span>
+<span class="c1"># Name for the merged bimfiles</span>
+<span class="kn">parameter:</span> <span class="n">bim_name</span> <span class="o">=</span> <span class="n">path</span>
+<span class="c1"># Prefix for the name based on common/rare variant filtering</span>
+<span class="kn">parameter:</span> <span class="n">name_prefix</span> <span class="o">=</span> <span class="nb">str</span>
+<span class="c1"># Filter based on minor allele frequency (use when filtering common variants)</span>
+<span class="kn">parameter:</span> <span class="n">maf_filter</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="c1"># Filter based on the maximum maf allowed (use when filtering rare variants)</span>
+<span class="kn">parameter:</span> <span class="n">max_maf_filter</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="c1"># Filter out variants with missing call rate higher that this value</span>
+<span class="kn">parameter:</span> <span class="n">geno_filter</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="c1"># Filter according to Hardy Weiberg Equilibrium</span>
+<span class="kn">parameter:</span> <span class="n">hwe_filter</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="c1"># Fitler out samples with missing rate higher than this value</span>
+<span class="kn">parameter:</span> <span class="n">mind_filter</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="c1"># Load annovar module from cluster</span>
+<span class="kn">parameter:</span> <span class="n">annovar_module</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">module load ANNOVAR/2020Jun08-foss-2018b-Perl-5.28.0</span>
+<span class="s1">echo &quot;Module annovar loaded&quot;</span>
+<span class="s1">{cmd}</span>
+<span class="s1">&#39;&#39;&#39;</span>
+<span class="c1"># Software container option</span>
+<span class="kn">parameter:</span> <span class="n">container_annovar</span> <span class="o">=</span> <span class="s1">&#39;gaow/gatk4-annovar&#39;</span>
+<span class="kn">parameter:</span> <span class="n">container_lmm</span> <span class="o">=</span> <span class="s1">&#39;statisticalgenetics/lmm:1.6&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Format-file-for-plink-.bim">Format file for plink .bim<a class="anchor-link" href="#Format-file-for-plink-.bim">&#182;</a></h3><p>A text file with no header line, and one line per variant with the following six fields:</p>
+<ol>
+<li>Chromosome code (either an integer, or 'X'/'Y'/'XY'/'MT'; '0' indicates unknown) or name</li>
+<li>Variant identifier</li>
+<li>Position in morgans or centimorgans (safe to use dummy value of '0')</li>
+<li>Base-pair coordinate (1-based; limited to 231-2)</li>
+<li>Allele 1 (corresponding to clear bits in .bed; usually minor)</li>
+<li>Allele 2 (corresponding to set bits in .bed; usually major)</li>
+</ol>
+<p>In the bim file the second column e.g <code>1:930232:C:T</code> contains the alleles in ref/alt mode</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Merge all the bimfiles into a single file to use later with awk</span>
+<span class="c1"># Only need to run this cell once</span>
+<span class="p">[</span><span class="n">bim_merge</span><span class="p">:</span> <span class="kp">provides</span> <span class="o">=</span> <span class="n">bim_name</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">bimfiles</span>
+<span class="kn">output:</span> <span class="n">bim_name</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;10h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;10G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output:bn}&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.stdout&#39;</span> 
+      <span class="n">cat</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Get a list of common SNPs above (--maf) or below (--max-maf) certain MAF</span>
+<span class="p">[</span><span class="n">get_snps_1</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">bedfiles</span><span class="p">,</span> <span class="n">group_by</span><span class="o">=</span><span class="mi">1</span>
+<span class="kn">output:</span> <span class="n">f</span><span class="s1">&#39;{cwd}/cache/{_input:bn}.{name_prefix}.snplist&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;10h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;30G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output:bn}&#39;</span>
+<span class="kn">bash:</span> <span class="n">container</span><span class="o">=</span><span class="n">container_lmm</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.stdout&#39;</span> 
+    <span class="n">plink2</span> \
+      <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">:</span><span class="n">n</span><span class="p">}</span>\
+      <span class="err">$</span><span class="p">{(</span><span class="s1">&#39;--maf </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">maf_filter</span><span class="p">)</span> <span class="k">if</span> <span class="n">maf_filter</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">}</span> \
+      <span class="err">$</span><span class="p">{(</span><span class="s1">&#39;--max-maf </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">max_maf_filter</span><span class="p">)</span> <span class="k">if</span> <span class="n">max_maf_filter</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">}</span> \
+      <span class="err">$</span><span class="p">{(</span><span class="s1">&#39;--geno </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">geno_filter</span><span class="p">)</span> <span class="k">if</span> <span class="n">geno_filter</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">}</span> \
+      <span class="err">$</span><span class="p">{(</span><span class="s1">&#39;--hwe </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">hwe_filter</span><span class="p">)</span> <span class="k">if</span> <span class="n">hwe_filter</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">}</span> \
+      <span class="err">$</span><span class="p">{(</span><span class="s1">&#39;--mind </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">mind_filter</span><span class="p">)</span> <span class="k">if</span> <span class="n">mind_filter</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">}</span> \
+      <span class="o">--</span><span class="n">write</span><span class="o">-</span><span class="n">snplist</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="nb">id</span><span class="o">-</span><span class="n">header</span>\
+      <span class="o">--</span><span class="n">freq</span> \
+      <span class="o">--</span><span class="n">threads</span> <span class="err">$</span><span class="p">{</span><span class="n">numThreads</span><span class="p">}</span> \
+      <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Merge all of the common_var.snplist into a single file and all the rare_var.snplist into another single file</span>
+<span class="p">[</span><span class="n">get_snps_2</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">group_by</span><span class="o">=</span><span class="s1">&#39;all&#39;</span>
+<span class="kn">output:</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{name_prefix}.snplist&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;10h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;10G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output:bn}&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output[0]:n}.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.stdout&#39;</span> 
+      <span class="n">cat</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Search for common or rare variants in bimfile and generate annovar input file</span>
+<span class="p">[</span><span class="n">get_snps_3</span><span class="p">]</span>
+<span class="kn">depends:</span> <span class="n">bim_name</span>
+<span class="kn">output:</span> <span class="n">f</span><span class="s1">&#39;{_input:n}.avinput&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;10h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;10G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output:bn}&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.stdout&#39;</span> 
+    <span class="n">awk</span> <span class="o">-</span><span class="n">F</span><span class="s2">&quot; &quot;</span> <span class="s1">&#39;FNR==NR {lines[$1]; next} $2 in lines &#39;</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> <span class="err">$</span><span class="p">{</span><span class="n">bim_name</span><span class="p">}</span> <span class="o">&gt;</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span><span class="o">.</span><span class="n">tmp</span>
+    <span class="n">awk</span> <span class="s1">&#39;{if ($2 ~ /D/) {print $1, $4, $4 + (length ($6) - length ($5)), $6, $5 } else {print $1, $4, $4, $6, $5 }}&#39;</span>  <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span><span class="o">.</span><span class="n">tmp</span> <span class="o">&gt;</span>  <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span>
+    <span class="c1"># remove temporary files</span>
+    <span class="n">rm</span> <span class="o">-</span><span class="n">f</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">n</span><span class="p">}</span><span class="o">.</span><span class="n">tmp</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Convert binary plink to vcf for later use with rvtest</span>
+<span class="p">[</span><span class="n">convert_to_vcf</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">bedfiles</span><span class="p">,</span> <span class="n">group_by</span><span class="o">=</span><span class="mi">1</span>
+<span class="kn">output:</span> <span class="n">f</span><span class="s1">&#39;{cwd}/cache/{_input:bn}.{name_prefix}.vcf.gz&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;10h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;30G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output:bn}&#39;</span>
+<span class="kn">bash:</span> <span class="n">container</span><span class="o">=</span><span class="n">container_lmm</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output}.stderr&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output}.stdout&#39;</span> 
+    <span class="n">plink2</span> \
+      <span class="o">--</span><span class="n">bfile</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">:</span><span class="n">n</span><span class="p">}</span> \
+      <span class="o">--</span><span class="n">extract</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">nn</span><span class="p">}</span><span class="o">.</span><span class="n">snplist</span> \
+      <span class="o">--</span><span class="n">recode</span> <span class="n">vcf</span> <span class="s1">&#39;id-paste=iid&#39;</span> <span class="s1">&#39;bgz&#39;</span> \
+      <span class="o">--</span><span class="n">threads</span> <span class="err">$</span><span class="p">{</span><span class="n">numThreads</span><span class="p">}</span> \
+      <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">nn</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Annovar-details">Annovar details<a class="anchor-link" href="#Annovar-details">&#182;</a></h2><p>For a list of available <a href="https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/">databases</a></p>
+<p>On Farnam's Yale HPC there is a folder for shared databases
+<code>/gpfs/ysm/datasets/db/annovar/humandb</code></p>
+<p>and a folder for the x_ref database <code>/gpfs/gibbs/pi/dewan/data/UKBiobank/mart_export_2019_LOFtools3.txt</code></p>
+<h3 id="Format-file-for-annovar-input">Format file for annovar input<a class="anchor-link" href="#Format-file-for-annovar-input">&#182;</a></h3><p>On each line, the first five space- or tab- delimited columns represent</p>
+<ol>
+<li>chromosome </li>
+<li>start position </li>
+<li>end position </li>
+<li>the reference nucleotides</li>
+<li>the observed nucleotides</li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Create annovar input file</span>
+<span class="p">[</span><span class="n">annovar_1</span><span class="p">]</span>
+<span class="kn">input:</span> <span class="n">bim_name</span>
+<span class="kn">output:</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{_input:bn}.{build}.avinput&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;10h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;10G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:bn}&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span> <span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.err&#39;</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:n}.out&#39;</span> 
+    <span class="n">awk</span> <span class="s1">&#39;{if ($2 ~ /D/) {print $1, $4, $4 + (length ($6) - length ($5)), $6, $5, $2} else {print $1, $4, $4, $6, $5, $2}}&#39;</span>  <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> <span class="o">&gt;</span>  <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="c1"># Annotate vcf file using ANNOVAR</span>
+<span class="p">[</span><span class="n">annovar_2</span><span class="p">]</span>
+<span class="c1"># humandb path for ANNOVAR</span>
+<span class="kn">parameter:</span> <span class="n">humandb</span> <span class="o">=</span> <span class="n">path</span>
+<span class="kn">parameter:</span> <span class="n">ukbb</span> <span class="o">=</span> <span class="n">path</span>
+<span class="c1">#add xreffile to option without -exonicsplicing</span>
+<span class="c1">#mart_export_2019_LOFtools3.txt #xreffile latest option -&gt; Phenotype description,HGNC symbol,MIM morbid description,CGD_CONDITION,CGD_inh,CGD_man,CGD_comm,LOF_tools</span>
+<span class="kn">parameter:</span> <span class="n">x_ref</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{ukbb}/mart_export_2019_LOFtools3.txt&quot;</span><span class="p">)</span>
+<span class="c1"># Annovar protocol</span>
+<span class="kn">parameter:</span> <span class="n">protocol</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;refGene&#39;</span><span class="p">,</span> <span class="s1">&#39;refGeneWithVer&#39;</span><span class="p">,</span> <span class="s1">&#39;knownGene&#39;</span><span class="p">,</span> <span class="s1">&#39;ensGene&#39;</span><span class="p">,</span> <span class="s1">&#39;phastConsElements30way&#39;</span><span class="p">,</span> <span class="s1">&#39;encRegTfbsClustered&#39;</span><span class="p">,</span> <span class="s1">&#39;gwasCatalog&#39;</span><span class="p">,</span> <span class="s1">&#39;gnomad211_genome&#39;</span><span class="p">,</span> <span class="s1">&#39;gnomad211_exome&#39;</span><span class="p">,</span> <span class="s1">&#39;gme&#39;</span><span class="p">,</span> <span class="s1">&#39;kaviar_20150923&#39;</span><span class="p">,</span> <span class="s1">&#39;abraom&#39;</span><span class="p">,</span> <span class="s1">&#39;avsnp150&#39;</span><span class="p">,</span> <span class="s1">&#39;dbnsfp41a&#39;</span><span class="p">,</span> <span class="s1">&#39;dbscsnv11&#39;</span><span class="p">,</span> <span class="s1">&#39;regsnpintron&#39;</span><span class="p">,</span> <span class="s1">&#39;clinvar_20200316&#39;</span><span class="p">,</span> <span class="s1">&#39;gene4denovo201907&#39;</span><span class="p">]</span>
+<span class="c1"># Annovar operation</span>
+<span class="kn">parameter:</span> <span class="n">operation</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;gx&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">]</span>
+<span class="c1"># Annovar args</span>
+<span class="kn">parameter:</span> <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&quot;-splicing 12 -exonicsplicing&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;-splicing 30&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;-splicing 12 -exonicsplicing&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;-splicing 12&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+<span class="c1">#input: output_from(&#39;convert_to_vcf&#39;), group_by=1</span>
+<span class="c1">#input: output_from(&#39;get_snps&#39;), group_by=1</span>
+<span class="kn">output:</span> <span class="n">f</span><span class="s1">&#39;{cwd}/{_input:bn}.{build}_multianno.csv&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;60h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;48G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{_output:bn}&#39;</span>
+<span class="kn">bash:</span> <span class="n">container</span><span class="o">=</span><span class="n">container_annovar</span><span class="p">,</span> <span class="n">volumes</span><span class="o">=</span><span class="p">[</span><span class="n">f</span><span class="s1">&#39;{humandb:a}:{humandb:a}&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;{x_ref:ad}:{x_ref:ad}&#39;</span><span class="p">],</span> <span class="n">expand</span><span class="o">=</span><span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;{_output:n}.err&#39;</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;{_output:n}.out&#39;</span>
+    <span class="c1">#do not add -intronhgvs as option -&gt; writes cDNA variants as HGVS but creates issues (+2 splice site reported only)</span>
+    <span class="c1">#-nastring . can only be . for VCF files</span>
+    <span class="c1">#regsnpintron might cause shifted lines (be carefull using)</span>
+    <span class="n">table_annovar</span><span class="o">.</span><span class="n">pl</span> \
+        <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> \
+        <span class="err">$</span><span class="p">{</span><span class="n">humandb</span><span class="p">}</span> \
+        <span class="o">-</span><span class="n">buildver</span> <span class="err">$</span><span class="p">{</span><span class="n">build</span><span class="p">}</span> \
+        <span class="o">-</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">:</span><span class="n">nn</span><span class="p">}</span>\
+        <span class="o">-</span><span class="n">remove</span> \
+        <span class="o">-</span><span class="n">polish</span> \
+        <span class="o">-</span><span class="n">nastring</span> <span class="o">.</span> \
+        <span class="o">-</span><span class="n">protocol</span> <span class="err">$</span><span class="p">{</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">protocol</span><span class="p">)}</span> \
+        <span class="o">-</span><span class="n">operation</span> <span class="err">$</span><span class="p">{</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">operation</span><span class="p">)}</span> \
+        <span class="o">-</span><span class="n">arg</span> <span class="err">$</span><span class="p">{</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">arg</span><span class="p">)}</span> \
+        <span class="o">-</span><span class="n">csvout</span> \
+        <span class="o">-</span><span class="n">xreffile</span> <span class="err">$</span><span class="p">{</span><span class="n">x_ref</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div># Create file with sets of genes, using tabix
+[annovar_2]
+output: f'{cwd}/{_input:bn}.ordered.vcf.gz'
+task: trunk_workers = 1, walltime = '10h', mem = '30G', cores = numThreads, tags = f'{step_name}_{_output:bn}'
+bash: expand= "${ }", stderr = f'{_output}.stderr', stdout = f'{_output}.stdout'
+
+    (grep ^"#" ${_input}; grep -v ^"#" ${_input}| sed 's:^chr::ig' | sort -k1,1n -k2,2n) | bgzip -c > ${_output} 
+    tabix -f -p vcf ${_output}
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="FIXME">FIXME<a class="anchor-link" href="#FIXME">&#182;</a></h3><p>After perfoming the annotation we need to select the sites that are going to be used for rare-variant analysis.</p>
+<p>Those whose annotation is nonsyn, frameshift, LoF, splicesite variants and provide this as a site-file for rvtest or GARCOM</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Rvtest-implementation">Rvtest implementation<a class="anchor-link" href="#Rvtest-implementation">&#182;</a></h2><p>This software uses Bolt-LMM algoritm for association analyses and contains group-wise (burden, variable thereshold, kernel) tests for rare-variants.
+More information can be found <a href="http://zhanxw.github.io/rvtests/">here</a>.</p>
+<p>After further reading plink file format is not supporter as input for genotypes, would need to transform into vcf file for usage.</p>
+<p>Use <code>--inVcf, --inBgen, --inBgenSample</code> depending on the desired input file</p>
+<p>Use <code>--pheno phenoFile</code> and <code>--pheno-name col_pheno</code> in PLINK format</p>
+<p>Use <code>--annoType 'Start_Gain|Stop_Loss|Start_Loss|Essential_Splice_Site|Stop_Gain|Normal_Splice_Site|Synonymous|Nonsynonymous'</code></p>
+<p>This <code>--annoType</code> filter will only work if the annotation is done with the <a href="https://github.com/zhanxw/anno">anno</a> software</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="kn">input:</span> <span class="n">vcf</span>
+<span class="kn">output:</span>
+<span class="c1"># Specify phenoFile</span>
+<span class="kn">parameter:</span> <span class="n">phenoFile</span> <span class="o">=</span> <span class="n">path</span>
+<span class="c1"># Specify trait to be analyzed</span>
+<span class="kn">parameter:</span> <span class="n">phenoCol</span> <span class="o">=</span> <span class="nb">str</span>
+<span class="c1"># Specify covariates to be included</span>
+<span class="kn">paremeter:</span> <span class="n">covarCol</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="c1"># Inpute or drop missing genotypes: &#39;mean&#39;, &#39;hwe&#39;, &#39;drop&#39;</span>
+<span class="kn">parameter:</span> <span class="n">inpute</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span>
+<span class="c1"># More options in rvtest documentation: &#39;cmc&#39;, &#39;zeggini&#39;,&#39;exactCMC&#39;, &#39;famcmc&#39;</span>
+<span class="kn">paremeter:</span> <span class="n">burden_test</span> <span class="o">=</span> <span class="s1">&#39;cmc&#39;</span>
+<span class="c1"># More options in rvtest documentation: &#39;analytic&#39;, &#39;famAnalytic&#39;</span>
+<span class="kn">parameter:</span> <span class="n">vt_test</span> <span class="o">=</span> <span class="s1">&#39;price&#39;</span>
+<span class="c1"># More options in rvtest documentation: &#39;skato&#39;, &#39;kbac&#39;, &#39;famSkat&#39;</span>
+<span class="c1"># To cuztomise skat test: --kernel skat[nPerm=100:alpha=0.001:beta1=1:beta2=20] </span>
+<span class="kn">parameter:</span> <span class="n">kernel_test</span> <span class="o">=</span> <span class="s1">&#39;skat&#39;</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;10h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;30G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output:bn}&#39;</span>
+<span class="kn">bash:</span> <span class="n">expand</span><span class="o">=</span><span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;{_output:n}.err&#39;</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;{_output:n}.out&#39;</span>
+
+    <span class="n">rvtest</span> <span class="o">--</span><span class="n">inVcf</span> <span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">}</span> \
+    <span class="o">--</span><span class="n">pheno</span> <span class="err">$</span><span class="p">{</span><span class="n">phenoFile</span><span class="p">}</span>
+    <span class="o">--</span><span class="n">pheno</span><span class="o">-</span><span class="kp">name</span> <span class="err">$</span><span class="p">{</span><span class="n">phenoCol</span><span class="p">}</span>\
+    <span class="o">--</span><span class="n">covar</span> <span class="err">$</span><span class="p">{</span><span class="n">phenoFile</span><span class="p">}</span> \
+    <span class="err">$</span><span class="p">{</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;--covar-name </span><span class="si">%s</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">covarCol</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">])}</span>\
+    <span class="o">--</span><span class="n">geneFile</span> <span class="n">refFlat_hg38</span><span class="o">.</span><span class="n">txt</span><span class="o">.</span><span class="n">gz</span> \
+    <span class="o">--</span><span class="n">impute</span> <span class="err">$</span><span class="p">{</span><span class="n">inpute</span><span class="p">}</span> \
+    <span class="o">--</span><span class="n">burden</span> <span class="err">$</span><span class="p">{</span><span class="n">burden_test</span><span class="p">}</span> <span class="o">--</span><span class="n">vt</span> <span class="err">$</span><span class="p">{</span><span class="n">vt_test</span><span class="p">}</span> <span class="o">--</span><span class="n">kernel</span> <span class="err">$</span><span class="p">{</span><span class="n">kernel_test</span><span class="p">}</span>
+    <span class="o">--</span><span class="n">out</span> <span class="err">$</span><span class="p">{</span><span class="n">_output</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="GARCOM:-gene-and-region-counting-of-mutations">GARCOM: gene and region counting of mutations<a class="anchor-link" href="#GARCOM:-gene-and-region-counting-of-mutations">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Files needed:</p>
+<ul>
+<li>gene coordinates file : CHR START END GENE.</li>
+</ul>
+<p>This will depend on the gene definition that you use in the <a href="http://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/refGene.txt.gz">refGene</a> from UCSC.</p>
+<p>Find more info on refGene track <a href="http://genome.ucsc.edu/cgi-bin/hgTables?db=mm9&amp;hgta_group=genes&amp;hgta_track=refGene&amp;hgta_table=refGene&amp;hgta_doSchema=describe+table+schema">here</a></p>
+<ul>
+<li>genotype input as plink binary files (bed, bim, fam)</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="kn">input:</span><span class="n">bedfiles</span><span class="p">,</span> <span class="n">group_by</span><span class="o">=</span><span class="mi">1</span> <span class="c1">#(bim_name includes all bim files)</span>
+<span class="kn">output:</span>
+<span class="kn">task:</span> <span class="kp">trunk_workers</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="kp">walltime</span> <span class="o">=</span> <span class="s1">&#39;10h&#39;</span><span class="p">,</span> <span class="kp">mem</span> <span class="o">=</span> <span class="s1">&#39;30G&#39;</span><span class="p">,</span> <span class="kp">cores</span> <span class="o">=</span> <span class="n">numThreads</span><span class="p">,</span> <span class="kp">tags</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;{step_name}_{_output:bn}&#39;</span>
+<span class="kn">R:</span> <span class="n">expand</span><span class="o">=</span><span class="s2">&quot;${ }&quot;</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;{_output:n}.err&#39;</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;{_output:n}.out&#39;</span>
+    <span class="n">library</span><span class="p">(</span><span class="n">GARCOM</span><span class="p">)</span>
+    <span class="n">genecoord_test</span> <span class="o">&lt;-</span> <span class="n">read</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">gzfile</span><span class="p">(</span><span class="s1">&#39;refGene&#39;</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">F</span><span class="p">)</span>
+    <span class="n">get_plinkSNP_index_geneboundaries</span><span class="p">(</span><span class="s1">&#39;${_input:n}.bim&#39;</span><span class="p">,</span><span class="n">genecoord_test</span><span class="p">)</span>
+    <span class="n">plink_count_snppos</span><span class="p">(</span><span class="err">$</span><span class="p">{</span><span class="n">_input</span><span class="p">},</span><span class="n">genecoord_test</span><span class="p">,</span><span class="n">individual_index</span><span class="o">=</span><span class="n">c</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">100</span><span class="p">),</span> <span class="n">freq_file_plink</span><span class="o">=</span><span class="s2">&quot;CHR22_wes_freq.frq&quot;</span><span class="p">,</span><span class="n">threshold_freq</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<hr>
+&copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/804a49e20903d8a6a7eafcb7472453c5ea2dcde8/workflow/Annotation_UKBB.ipynb"><code>workflow/Annotation_UKBB.ipynb</code></a> committed by dc2325 on Fri Feb 19 22:22:36 2021 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/804a49e20903d8a6a7eafcb7472453c5ea2dcde8">revision 1, 804a49e</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+</div>
+</div>
+</body>
+</html>

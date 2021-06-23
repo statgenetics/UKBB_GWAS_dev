@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="ipynb_website:version" content="0.9.7" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link rel="stylesheet" type="text/css" href="../css/jt.css">
+
+<link rel="stylesheet" type="text/css" href="../css/toc2.css">
+
+<link href="../site_libs/jqueryui-1.11.4/jquery-ui.css">
+<link rel="stylesheet" href="../site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="../site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="../site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+
+<link rel="stylesheet"
+      href="../site_libs/highlightjs/null.min.css"
+      type="text/css" />
+
+<script src="../site_libs/highlightjs/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+<script src="../js/doc_toc.js"></script>
+<script src="../js/docs.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script>
+    MathJax.Hub.Config({
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+        },
+        "HTML-CSS": {
+            preferredFont: "TeX",
+            availableFonts: ["TeX"],
+            styles: {
+                scale: 110,
+                ".MathJax_Display": {
+                    "font-size": "110%",
+                }
+            }
+        }
+    });
+</script>
+<script>
+function filterDataFrame(id) {
+    var input = document.getElementById("search_" + id);
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("dataframe_" + id);
+    var tr = table.getElementsByTagName("tr");
+    // Loop through all table rows, and hide those who don't match the search query
+    for (var i = 1; i < tr.length; i++) {
+        for (var j = 0; j < tr[i].cells.length; ++j) {
+            var matched = false;
+            if (tr[i].cells[j].innerHTML.toUpperCase().indexOf(filter) != -1) {
+                tr[i].style.display = "";
+                matched = true
+                break;
+            }
+            if (!matched)
+                tr[i].style.display = "none";
+        }
+    }
+}
+function sortDataFrame(id, n, dtype) {
+    var table = document.getElementById("dataframe_" + id);
+    var tb = table.tBodies[0]; // use `<tbody>` to ignore `<thead>` and `<tfoot>` rows
+    var tr = Array.prototype.slice.call(tb.rows, 0); // put rows into array
+    if (dtype === 'numeric') {
+        var fn = function(a, b) { 
+            return parseFloat(a.cells[n].textContent) <= parseFloat(b.cells[n].textContent) ? -1 : 1;
+        }
+    } else {
+        var fn = function(a, b) {
+            var c = a.cells[n].textContent.trim().localeCompare(b.cells[n].textContent.trim()); 
+            return c > 0 ? 1 : (c < 0 ? -1 : 0) }
+    }
+    var isSorted = function(array, fn) {
+        if (array.length < 2)
+            return 1;
+        var direction = fn(array[0], array[1]); 
+        for (var i = 1; i < array.length - 1; ++i) {
+            var d = fn(array[i], array[i+1]);
+            if (d == 0)
+                continue;
+            else if (direction == 0)
+                direction = d;
+            else if (direction != d)
+                return 0;
+            }
+        return direction;
+    }
+    var sorted = isSorted(tr, fn);
+    if (sorted == 1 || sorted == -1) {
+        // if sorted already, reverse it
+        for(var i = tr.length - 1; i >= 0; --i)
+            tb.appendChild(tr[i]); // append each row in order
+    } else {
+        tr = tr.sort(fn);
+        for(var i = 0; i < tr.length; ++i)
+            tb.appendChild(tr[i]); // append each row in order
+    }
+}
+</script>
+
+<script>
+$( document ).ready(function(){
+            var cfg={'threshold':3,     // depth of toc (number of levels)
+             'number_sections': false,
+             'toc_cell': false,          // useless here
+             'toc_window_display': true, // display the toc window
+             "toc_section_display": "block", // display toc contents in the window
+             'sideBar':true,       // sidebar or floating window
+             'navigate_menu':false       // navigation menu (only in liveNotebook -- do not change)
+            }
+            var st={};                  // some variables used in the script
+            st.rendering_toc_cell = false;
+            st.config_loaded = false;
+            st.extension_initialized=false;
+            st.nbcontainer_marginleft = $('#notebook-container').css('margin-left')
+            st.nbcontainer_marginright = $('#notebook-container').css('margin-right')
+            st.nbcontainer_width = $('#notebook-container').css('width')
+            st.oldTocHeight = undefined
+            st.cell_toc = undefined;
+            st.toc_index=0;
+            // fire the main function with these parameters
+            table_of_contents(cfg, st);
+            var file=analysisDict[$("h1:first").attr("id")];
+            $("#toc-level0 a").css("color","#126dce");
+            $('a[href="#'+$("h1:first").attr("id")+'"]').hide()
+            var docs=analysisArray;
+            var docs_map=analysisArrayMap;
+            var pos=analysisArray.indexOf(file);
+            for (var a=pos;a>=0;a--){
+                  $('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>').insertBefore("#toc-level0 li:eq(0)");
+            }
+            $('a[href="'+file+'.html'+'"]').css("color","#126dce");
+            for (var a=pos+1;a<docs.length;a++){
+                  $(".toc #toc-level0").append('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>');
+            }
+            // $("#toc-header").hide(); // comment out because it prevents search bar from displaying
+    });
+</script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+  // mark it active
+  menuAnchor.parent().addClass('active');
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+<div class="container-fluid main-container">
+<!-- tabsets -->
+<script src="../site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+
+
+<title>Pleiotropy analysis in UKBB</title>
+
+<style type = "text/css">
+body {
+  font-family: "Droid Sans";
+  padding-top: 66px;
+  padding-bottom: 40px;
+}
+</style>
+</head>
+
+<body>
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+<div class="container" id="notebook-container">
+
+<!-- code folding -->
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="../index.html">Pleiotropy analysis in UKBB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+<li>
+  <a href="../index.html">Overview</a>
+</li>
+        
+<li>
+  <a href="../workflow.html">Workflow</a>
+</li>
+        
+<li>
+  <a href="../analysis.html">Analysis</a>
+</li>
+        
+      </ul>
+        
+<ul class="nav navbar-nav navbar-right">
+<li>
+   <a href="http://github.com/dianacornejo/pleiotropy_UKB"> <span class="fa fa-github"></span> </a>
+</li>
+</ul>
+        
+      </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Interaction-analysis-without-main-effects">Interaction analysis without main effects<a class="anchor-link" href="#Interaction-analysis-without-main-effects">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="The-first-analysis-of-variants-in-the-LD-block-of-chr20-and-chr2">The first analysis of variants in the LD block of chr20 and chr2<a class="anchor-link" href="#The-first-analysis-of-variants-in-the-LD-block-of-chr20-and-chr2">&#182;</a></h2><p>This code was used to create the setFile to run epistasis analyses in the UKBB data for asthma</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>chr20:3676468-3737677</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720_ASTHMA</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> \
+<span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;$1==20 &amp;&amp; ($2&gt;=3676468 &amp;&amp; $2&lt;=3737677)&#39;</span> <span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;BEGIN{print &quot;CHR20&quot;}; {print $5}; END{print &quot;END&quot;}&#39;</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">set1_chr20_chr2</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>chr2:121485425-121550619</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720_ASTHMA</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> \
+<span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;$1==2 &amp;&amp; ($2&gt;=121485425 &amp;&amp; $2&lt;=121550619)&#39;</span> <span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;BEGIN{print &quot;CHR2&quot;}; {print $5}; END{print &quot;END&quot;}&#39;</span> <span class="o">&gt;&gt;</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">set1_chr20_chr2</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>chr11:103167484-103440256</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720_ASTHMA</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> \
+<span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;$1==11 &amp;&amp; ($2&gt;=103167484 &amp;&amp; $2&lt;=103440256)&#39;</span> <span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;BEGIN{print &quot;CHR11&quot;}; {print $5}; END{print &quot;END&quot;}&#39;</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">set2_chr11_chr20</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>chr20:20001792-20235557</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720_ASTHMA</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> \
+<span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;$1==20 &amp;&amp; ($2&gt;=20001792 &amp;&amp; $2&lt;=20235557)&#39;</span> <span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;BEGIN{print &quot;CHR20&quot;}; {print $5}; END{print &quot;END&quot;}&#39;</span> <span class="o">&gt;&gt;</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">set2_chr11_chr20</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>chr2:240972120-240990207</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720_ASTHMA</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> <span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;$1==2 &amp;&amp; ($2&gt;=240972120 &amp;&amp; $2&lt;=240990207)&#39;</span> <span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;BEGIN{print &quot;CHR2&quot;}; {print $5}; END{print &quot;END&quot;}&#39;</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">set3_chr2_chr3</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>chr3:148900209-148966687</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720_ASTHMA</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> \
+<span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;$1==3 &amp;&amp; ($2&gt;=148900209 &amp;&amp; $2&lt;=148966687)&#39;</span> <span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;BEGIN{print &quot;CHR3&quot;}; {print $5}; END{print &quot;END&quot;}&#39;</span> <span class="o">&gt;&gt;</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dc2325</span><span class="o">/</span><span class="n">scratch60</span><span class="o">/</span><span class="n">Epistasis</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">set3_chr2_chr3</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Some-extra-analysis-using-the-info-from-the-Manhattan-plot">Some extra analysis using the info from the Manhattan plot<a class="anchor-link" href="#Some-extra-analysis-using-the-info-from-the-Manhattan-plot">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>chr2 8438693 8496062</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">FastGWA_results</span><span class="o">/</span><span class="n">results_imputed_data</span><span class="o">/</span><span class="n">asthma</span><span class="o">/</span><span class="n">Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720_ASTHMA</span><span class="o">.</span><span class="n">fastGWA</span><span class="o">.</span><span class="n">snp_stats</span><span class="o">.</span><span class="n">gz</span> \
+<span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;$8&lt;=5E-08&#39;</span> <span class="o">|</span> <span class="n">sort</span> <span class="o">-</span><span class="n">g</span> <span class="o">-</span><span class="n">k1</span> <span class="o">|</span> <span class="n">wc</span> <span class="o">-</span><span class="n">l</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>25019
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Get-the-regions-with-significant-hits-after-LD-clumping">Get the regions with significant hits after LD clumping<a class="anchor-link" href="#Get-the-regions-with-significant-hits-after-LD-clumping">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-sos"><pre><span></span><span class="n">cat</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">LD_clumping</span><span class="o">/</span><span class="n">asthma_INT</span><span class="o">-</span><span class="n">WHR_T2D</span><span class="o">/</span><span class="n">asthma_INT</span><span class="o">-</span><span class="n">WHR_T2D_ukbb</span><span class="o">.</span><span class="n">clumped_region</span> \
+<span class="o">|</span> <span class="n">awk</span> <span class="s1">&#39;{if($1==2 || $1==3 || $1==11 || $1==20) print}&#39;</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">gpfs</span><span class="o">/</span><span class="n">gibbs</span><span class="o">/</span><span class="n">pi</span><span class="o">/</span><span class="n">dewan</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">UKBiobank</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">interaction</span><span class="o">/</span><span class="n">asthma_regions_chr2_3_11_20</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<hr>
+&copy 2020 Diana Cornejo at Center for Statistical Genetics, Sergievsky Center, Columbia University VP&S
+<p><small>Exported from <a href="http://github.com/dianacornejo/pleiotropy_UKB/blob/804a49e20903d8a6a7eafcb7472453c5ea2dcde8/analysis/cluster_scripts/Interaction_scripts.ipynb"><code>analysis/cluster_scripts/Interaction_scripts.ipynb</code></a> committed by dc2325 on Fri Feb 19 22:22:36 2021 <a href="http://github.com/dianacornejo/pleiotropy_UKB/commit/804a49e20903d8a6a7eafcb7472453c5ea2dcde8">revision 1, 804a49e</a> <a href="https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids"><span class="fa fa-question-circle"></span></a></small></p>
+</div>
+</div>
+</body>
+</html>
