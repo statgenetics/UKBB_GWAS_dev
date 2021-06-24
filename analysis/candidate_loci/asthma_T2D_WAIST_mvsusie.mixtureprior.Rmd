@@ -1,0 +1,1326 @@
+---
+title: "Multi-variate Fine-Mapping with Summary Statistics (Mixture prior)"
+author: "Jiayi Zhou"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    toc_depth: 6
+---
+<style type="text/css">
+
+h1.title {
+  text-align: center;
+}
+
+</style>
+
+## Summary
+This RMD implemented Bayesian multivariate SUm of Single Effect (SuSiE) Regression using Summary Statistics Z (z-score matrix) and R (LD matrix), `mvsusie_rss`, on JAZF1 regions identified via LMM.       
+
+Three phenotype are involved: asthma, type 2 diabetes (T2D), and hypertriglyceridemic waist (WAIST).  
+First, bi-variate fine-mapping was performed on variants associate with phenotype asthma and T2D, asthma and WAIST, and T2D and WAIST.  
+Then, tri-variate fine-mapping was performed on variants associate with phenotype asthma, T2D, and WAIST.
+
+*The prior variance used in this notebook has been set to be an array of prior covariance matrices with equal weight.*  
+
+## Aim
+Compare the results of `susie_rss` with results of `mvsusie_rss`.     
+
+
+```{r setup, include = FALSE}
+library(tidyverse)
+```
+
+## Notebook Set-up        
+
+#### Packages and data-sets used
+```{r packages}
+library(mvsusieR)
+library(susieR)
+```
+
+#### Import Data        
+
+__Asthma__
+```{r asthma data}
+## The summary statistics data-set
+asthma_data = 
+  read.delim(file = "Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720_ASTHMA.fastGWA.snp_stats_7_27868573_28273990.sumstats", header = TRUE)
+## The LD data-set
+## Transpose function to convert column to row
+asthma_ld = read.delim(file = "Asthma_casesbyICD10codesANDselfreport_controlsbyselfreportandicd10_noautoimmuneincontrols_forbolt030720_ASTHMA.fastGWA.snp_stats_7_27868573_28273990.sample_ld", header = TRUE) %>% t() %>% as.data.frame()
+
+dim(asthma_data)
+dim(asthma_ld)
+```
+<br>
+__T2D__
+```{r diabetes data}
+## The summary statistics data-set
+diabetes_data = 
+  read.delim(file = "diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_030720_T2D.fastGWA.snp_stats_7_27868573_28273990.sumstats", header = TRUE)
+## The LD data-set
+## Transpose function to convert column to row
+diabetes_ld = read.delim(file = "diabetes_casesbyICD10andselfreport_controlswithoutautoiummune_030720_T2D.fastGWA.snp_stats_7_27868573_28273990.sample_ld", header = TRUE) %>% t() %>% as.data.frame()
+
+dim(diabetes_data)
+dim(diabetes_ld)
+```
+<br>
+__WAIST__
+```{r}
+## The summary statistics data-set
+WAIST_data = 
+  read.delim(file = "UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WAIST_withagesex_042020_rankNorm_WAIST.boltlmm.snp_stats_7_27868573_28273990.sumstats", header = TRUE)
+## The LD data-set
+## Transpose function to convert column to row
+WAIST_ld = read.delim(file = "UKB_caucasians_BMIwaisthip_AsthmaAndT2D_INT-WAIST_withagesex_042020_rankNorm_WAIST.boltlmm.snp_stats_7_27868573_28273990.sample_ld", header = TRUE) %>% t() %>% as.data.frame()
+
+dim(WAIST_data)
+dim(WAIST_ld)
+```
+<br>        
+Now we have two data-sets (`ld` and `sumstats`) for each trait.
+<br>        
+
+#### Z Score Calculation
+```{r}
+ConvertP2Z = function(pval, beta) {
+      z = abs(qnorm(pval / 2))
+      z[which(beta < 0)] = -1 * z[which(beta < 0)]
+      return(z)
+}
+
+asthma_data$Z = as.double(ConvertP2Z(asthma_data$P, asthma_data$BETA))
+diabetes_data$Z = as.double(ConvertP2Z(diabetes_data$P, diabetes_data$BETA))
+WAIST_data$Z = as.double(ConvertP2Z(WAIST_data$P, WAIST_data$BETA))
+```
+
+```{r}
+plot(asthma_data$Z, ylab='z-scores for Asthma',pch=20)
+```
+
+```{r}
+plot(diabetes_data$Z, ylab='z-scores for T2D',pch=20)
+```
+
+```{r}
+plot(WAIST_data$Z, ylab='z-scores for WAIST',pch=20)
+```
+
+## Uni-variate Fine-mapping
+
+### Asthma:
+```{r}
+Z_a_s = asthma_data$Z
+R_a_s = as.matrix(asthma_ld)
+
+res_asthma= susie_rss(Z_a_s, R_a_s, L = 10)
+
+print(res_asthma$sets)
+```
+       
+_Evidence Lower Bound (ELBO):_     
+"Maximizing the evidence lower bound minimizes the Kullback–Leibler divergence, a measure of dissimilarity of a distribution Q over unobserved variables Z from the true posterior. The primary reason why this quantity is preferred for optimization is that it can be computed without access to the posterior, given a good choice of Q." (Yang, X. (2017). Understanding the variational lower bound.)
+```{r}
+susieR::susie_get_objective(res_asthma)
+```
+       
+#### Visualization:
+```{r}
+res_asthma$pos = as.integer(asthma_data$POS)
+res_asthma$z = as.double(asthma_data$Z)
+res_asthma$p = as.double(asthma_data$P)
+res_asthma$var_names = asthma_data$SNP
+res_asthma$chr = as.integer(asthma_data$CHR)
+res_asthma$info = asthma_data$X
+res_asthma$ref = asthma_data$REF
+res_asthma$alt = asthma_data$ALT
+
+susie_plot(res_asthma, y = "PIP", pos=list(attr='pos',start=res_asthma$pos[1],end=res_asthma$pos[length(res_asthma$pos)]), add_legend=T, xlab="position")
+
+susie_plot(res_asthma, y= "z", pos=list(attr='pos',start=res_asthma$pos[1],end=res_asthma$pos[length(res_asthma$pos)]), add_legend=T, xlab="position", ylab="-log10(p)")
+```
+      
+#### Variables in the 95% CS::
+```{r}
+i_a  = res_asthma$var_names[res_asthma$sets$cs$L1]
+p_a = res_asthma$pos[res_asthma$sets$cs$L1]
+r_a = res_asthma$info[res_asthma$sets$cs$L1]
+v_a = cbind(i_a,r_a,p_a,res_asthma$pip[res_asthma$sets$cs$L1])
+colnames(v_a) <- c('variable name (SNP)','variant info','position','PIP')
+knitr::kable(v_a[order(v_a[,4], decreasing = TRUE),])
+```
+There are **14** variables captured by the single 95% CS of asthma, where the variable with largest PIP = 0.14 is SNPs `7:28168745_GTCTT_G  ` at position `28168745`.        
+
+### Diabetes:
+```{r}
+Z_d_s = diabetes_data$Z
+R_d_s = as.matrix(diabetes_ld)
+
+res_diabetes = susie_rss(Z_d_s, R_d_s, L = 10)
+
+print(res_diabetes$sets)
+```
+   
+_Evidence Lower Bound (ELBO):_
+```{r}
+susieR::susie_get_objective(res_diabetes)
+```
+       
+#### Visualization:
+```{r}
+res_diabetes$pos = as.integer(diabetes_data$POS)
+res_diabetes$z = as.double(diabetes_data$Z)
+res_diabetes$p = as.double(diabetes_data$P)
+res_diabetes$var_names = diabetes_data$SNP
+res_diabetes$chr = as.integer(diabetes_data$CHR)
+res_diabetes$info = diabetes_data$X
+res_diabetes$ref = diabetes_data$REF
+res_diabetes$alt = diabetes_data$ALT
+
+susie_plot(res_diabetes, y = "PIP", pos=list(attr='pos',start=res_diabetes$pos[1],end=res_diabetes$pos[length(res_diabetes$pos)]), add_legend=T, xlab="position")
+susie_plot(res_diabetes, y= "z", pos=list(attr='pos',start=res_diabetes$pos[1],end=res_diabetes$pos[length(res_diabetes$pos)]), add_legend=T, xlab="position", ylab="-log10(p)")
+```
+     
+#### Variables in the 95% CS::
+```{r}
+i_d  = res_diabetes$var_names[res_diabetes$sets$cs$L1]
+p_d = res_diabetes$pos[res_diabetes$sets$cs$L1]
+r_d = res_diabetes$info[res_diabetes$sets$cs$L1]
+v_d = cbind(i_d,r_d,p_d,res_diabetes$pip[res_diabetes$sets$cs$L1])
+colnames(v_d) <- c('variable name (SNP)','variant info','position','PIP')
+knitr::kable(v_d[order(v_d[,4], decreasing = TRUE),])
+```
+There are **11** variables captured by the signle 95% CS of asthma, where the variable with largest PIP = 0.16 is `rs860262` at position `28194397`.       
+
+### WAIST:
+```{r}
+Z_w_s = WAIST_data$Z
+R_w_s = as.matrix(WAIST_ld)
+
+res_waist = susie_rss(Z_w_s, R_w_s, L = 10)
+
+print(res_waist$sets)
+```
+    
+_Evidence Lower Bound (ELBO):_
+```{r}
+susieR::susie_get_objective(res_waist)
+```
+   
+#### Visualization:
+```{r}
+res_waist$pos = as.integer(WAIST_data$POS)
+res_waist$z = as.double(WAIST_data$Z)
+res_waist$p = as.double(WAIST_data$P)
+res_waist$var_names = WAIST_data$SNP
+res_waist$chr = as.integer(WAIST_data$CHR)
+res_waist$info = WAIST_data$X
+res_waist$ref = WAIST_data$REF
+res_waist$alt = WAIST_data$ALT
+
+susie_plot(res_waist, y = "PIP", pos=list(attr='pos',start=res_waist$pos[1],end=res_waist$pos[length(res_waist$pos)]), add_legend=T, xlab="position")
+
+susie_plot(res_waist, y= "z", pos=list(attr='pos',start=res_waist$pos[1],end=res_waist$pos[length(res_waist$pos)]), add_legend=T, xlab="position", ylab="-log10(p)")
+```
+      
+#### Variables in the 95% CS::
+```{r}
+pooled_variables_WC = c(res_waist$sets$cs$L1, res_waist$sets$cs$L3, res_waist$sets$cs$L4)
+
+i_w  = res_waist$var_names[pooled_variables_WC]
+p_w = res_waist$pos[pooled_variables_WC]
+r_w = res_waist$info[pooled_variables_WC]
+v_w = cbind(i_w,r_w,p_w,res_waist$pip[pooled_variables_WC])
+colnames(v_w) <- c('variable name (SNP)','variant info','position','PIP')
+knitr::kable(v_w[order(v_w[,4], decreasing = TRUE),])
+```
+There are three 95% CS constructed for WAIST, and we pooled and tallied all variables captured by these CS here. There are **14** variables in total, where the variable with largest PIP = 1 is `7_28214614_C_A` at position `28214614`.        
+
+## Multi-variate Set-up
+
+### Combine Data-sets
+```{r}
+bi= inner_join(asthma_data,diabetes_data, by = "X") %>% 
+  select(X, POS.x, SNP.x,Z.x,Z.y) %>% 
+  rename(POS = POS.x, SNP = SNP.x, Asthma = Z.x, T2D = Z.y) %>% drop_na()
+
+dim(bi)
+
+tri= inner_join(bi, WAIST_data, by = "X") %>% 
+  select(X, POS.x, SNP.x, Asthma, T2D, Z) %>% 
+  rename(WAIST = Z, POS = POS.x, SNP = SNP.x) %>% drop_na()
+
+dim(tri)
+```
+
+### LD matrices:        
+Use *asthma LD matrix* as the base matrix:
+```{r}
+row_a = asthma_data$SNP
+row_left = tri$SNP
+asthma_matrix = as.matrix(asthma_ld)
+
+rownames(asthma_matrix) = row_a
+colnames(asthma_matrix) = row_a
+
+LD_matrix_asthma = asthma_matrix[row_left,row_left]
+```
+
+Use *T2D LD matrix* as the base matrix:
+```{r}
+row_d = diabetes_data$SNP
+row_left = tri$SNP
+diabetes_matrix = as.matrix(diabetes_ld)
+
+rownames(diabetes_matrix) = row_d
+colnames(diabetes_matrix) = row_d
+
+LD_matrix_T2D = diabetes_matrix[row_left,row_left]
+```
+
+Use *WAIST LD matrix* as the base matrix:
+```{r}
+row_w = WAIST_data$SNP
+row_left = tri$SNP
+WAIST_matrix = as.matrix(WAIST_ld)
+
+rownames(WAIST_matrix) = row_w
+colnames(WAIST_matrix) = row_w
+
+LD_matrix_WAIST = WAIST_matrix[row_left,row_left]
+```
+
+### Prior Variance (mixture prior):    
+
+Bi-variate Simple Prior:
+```{r}
+m1 = matrix(0,2,2)
+m1[1,1] = 1
+
+m2 = matrix(0,2,2)
+m2[2,2] = 1
+
+mixture_prior_bi = list(weight = rep(1/3, 3), 
+                       matrices = list(diag(2),m1,m2))
+prior_bi = create_mash_prior(mixture_prior = mixture_prior_bi, max_mixture_len=-1)
+```
+   
+Tri-variate Simple Prior:
+```{r}
+tri_m1 = matrix(0,3,3)
+tri_m1[1,1] = 1
+
+tri_m2 = matrix(0,3,3)
+tri_m2[2,2] = 1
+
+tri_m3 = matrix(0,3,3)
+tri_m3[3,3] = 1
+
+tri_m4 = diag(3)
+tri_m4[1,1] = 0
+
+tri_m5 = diag(3)
+tri_m5[2,2] = 0
+
+tri_m6 = diag(3)
+tri_m6[3,3] = 0
+
+mixture_prior_tri = list(weight = rep(1/7, 7), 
+                       matrices = list(diag(3),tri_m1,tri_m2,tri_m3,tri_m4,tri_m5,tri_m6))
+prior_tri = create_mash_prior(mixture_prior = mixture_prior_tri, max_mixture_len=-1)
+```
+
+
+## Bi-variate Fine-Mapping:        
+
+### Asthma & T2D        
+
+#### Z-score matrix:
+```{r}
+# z-score matrix
+Z_matrix_asthma_T2D = tri %>% 
+  select(Asthma, T2D) %>% 
+  as.matrix()
+
+dim(Z_matrix_asthma_T2D)
+```
+
+#### LD-matrix-specific analysis:  
+There are two options: use the LD matrix based on asthma, or the LD matrix based on T2D. 
+```{r, eval=F}
+LD_matrix_asthma
+
+LD_matrix_T2D
+```
+
+We tried to fine-map with both LD matrices and compared the results:      
+
+##### 1. `LD_matrix_asthma`
+```{r}
+res_asthma_T2D = mvsusie_rss(Z_matrix_asthma_T2D,LD_matrix_asthma, L=10, prior_variance = prior_bi, verbosity = 0)
+
+print(res_asthma_T2D$sets)
+```
+<br>        
+_Evidence Lower Bound (ELBO):_
+"Maximizing the evidence lower bound minimizes the Kullback–Leibler divergence, a measure of dissimilarity of a distribution Q over unobserved variables Z from the true posterior. The primary reason why this quantity is preferred for optimization is that it can be computed without access to the posterior, given a good choice of Q." (Yang, X. (2017). Understanding the variational lower bound.)
+```{r}
+susieR::susie_get_objective(res_asthma_T2D)
+```
+<br>        
+_CS Correlation:_
+```{r}
+susieR::get_cs_correlation(res_asthma_T2D, LD_matrix_asthma)
+```
+Large negative correlation between `rs860262` and `28168745_GTCTT_G`.       
+
+##### 2. `LD_matrix_T2D`
+```{r}
+res_asthma_T2D_2 = mvsusie_rss(Z_matrix_asthma_T2D,LD_matrix_T2D, L=10, prior_variance = prior_bi, verbosity = 0)
+
+print(res_asthma_T2D_2$sets)
+```
+<br>        
+_Evidence Lower Bound (ELBO):_
+```{r}
+susieR::susie_get_objective(res_asthma_T2D_2)
+```
+<br>        
+_CS Correlation:_
+```{r}
+susieR::get_cs_correlation(res_asthma_T2D_2, LD_matrix_T2D)
+```
+Large negative correlation between `rs860262` and `28168745_GTCTT_G`.       
+
+##### 3. Overlap:
+The bi-variate results are the same no matter using `LD_matrix_asthma` or `LD_matrix_T2D`.  
+Thus, we **decided to use the LD matrix for Asthma in the bi-variate fine-mapping for asthma&T2D**, considering the sample size of asthma cases is larger comparing to the sample size of T2D cases.  
+（asthma sample size = 280898, T2D sample size = 280276)        
+
+###### Visualization:
+```{r}
+res_asthma_T2D$pos = as.integer(tri$POS)
+res_asthma_T2D$var_names = tri$SNP
+res_asthma_T2D$info = tri$X
+res_asthma_T2D$variable_names = res_asthma_T2D$var_names
+
+susie_plot(res_asthma_T2D, y = "PIP", pos=list(attr='pos',start=res_asthma_T2D$pos[1],end=res_asthma_T2D$pos[length(res_asthma_T2D$pos)]), add_legend=T, xlab="position")
+
+mvsusie_plot(m=res_asthma_T2D)
+```
+
+###### Variables in the 95% CS:
+```{r}
+pooled_variables_AT = c(res_asthma_T2D$sets$cs$L1,res_asthma_T2D$sets$cs$L2)
+i_ad  = res_asthma_T2D$var_names[pooled_variables_AT]
+p_ad = res_asthma_T2D$pos[pooled_variables_AT]
+r_ad = res_asthma_T2D$info[pooled_variables_AT]
+z_ad = cbind(i_ad,r_ad,p_ad,res_asthma_T2D$pip[pooled_variables_AT])
+colnames(z_ad) <- c('variable name (SNP)','variant info','position','PIP')
+knitr::kable(z_ad[order(z_ad[,4], decreasing = TRUE),])
+```
+There are two 95% CS constructed for asthma&T2D bi-variate fine-mapping. We pooled and tallied all variables captured by these CS here. There are **28** variables in total, where the variable with largest PIP = 0.15 is SNP `rs860262` at position `28194397`.
+
+#### Variables Matching:       
+
+**First**,        
+we checked if variables contained in the uni-variate CS are captured by the bi-variate CS.  
+* If variable in the uni-variate CS are not captured by the bi-variate CS, we then need to check what PIP are these uni-variate-specific variables associated with. 
+```{r}
+i_a %in% i_ad
+i_d %in% i_ad
+```
+All previously identified variants associated with **asthma (14 out of 14)** and **T2D (11 out of 11)** are contained in the bi-variate 95% CS.       
+
+**Second**,       
+we checked if there are new variables which have not been identified before are now captured by the bi-variate CS
+```{r}
+## create a "not in" operator
+'%!in%' <- function(x,y)!('%in%'(x,y))
+which(i_ad %!in% c(i_a,i_d))
+i_ad[which(i_ad %!in% c(i_a,i_d))]
+```
+We found three variables that were not captured before.       
+They are SNPs `rs849138` (PIP = 0.03), `7:28178625_TG_T` (PIP = 0.03), `rs2893312` (PIP = 0.04).        
+
+**Third**,        
+we matched the 28 variables in the bi-variate CS with the uni-variate fine-mapping result to check what PIP these variables are associated with in each phenotype (asthma & T2D).       
+
+1. Matching with Asthma:  
+_Full list:_
+```{r}
+res_asthma_df = 
+  cbind(variable_name = res_asthma$var_names, 
+                      variant_info = res_asthma$info,
+                      position = res_asthma$pos, 
+                      PIP = res_asthma$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_ad)
+
+knitr::kable(res_asthma_df[order(res_asthma_df[,4], decreasing = TRUE),])
+```
+
+
+2. Matching with T2D:  
+_Full list_
+```{r}
+res_diabetes_df = 
+  cbind(variable_name = res_diabetes$var_names, 
+                      variant_info = res_diabetes$info,
+                      position = res_diabetes$pos, 
+                      PIP = res_diabetes$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_ad)
+
+knitr::kable(res_diabetes_df[order(res_diabetes_df[,4], decreasing = TRUE),])
+```
+
+
+3. Matching with WC (Extra):  
+WC **is not** the target phenotype of the bi-variate fine-mapping of asthma and T2D. However, we observed some interesting finding when checking the PIP of the WC uni-variate result associated with the variables captured by the bi-variate CS.       
+_Full list_
+```{r}
+res_waist_df = 
+  cbind(variable_name = res_waist$var_names, 
+                      variant_info = res_waist$info,
+                      position = res_waist$pos, 
+                      PIP = res_waist$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_ad)
+
+knitr::kable(res_waist_df[order(res_waist_df[,4], decreasing = TRUE),])
+```
+Conclusion: [FIX ME]        
+
+
+### Asthma & WC
+
+#### Z-score matrix:
+```{r}
+# z-score matrix
+Z_matrix_asthma_WAIST = tri %>% 
+  select(Asthma, WAIST) %>% 
+  as.matrix()
+
+dim(Z_matrix_asthma_WAIST)
+```
+
+#### LD matrix:  
+There are two options: use the LD matrix based on asthma, or the LD matrix based on WAIST. 
+```{r, eval=F}
+LD_matrix_asthma
+
+LD_matrix_WAIST
+```
+
+We tried to fine-map with both LD matrices and compared the results:      
+
+##### 1. `LD_matrix_asthma`
+```{r}
+res_asthma_WAIST = mvsusie_rss(Z_matrix_asthma_WAIST,LD_matrix_asthma, L=10, prior_variance = prior_bi, verbosity = 0)
+
+print(res_asthma_WAIST$sets)
+```
+
+_Evidence Lower Bound (ELBO)_
+```{r}
+susieR::susie_get_objective(res_asthma_WAIST)
+```
+
+_CS correlation_
+```{r}
+susieR::get_cs_correlation(res_asthma_WAIST, LD_matrix_asthma)
+```
+Relatively large correlation between `28178625_TG_T` and `rs506154`.        
+
+###### Visualization:
+```{r}
+res_asthma_WAIST$pos = as.integer(tri$POS)
+res_asthma_WAIST$var_names = tri$SNP
+res_asthma_WAIST$info = tri$X
+res_asthma_WAIST$variable_names = res_asthma_WAIST$var_names
+
+susie_plot(res_asthma_WAIST, y = "PIP", pos=list(attr='pos',start=res_asthma_WAIST$pos[1],end=res_asthma_WAIST$pos[length(res_asthma_WAIST$pos)]), add_legend=T, xlab="position")
+
+mvsusie_plot(m=res_asthma_WAIST)
+```
+
+###### Variables in the 95% CS:
+```{r}
+pooled_variables_AW = c(res_asthma_WAIST$sets$cs$L1,res_asthma_WAIST$sets$cs$L2,
+                        res_asthma_WAIST$sets$cs$L3)
+i_aw  = res_asthma_WAIST$var_names[pooled_variables_AW]
+p_aw = res_asthma_WAIST$pos[pooled_variables_AW]
+r_aw = res_asthma_WAIST$info[pooled_variables_AW]
+z_aw = cbind(i_aw,r_aw,p_aw,res_asthma_WAIST$pip[pooled_variables_AW])
+colnames(z_aw) <- c('variable name (SNP)','variant info','position','PIP')
+knitr::kable(z_aw[order(z_aw[,4], decreasing = TRUE),])
+```
+There are three 95% CS constructed for asthma&WAIST bi-variate fine-mapping. We pooled and tallied all variables captured by these CS here. There are **26** variables in total, where the variable with largest PIP = 0.28 is SNP `7:28178625_TG_T ` at position `28178625`.        
+
+
+##### 2. `LD_matrix_WAIST`
+```{r}
+res_asthma_WAIST_2 = mvsusie_rss(Z_matrix_asthma_WAIST,LD_matrix_WAIST, L=10, prior_variance = prior_bi, verbosity = 0)
+
+print(res_asthma_WAIST_2$sets)
+```
+
+_Evidence Lower Bound (ELBO)_
+```{r}
+susieR::susie_get_objective(res_asthma_WAIST_2)
+```
+
+_CS correlation_
+```{r}
+susieR::get_cs_correlation(res_asthma_WAIST_2, LD_matrix_WAIST)
+```
+Relatively large correlation between `rs702814` and `rs506154`.       
+
+###### Visualization:
+```{r}
+res_asthma_WAIST_2$pos = as.integer(tri$POS)
+res_asthma_WAIST_2$var_names = tri$SNP
+res_asthma_WAIST_2$info = tri$X
+res_asthma_WAIST_2$variable_names = res_asthma_WAIST_2$var_names
+
+susie_plot(res_asthma_WAIST_2, y = "PIP", pos=list(attr='pos',start=res_asthma_WAIST_2$pos[1],end=res_asthma_WAIST_2$pos[length(res_asthma_WAIST_2$pos)]), add_legend=T, xlab="position")
+
+mvsusie_plot(m=res_asthma_WAIST_2)
+```
+
+###### Variables in the 95% CS:
+```{r}
+pooled_variables_AW_2 = c(res_asthma_WAIST_2$sets$cs$L3,res_asthma_WAIST_2$sets$cs$L1,
+                        res_asthma_WAIST_2$sets$cs$L2, res_asthma_WAIST_2$sets$cs$L4)
+i_aw_2  = res_asthma_WAIST_2$var_names[pooled_variables_AW_2]
+p_aw_2 = res_asthma_WAIST_2$pos[pooled_variables_AW_2]
+r_aw_2 = res_asthma_WAIST_2$info[pooled_variables_AW_2]
+z_aw_2 = cbind(i_aw_2,r_aw_2,p_aw_2,res_asthma_WAIST_2$pip[pooled_variables_AW_2])
+colnames(z_aw_2) <- c('variable name (SNP)','variant info','position','PIP')
+knitr::kable(z_aw_2[order(z_aw_2[,4], decreasing = TRUE),])
+```
+There are three 95% CS constructed for asthma&WAIST bi-variate fine-mapping. We pooled and tallied all variables captured by these CS here. There are **28** variables in total, where the variable with largest PIP = 0.99 is SNP `rs61469546` at position `28158948`.        
+
+
+##### 3.Overlap:
+```{r}
+z_aw = as.data.frame(z_aw)
+z_aw_2 = as.data.frame(z_aw_2)
+AW_overlap = inner_join(z_aw, z_aw_2, by = "position") %>% 
+  select("variable name (SNP).x", "variant info.x", position, PIP.x, PIP.y) %>% 
+  rename("variable name (SNP)" = "variable name (SNP).x", "variant info"="variant info.x",PIP_asthma_ld_matrix = PIP.x, PIP_WC_ld_matrix = PIP.y)
+knitr::kable(AW_overlap[order(AW_overlap[,4], decreasing = TRUE),])
+```
+The two bi-variate result of fine-mapping _asthma & WAIST_ obtained by _using two different LD matrices_ has **26** overlapped variables. The _PIP_ values in these two situations roughly _match with each other_.        
+
+##### 4. Unique variants
+```{r}
+i_aw_2[which(pooled_variables_AW_2 %!in% pooled_variables_AW)]
+```
+Variable `rs61469546` (PIP = 1) and `rs10622246` (PIP = 0.02) are unique for the bi-variate result which used WAIST LD matrix.        
+
+#### Variables Matching:
+**First**,        
+we checked if variables contained in the uni-variate CS are captured by the bi-variate CS.       
+
+* If variable in the uni-variate CS are not captured by the bi-variate CS, we then need to check what PIP are these uni-variate-specific variables associated with. 
+```{r}
+i_a %in% i_aw
+i_w %in% i_aw
+i_w[which(i_w %in% i_aw)]
+```
+None of the previously identified variants associated with **asthma (0 out of 14)** are contained in the bi-variate 95% CS.        
+
+On the other hand, there are 12 previously identified variants associated with **WAIST (12 out of 14)** that are contained in the bi-variate 95% CS.       
+
+The bi-variate CS constructed using WAIST LD matrix captured the same variables as the bi-variate CS constructed using asthma LD matrix:  
+```{r}
+i_a %in% i_aw_2
+i_w %in% i_aw_2
+i_w[which(i_w %in% i_aw_2)]
+```
+
+**Second**,       
+considering there are several variables in the uni-variate (asthma or WAIST) CS are not captured by the bi-variate (asthma & WAIST) CS, we further checked that, for variables **only captured by the uni-variate CS**, what PIPs are associated them in the bi-variate result.
+```{r}
+res_asthma_WAIST_2_a= 
+  cbind(variable_name = res_asthma_WAIST_2$var_names, 
+                      variant_info = res_asthma_WAIST_2$info,
+                      position = res_asthma_WAIST_2$pos, 
+                      PIP = res_asthma_WAIST_2$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_a)
+
+knitr::kable(res_asthma_WAIST_2_a[order(res_asthma_WAIST_2_a[,4], decreasing = TRUE),])
+```
+All PIPs are small (< 0.002)        
+
+```{r}
+res_asthma_WAIST_2_w= 
+  cbind(variable_name = res_asthma_WAIST_2$var_names, 
+                      variant_info = res_asthma_WAIST_2$info,
+                      position = res_asthma_WAIST_2$pos, 
+                      PIP = res_asthma_WAIST_2$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_w[which(i_w %!in% i_aw_2)])
+knitr::kable(res_asthma_WAIST_2_w[order(res_asthma_WAIST_2_w[,4], decreasing = TRUE),])
+```
+All PIPs are relatively small (< 0.1)       
+
+**Third**,        
+we tallied bi-variate-specific new variables which have not been identified before but are now captured by the bi-variate CS
+```{r}
+#i_a = 14
+#i_w = 14
+#i_aw = 26
+#i_aw_2 = 28
+which(i_aw %!in% c(i_a,i_w))
+i_aw[which(i_aw %!in% c(i_a,i_w))]
+
+which(i_aw_2 %!in% c(i_a,i_w))
+i_aw_2[which(i_aw_2 %!in% c(i_a,i_w))]
+```
+We found at least 14 variables that were not captured before. Compare to the bi-variate result obtained using `LD_matrix_asthma`, the bi-variate result obtained using `LD_matrix_WAIST` captured two more variables: `rs61469546` and `rs10622246`.        
+
+**Fourth**,       
+we matched the 28 variables in the bi-variate CS (with `LD_matrix_WAIST`) with the uni-variate fine-mapping result to check what PIP these variables are associated with in each phenotype (asthma & WAIST).        
+
+1. Matching with Asthma:  
+_Full list:_
+```{r}
+res_asthma_df_i_aw_2 = 
+  cbind(variable_name = res_asthma$var_names, 
+                      variant_info = res_asthma$info,
+                      position = res_asthma$pos, 
+                      PIP = res_asthma$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_aw_2)
+
+knitr::kable(res_asthma_df_i_aw_2[order(res_asthma_df_i_aw_2[,4], decreasing = TRUE),])
+```
+None of the 28 variables have large PIP (>0.01) in the uni-variate result of asthma.        
+
+2. Matching with WC:  
+_Full list_
+```{r}
+res_waist_df_i_aw_2 = 
+  cbind(variable_name = res_waist$var_names, 
+                      variant_info = res_waist$info,
+                      position = res_waist$pos, 
+                      PIP = res_waist$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_aw_2)
+
+knitr::kable(res_waist_df_i_aw_2[order(res_waist_df_i_aw_2[,4], decreasing = TRUE),])
+```
+
+
+3. Matching with T2D (Extra):  
+T2D **is not** the target phenotype of the bi-variate fine-mapping of asthma and WC. However, we observed some interesting finding when checking the PIP from the T2D uni-variate result associated with the variables captured by the bi-variate CS.
+_Full list_
+```{r}
+res_T2D_df_i_aw_2 = 
+  cbind(variable_name = res_diabetes$var_names, 
+                      variant_info = res_diabetes$info,
+                      position = res_diabetes$pos, 
+                      PIP = res_diabetes$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_aw_2)
+
+knitr::kable(res_T2D_df_i_aw_2[order(res_T2D_df_i_aw_2[,4], decreasing = TRUE),])
+```
+Conclusion: [FIX ME]        
+
+
+### T2D & WC
+
+#### Z-score matrix:
+```{r}
+# z-score matrix
+Z_matrix_T2D_WAIST = tri %>% 
+  select(T2D, WAIST) %>% 
+  as.matrix()
+
+dim(Z_matrix_T2D_WAIST)
+```
+
+#### LD matrix:  
+There are two options: use the LD matrix based on T2D, or the LD matrix based on WAIST. 
+```{r, eval = F}
+LD_matrix_T2D
+
+LD_matrix_WAIST
+```
+
+We tried to fine-map with both LD matrices and compared the results:      
+
+##### 1. `LD_matrix_T2D`
+```{r}
+res_T2D_WAIST = mvsusie_rss(Z_matrix_T2D_WAIST,LD_matrix_T2D, L=10, prior_variance = prior_bi, verbosity = 0)
+
+print(res_T2D_WAIST$sets)
+```
+
+_Evidence Lower Bound (ELBO)_
+```{r}
+susieR::susie_get_objective(res_T2D_WAIST)
+```
+
+_CS correlation_
+```{r}
+susieR::get_cs_correlation(res_T2D_WAIST, LD_matrix_T2D)
+```
+Relatively large correlation between `rs860262` and `rs10226758`.           
+
+###### Visualization:
+```{r}
+res_T2D_WAIST$pos = as.integer(tri$POS)
+res_T2D_WAIST$var_names = tri$SNP
+res_T2D_WAIST$info = tri$X
+res_T2D_WAIST$variable_names = res_T2D_WAIST$var_names
+
+susie_plot(res_T2D_WAIST, y = "PIP", pos=list(attr='pos',start=res_T2D_WAIST$pos[1],end=res_T2D_WAIST$pos[length(res_T2D_WAIST$pos)]), add_legend=T, xlab="position")
+
+mvsusie_plot(m=res_T2D_WAIST)
+```
+
+###### Variables in the 95% CS:
+```{r}
+pooled_variables_TW = c(res_T2D_WAIST$sets$cs$L2,res_T2D_WAIST$sets$cs$L1,
+                        res_T2D_WAIST$sets$cs$L4)
+i_dw  = res_T2D_WAIST$var_names[pooled_variables_TW]
+p_dw = res_T2D_WAIST$pos[pooled_variables_TW]
+r_dw = res_T2D_WAIST$info[pooled_variables_TW]
+z_dw = cbind(i_dw,r_dw,p_dw,res_T2D_WAIST$pip[pooled_variables_TW])
+colnames(z_dw) <- c('variable name (SNP)','variant info','position','PIP')
+knitr::kable(z_dw[order(z_dw[,4], decreasing = TRUE),])
+```
+There are three 95% CS constructed for asthma&WAIST bi-variate fine-mapping, where one of the CS only contain one variable. We pooled and tallied all variables captured by these CS here. There are **12** variables in total, where the variable with largest PIP = 1 is SNP `rs10226758 ` at position `28214614`.       
+
+##### 2. `LD_matrix_WAIST`
+```{r}
+res_T2D_WAIST_2 = mvsusie_rss(Z_matrix_T2D_WAIST,LD_matrix_WAIST, L=10, prior_variance = prior_bi, verbosity = 0)
+
+print(res_T2D_WAIST_2$sets)
+```
+
+_Evidence Lower Bound (ELBO)_
+```{r}
+susieR::susie_get_objective(res_T2D_WAIST_2)
+```
+
+_CS correlation_
+```{r}
+susieR::get_cs_correlation(res_T2D_WAIST_2, LD_matrix_WAIST)
+```
+Relatively large correlation between `rs10226758` and `rs860262`.       
+
+###### Visualization:
+```{r}
+res_T2D_WAIST_2$pos = as.integer(tri$POS)
+res_T2D_WAIST_2$var_names = tri$SNP
+res_T2D_WAIST_2$info = tri$X
+res_T2D_WAIST_2$variable_names = res_T2D_WAIST_2$var_names
+
+susie_plot(res_T2D_WAIST_2, y = "PIP", pos=list(attr='pos',start=res_T2D_WAIST_2$pos[1],end=res_T2D_WAIST_2$pos[length(res_T2D_WAIST_2$pos)]), add_legend=T, xlab="position")
+
+mvsusie_plot(m=res_T2D_WAIST_2)
+```
+
+###### Variables in the 95% CS:
+```{r}
+pooled_variables_TW_2 = c(res_T2D_WAIST_2$sets$cs$L2,res_T2D_WAIST_2$sets$cs$L3,
+                        res_T2D_WAIST_2$sets$cs$L1, res_T2D_WAIST_2$sets$cs$L5)
+i_dw_2  = res_T2D_WAIST_2$var_names[pooled_variables_TW_2]
+p_dw_2 = res_T2D_WAIST_2$pos[pooled_variables_TW_2]
+r_dw_2 = res_T2D_WAIST_2$info[pooled_variables_TW_2]
+z_dw_2 = cbind(i_dw_2,r_dw_2,p_dw_2,res_T2D_WAIST_2$pip[pooled_variables_TW_2])
+colnames(z_dw_2) <- c('variable name (SNP)','variant info','position','PIP')
+knitr::kable(z_dw_2[order(z_dw_2[,4], decreasing = TRUE),])
+```
+There are four 95% CS constructed for T2D & WAIST bi-variate fine-mapping, where 2 CS contain only one varaible when we used `LD_matrix_WAIST`. We pooled and tallied all variables captured by these CS here. There are **13** variables in total, where the variable with largest PIP = 1 are SNPs `rs10226758` and `rs61469546`.       
+
+##### 3. Overlap:
+```{r}
+z_dw = as.data.frame(z_dw)
+z_dw_2 = as.data.frame(z_dw_2)
+TW_overlap = inner_join(z_dw, z_dw_2, by = "position") %>% 
+  select("variable name (SNP).x", "variant info.x", position, PIP.x, PIP.y) %>% 
+  rename("variable name (SNP)" = "variable name (SNP).x", "variant info"="variant info.x",PIP_T2D_ld_matrix = PIP.x, PIP_WC_ld_matrix = PIP.y)
+knitr::kable(TW_overlap[order(TW_overlap[,4], decreasing = TRUE),])
+```
+The two bi-variate result of fine-mapping _T2D & WAIST_ obtained by _using two different LD matrices_ has **12** overlapped variables.        
+
+When using `LD_matrix_WAIST`as the LD matrix for bi-variate fine-mapping, we were able to capture one extra variable `rs61469546` with PIP = 1.       
+
+The _PIP_ values associated with these overlapped variables in these two situations roughly _match with each other_.       
+
+##### 4. Unique variants:
+```{r}
+i_dw_2[which(pooled_variables_TW_2 %!in% pooled_variables_TW)]
+```
+Variable `rs61469546` (PIP = 1) is unique for the bi-variate result which used WAIST LD matrix.       
+
+
+#### Variables Matching:
+**First**,        
+we checked if variables contained in the uni-variate CS are captured by the bi-variate CS.       
+
+* If variable in the uni-variate CS are not captured by the bi-variate CS, we then need to check what PIP are these uni-variate-specific variables associated with. 
+```{r}
+i_d %in% i_dw
+i_d[which(i_d %in% i_dw)]
+i_w %in% i_dw
+i_w[which(i_w %in% i_dw)]
+```
+There are **6 (out of 11)** previously identified variants associated with **T2D** that are contained in the bi-variate 95% CS constructed with `LD_matric_T2D`.       
+
+On the other hand, there are **12 (out of 14)** previously identified variants associated with **WAIST** that are contained in the bi-variate 95% CS constructed with `LD_matric_T2D`.        
+
+The bi-variate CS constructed using WAIST LD matrix captured the same variables as the bi-variate CS constructed using asthma LD matrix:  
+```{r}
+i_d %in% i_dw_2
+i_d[which(i_d %in% i_dw_2)]
+i_w %in% i_dw_2
+i_w[which(i_w %in% i_dw_2)]
+```
+
+**Second**,       
+considering there are several variables in the uni-variate (asthma or WAIST) CS are not captured by the bi-variate (T2D & WAIST) CS, we further checked that, for variables **only captured by the uni-variate CS**, what PIPs are associated them in the bi-variate result.
+```{r}
+res_T2D_WAIST_2_d= 
+  cbind(variable_name = res_T2D_WAIST_2$var_names, 
+                      variant_info = res_T2D_WAIST_2$info,
+                      position = res_T2D_WAIST_2$pos, 
+                      PIP = res_T2D_WAIST_2$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_d[which(i_d %!in% i_dw_2)])
+
+knitr::kable(res_T2D_WAIST_2_d[order(res_T2D_WAIST_2_d[,4], decreasing = TRUE),])
+```
+All PIPs are small (< 0.002)        
+
+```{r}
+res_T2D_WAIST_2_w= 
+  cbind(variable_name = res_T2D_WAIST_2$var_names, 
+                      variant_info = res_T2D_WAIST_2$info,
+                      position = res_T2D_WAIST_2$pos, 
+                      PIP = res_T2D_WAIST_2$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_w[which(i_w %!in% i_dw_2)])
+knitr::kable(res_T2D_WAIST_2_w[order(res_T2D_WAIST_2_w[,4], decreasing = TRUE),])
+```
+All PIPs are relatively small (< 0.1)       
+
+**Third**,        
+we tallied bi-variate-specific new variables which have not been identified before but are now captured by the bi-variate CS
+```{r}
+#i_d = 11 -6
+#i_w = 14 -12
+#i_dw = 12 (hint: all bi-variate variables are captured by uni-variate result of WC)
+#i_dw_2 = 13
+which(i_dw %!in% c(i_d,i_w))
+i_dw[which(i_dw %!in% c(i_d,i_w))]
+
+which(i_dw_2 %!in% c(i_d,i_w))
+i_dw_2[which(i_dw_2 %!in% c(i_d,i_w))]
+```
+We found only one variables that were not captured before and it is captured only by the bi-variate result if T2D & WC when `LD_matrix_WAIST` was used. The one variable is `rs61469546`.       
+
+**Fourth**,       
+we matched the 13 variables in the bi-variate CS (with `LD_matrix_WAIST`) with the uni-variate fine-mapping result to check what PIP these variables are associated with in each phenotype (T2D & WAIST).       
+
+1. Matching with T2D:  
+_Full list:_
+```{r}
+res_diabetes_df_i_dw_2 = 
+  cbind(variable_name = res_diabetes$var_names, 
+                      variant_info = res_diabetes$info,
+                      position = res_diabetes$pos, 
+                      PIP = res_diabetes$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_dw_2)
+
+knitr::kable(res_diabetes_df_i_dw_2[order(res_diabetes_df_i_dw_2[,4], decreasing = TRUE),])
+```
+
+
+2. Matching with WC:        
+_Full list_
+```{r}
+res_waist_df_i_dw_2 = 
+  cbind(variable_name = res_waist$var_names, 
+                      variant_info = res_waist$info,
+                      position = res_waist$pos, 
+                      PIP = res_waist$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_dw_2)
+
+knitr::kable(res_waist_df_i_dw_2[order(res_waist_df_i_dw_2[,4], decreasing = TRUE),])
+```
+
+
+3. Matching with Asthma (Extra):  
+Asthma **is not** the target phenotype of the bi-variate fine-mapping of T2D and WC.
+_Full list_
+```{r}
+res_asthma_df_i_dw_2 = 
+  cbind(variable_name = res_asthma$var_names, 
+                      variant_info = res_asthma$info,
+                      position = res_asthma$pos, 
+                      PIP = res_asthma$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_dw_2)
+
+knitr::kable(res_asthma_df_i_dw_2[order(res_asthma_df_i_dw_2[,4], decreasing = TRUE),])
+```
+Conclusion:[FIX ME]      
+
+## Tri-variate Fine-mapping:
+Asthma,T2D,WAIST
+
+#### Z-score matrix:
+```{r}
+# z-score matrix
+Z_matrix_tri = tri %>% 
+  select(Asthma, T2D, WAIST) %>% 
+  as.matrix()
+
+dim(Z_matrix_tri)
+```
+
+#### LD matrix - three scenarios:  
+There are **three** options: use the LD matrix based on T2D, or the LD matrix based on WAIST. 
+```{r, eval=F}
+LD_matrix_asthma
+
+LD_matrix_T2D
+
+LD_matrix_WAIST
+```
+
+We tried to fine-map with all LD matrices and compared the results:     
+
+##### 1. `LD_matrix_asthma`
+```{r}
+res_tri_a = mvsusie_rss(Z_matrix_tri,LD_matrix_asthma, L=10, prior_variance = prior_tri, verbosity = 0)
+
+print(res_tri_a$sets)
+```
+
+_Evidence Lower Bound (ELBO)_
+```{r}
+susieR::susie_get_objective(res_tri_a)
+```
+
+_CS correlation_
+```{r}
+susieR::get_cs_correlation(res_tri_a, LD_matrix_asthma)
+```
+Relatively large correlation between `rs849133` and `rs506154`.         
+
+###### Visualization:
+```{r}
+res_tri_a$pos = as.integer(tri$POS)
+res_tri_a$var_names = tri$SNP
+res_tri_a$info = tri$X
+res_tri_a$variable_names = res_tri_a$var_names
+
+susie_plot(res_tri_a, y = "PIP", pos=list(attr='pos',start=res_tri_a$pos[1],end=res_tri_a$pos[length(res_tri_a$pos)]), add_legend=T, xlab="position")
+
+mvsusie_plot(m=res_tri_a)
+```
+
+###### Variables in the 95% CS:
+```{r}
+pooled_variables_tri_a = c(res_tri_a$sets$cs$L1,res_tri_a$sets$cs$L2,
+                        res_tri_a$sets$cs$L3)
+i_tri_a  = res_tri_a$var_names[pooled_variables_tri_a]
+p_tri_a = res_tri_a$pos[pooled_variables_tri_a]
+r_tri_a = res_tri_a$info[pooled_variables_tri_a]
+z_tri_a = cbind(i_tri_a,r_tri_a,p_tri_a,res_tri_a$pip[pooled_variables_tri_a])
+colnames(z_tri_a) <- c('variable name (SNP)','variant info','position','PIP')
+knitr::kable(z_tri_a[order(z_tri_a[,4], decreasing = TRUE),])
+```
+There are three 95% CS constructed for tri-variate fine-mapping. We pooled and tallied all variables captured by these CS here. There are **24** variables in total, where the variable with largest PIP = 0.29 is SNP `rs75725836 ` at position `28032172`.       
+
+##### 2. `LD_matrix_T2D`
+```{r}
+res_tri_d = mvsusie_rss(Z_matrix_tri,LD_matrix_T2D, L=10, prior_variance = prior_tri, verbosity = 0)
+
+print(res_tri_d$sets)
+```
+
+_Evidence Lower Bound (ELBO)_
+```{r}
+susieR::susie_get_objective(res_tri_d)
+```
+
+_CS correlation_
+```{r}
+susieR::get_cs_correlation(res_tri_d, LD_matrix_T2D)
+```
+Relatively large correlation between `rs849133` and `rs506154`.       
+Both ELBO and cs correlation are similar when compare the tri-variate result obtained by using `LD_matrix_asthma` to the ri-variate result obtained by using `LD_matrix_T2D`.        
+
+###### Visualization:
+```{r}
+res_tri_d$pos = as.integer(tri$POS)
+res_tri_d$var_names = tri$SNP
+res_tri_d$info = tri$X
+res_tri_d$variable_names = res_tri_d$var_names
+
+susie_plot(res_tri_d, y = "PIP", pos=list(attr='pos',start=res_tri_d$pos[1],end=res_tri_d$pos[length(res_tri_d$pos)]), add_legend=T, xlab="position")
+
+mvsusie_plot(m=res_tri_d)
+```
+
+###### Variables in the 95% CS:
+```{r}
+pooled_variables_tri_d = c(res_tri_d$sets$cs$L1,res_tri_d$sets$cs$L2,
+                        res_tri_d$sets$cs$L3)
+i_tri_d  = res_tri_d$var_names[pooled_variables_tri_d]
+p_tri_d = res_tri_d$pos[pooled_variables_tri_d]
+r_tri_d = res_tri_d$info[pooled_variables_tri_d]
+z_tri_d = cbind(i_tri_d,r_tri_d,p_tri_d,res_tri_d$pip[pooled_variables_tri_d])
+colnames(z_tri_d) <- c('variable name (SNP)','variant info','position','PIP')
+knitr::kable(z_tri_d[order(z_tri_d[,4], decreasing = TRUE),])
+```
+The variable captured are exectly the same as the variables captured by the tri-variate CS when `LD_matrix_asthma` is used. There are three 95% CS constructed for tri-variate fine-mapping. We pooled and tallied all variables captured by these CS here. There are **24** variables in total, where the variable with largest PIP = 0.29 is SNP `rs75725836 ` at position `28032172`.         
+
+##### 3. `LD_matrix_WAIST`
+```{r}
+res_tri_w = mvsusie_rss(Z_matrix_tri,LD_matrix_WAIST, L=10, prior_variance = prior_tri, verbosity = 0)
+
+print(res_tri_w$sets)
+```
+
+_Evidence Lower Bound (ELBO)_
+```{r}
+susieR::susie_get_objective(res_tri_w)
+```
+**The highest ELBO is observed.**       
+
+_CS correlation_
+```{r}
+susieR::get_cs_correlation(res_tri_w, LD_matrix_WAIST)
+```
+Relatively large correlation between `rs849133` and `rs506154`.         
+The cs correlation are similar when compare the tri-variate result obtained by using `LD_matrix_WAIST` to the ri-variate result obtained by using `LD_matrix_T2D` and `LE_matrix_asthma`.
+      
+###### Visualization:
+```{r}
+res_tri_w$pos = as.integer(tri$POS)
+res_tri_w$var_names = tri$SNP
+res_tri_w$info = tri$X
+res_tri_w$variable_names = res_tri_w$var_names
+
+susie_plot(res_tri_w, y = "PIP", pos=list(attr='pos',start=res_tri_w$pos[1],end=res_tri_w$pos[length(res_tri_w$pos)]), add_legend=T, xlab="position")
+
+mvsusie_plot(m=res_tri_w)
+```
+
+###### Variables in the 95% CS:
+```{r}
+pooled_variables_tri_w = c(res_tri_w$sets$cs$L3,res_tri_w$sets$cs$L1,
+                        res_tri_w$sets$cs$L2, res_tri_w$sets$cs$L4)
+i_tri_w  = res_tri_w$var_names[pooled_variables_tri_w]
+p_tri_w = res_tri_w$pos[pooled_variables_tri_w]
+r_tri_w = res_tri_w$info[pooled_variables_tri_w]
+z_tri_w = cbind(i_tri_w,r_tri_w,p_tri_w,res_tri_w$pip[pooled_variables_tri_w])
+colnames(z_tri_w) <- c('variable name (SNP)','variant info','position','PIP')
+knitr::kable(z_tri_w[order(z_tri_w[,4], decreasing = TRUE),])
+```
+There are four 95% CS constructed for tri-variate fine-mapping. We pooled and tallied all variables captured by these CS here. There are **25** variables in total, where the variable with largest PIP = 1 is SNP `rs61469546 ` at position `28158948`.       
+
+##### 4. Overlap:
+```{r}
+z_tri_w = as.data.frame(z_tri_w)
+z_tri_d = as.data.frame(z_tri_d)
+Tri_overlap = inner_join(z_tri_d, z_tri_w, by = "position") %>% 
+  select("variable name (SNP).x", "variant info.x", position, PIP.x, PIP.y) %>% 
+  rename("variable name (SNP)" = "variable name (SNP).x", "variant info"="variant info.x",PIP_AorT_ld_matrix = PIP.x, PIP_WC_ld_matrix = PIP.y)
+knitr::kable(Tri_overlap[order(Tri_overlap[,5], decreasing = TRUE),])
+```
+The two tri-variate result of fine-mapping _Asthma, T2D and WAIST_ obtained by _using three different LD matrices_ has **22** overlapped variables.        
+
+The _PIP_ values associated with these overlapped variables in these two situations roughly _match with each other_.       
+
+##### 5. Unique variants:
+```{r}
+i_tri_w[which(pooled_variables_tri_w %!in% pooled_variables_tri_d)]
+```
+Variable `rs61469546` (PIP = 1), `rs849138` (PIP = 0.02), and `rs702815` (PIP = 0.02) are unique for the tri-variate result which used WAIST LD matrix.        
+
+
+#### Variables Matching:
+**First**,        
+we checked if variables contained in the uni-variate CS are captured by the tri-variate CS.          
+
+* If variable in the uni-variate CS are not captured by the tri-variate CS, we then need to check what PIP are these uni-variate-specific variables associated with. 
+```{r}
+i_a %in% i_tri_d
+i_a[which(i_a %in% i_tri_d)]
+i_d %in% i_tri_d
+i_d[which(i_d %in% i_tri_d)]
+i_w %in% i_tri_d
+i_w[which(i_w %in% i_tri_d)]
+```
+None **(0 out of 14)** of the previously identified variants associated with **Asthma** that are contained in the tri-variate 95% CS constructed with `LD_matric_T2D`.        
+
+There are **8 (out of 11)** previously identified variants associated with **T2D** that are contained in the tri-variate 95% CS constructed with `LD_matric_T2D`.        
+
+There are **11 (out of 14)** previously identified variants associated with **WAIST** that are contained in the tri-variate 95% CS constructed with `LD_matric_T2D`.        
+
+The tr-variate CS constructed using WAIST LD matrix captured the same variables as the tri-variate CS constructed using T2D LD matrix:  
+```{r}
+i_a %in% i_tri_w
+i_a[which(i_a %in% i_tri_w)]
+i_d %in% i_tri_w
+i_d[which(i_d %in% i_tri_w)]
+i_w %in% i_tri_w
+i_w[which(i_w %in% i_tri_w)]
+```
+
+**Second**,       
+considering there are several variables in the uni-variate (asthma, T2D, WAIST) CS are not captured by the tri-variate CS, we further checked that, for variables **only captured by the uni-variate CS**, what PIPs are associated them in the tri-variate result.
+```{r}
+res_tri_w_a= 
+  cbind(variable_name = res_tri_w$var_names, 
+                      variant_info = res_tri_w$info,
+                      position = res_tri_w$pos, 
+                      PIP = res_tri_w$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_a[which(i_a %!in% i_tri_w)])
+
+knitr::kable(res_tri_w_a[order(res_tri_w_a[,4], decreasing = TRUE),])
+```
+All PIPs are small (< 0.002)        
+
+```{r}
+res_tri_w_d= 
+  cbind(variable_name = res_tri_w$var_names, 
+                      variant_info = res_tri_w$info,
+                      position = res_tri_w$pos, 
+                      PIP = res_tri_w$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_d[which(i_d %!in% i_tri_w)])
+knitr::kable(res_tri_w_d[order(res_tri_w_d[,4], decreasing = TRUE),])
+```
+All PIPs are relatively small (< 0.1)       
+
+```{r}
+res_tri_w_w= 
+  cbind(variable_name = res_tri_w$var_names, 
+                      variant_info = res_tri_w$info,
+                      position = res_tri_w$pos, 
+                      PIP = res_tri_w$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_w[which(i_w %!in% i_tri_w)])
+knitr::kable(res_tri_w_w[order(res_tri_w_w[,4], decreasing = TRUE),])
+```
+All PIPs are relatively small (< 0.1)       
+
+**Third**,        
+we tallied tri-variate-specific new variables which have not been identified before but are now captured by the tri-variate CS
+```{r}
+#i_a = 14 -0
+#i_d = 11 -8
+#i_w = 14 -11
+#i_tri_w = 25 (hint: i_d and i_w have overlap)
+which(i_tri_w %!in% c(i_a,i_d,i_w))
+i_tri_w[which(i_tri_w %!in% c(i_a,i_d,i_w))]
+```
+We found only 12 variables that were not captured before and they were captured only by the tri-variate result when `LD_matrix_WAIST` was used.
+```{r}
+res_tri_w_unipue= 
+  cbind(variable_name = res_tri_w$var_names, 
+                      variant_info = res_tri_w$info,
+                      position = res_tri_w$pos, 
+                      PIP = res_tri_w$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_tri_w[which(i_tri_w %!in% c(i_a,i_d,i_w))])
+
+knitr::kable(res_tri_w_unipue[order(res_tri_w_unipue[,4], decreasing = TRUE),])
+```
+
+**Fourth**,       
+we matched the 25 variables in the tri-variate CS (with `LD_matrix_WAIST`) with the uni-variate fine-mapping result to check what PIP these variables are associated with in each phenotype  
+(Asthma, T2D, WAIST).       
+
+1. Matching with Asthma:  
+_Full list:_
+```{r}
+res_asthma_df_i_tri_w = 
+  cbind(variable_name = res_asthma$var_names, 
+                      variant_info = res_asthma$info,
+                      position = res_asthma$pos, 
+                      PIP = res_asthma$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_tri_w)
+
+knitr::kable(res_asthma_df_i_tri_w[order(res_asthma_df_i_tri_w[,4], decreasing = TRUE),])
+```
+All PIP vaules are small( < 0.01)       
+
+2. Matching with T2D:  
+_Full list:_
+```{r}
+res_diabetes_df_i_tri_w = 
+  cbind(variable_name = res_diabetes$var_names, 
+                      variant_info = res_diabetes$info,
+                      position = res_diabetes$pos, 
+                      PIP = res_diabetes$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_tri_w)
+
+knitr::kable(res_diabetes_df_i_tri_w[order(res_diabetes_df_i_tri_w[,4], decreasing = TRUE),])
+```
+
+
+3. Matching with WC:  
+_Full list:_
+```{r}
+res_waist_df_i_tri_w = 
+  cbind(variable_name = res_waist$var_names, 
+                      variant_info = res_waist$info,
+                      position = res_waist$pos, 
+                      PIP = res_waist$pip) %>% 
+  as.data.frame() %>% 
+  filter(variable_name %in% i_tri_w)
+
+knitr::kable(res_waist_df_i_tri_w[order(res_waist_df_i_tri_w[,4], decreasing = TRUE),])
+```
+Conclustion:[FIX ME]
+
+## Region Investigation:
+Look into the correlation coefficients around `rs10226758` and `rs61469546`:
+```{r}
+significant_rs10226758 = c("rs111761099","rs117806796", "rs561940617","rs10226758","rs73091240","rs3735569", "rs3735568") #7 variants
+
+significant_rs61469546 = c("rs564755829","rs79181894", "rs112579073", "rs61469546", "rs4722759", "rs76194947", "rs117490475") #7 variants
+
+LD_matrix_asthma[significant_rs10226758,significant_rs10226758]
+LD_matrix_asthma[significant_rs61469546,significant_rs61469546]
+```
+<br>    
+
+Look into the correlation coefficients around `rs10226758` and `rs61469546`:
+```{r}
+LD_matrix_T2D[significant_rs10226758,significant_rs10226758]
+LD_matrix_T2D[significant_rs61469546,significant_rs61469546]
+```
+<br>    
+
+Look into the correlation coefficients around `rs10226758` and `rs61469546`:
+```{r}
+LD_matrix_WAIST[significant_rs10226758,significant_rs10226758]
+LD_matrix_WAIST[significant_rs61469546,significant_rs61469546]
+```
+    
+What do we find after extracting and comparing the region around the two special variants:
+[FIX ME]
