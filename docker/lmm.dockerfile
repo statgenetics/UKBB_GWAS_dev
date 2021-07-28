@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       automake \
       gcc \
       perl \
+      default-jre\
       zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev libncurses5-dev \
       $LIB_INSTALL\ 
       && tar -xzf BGEN-7aa2c109c6.tar.gz \
@@ -109,13 +110,20 @@ RUN wget https://github.com/samtools/bcftools/releases/download/1.12/bcftools-1.
 
 #Install htslib that includes tabix
 RUN wget https://github.com/samtools/htslib/releases/download/1.12/htslib-1.12.tar.bz2 -O htslib-1.12.tar.bz2 && \
-    tar -xjvf htslib-1.12.tar.bz2 && \
+    tar -xjvf htslib-1.12.tar.bz2 &&  \
     cd htslib-1.12 && \
     ./configure --prefix=/usr/local/bin && \
     make && \
     make install && \
     cp tabix bgzip htsfile /usr/local/bin
 
+#Instal SnpEff that contains SnpSift
+RUN wget https://snpeff.blob.core.windows.net/versions/snpEff_latest_core.zip && \
+    unzip snpEff_latest_core.zip &&  \
+    cp  snpEff/*.jar /usr/local/bin 
+
+RUN rm *.zip *.tar.*
+ 
 ENV BCFTOOLS_PLUGINS=/opt/bcftools-1.12/plugins  
 
 USER jovyan
