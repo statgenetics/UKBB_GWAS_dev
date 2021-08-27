@@ -94,12 +94,12 @@ RUN wget https://github.com/genetics-statistics/GEMMA/releases/download/v0.98.4/
     rm gemma-0.98.4-linux-static-AMD64*
     
        
-# Download regenie v2.0.2 executable for Linux
+# Download regenie v2.2.4 executable for Linux
 
-RUN wget https://github.com/rgcgithub/regenie/releases/download/v2.0.2/regenie_v2.0.2.gz_x86_64_Linux.zip && \
-    unzip regenie_v2.0.2.gz_x86_64_Linux.zip && chmod a+x regenie_v2.0.2.gz_x86_64_Linux && mv regenie_v2.0.2.gz_x86_64_Linux regenie && \
+RUN wget https://github.com/rgcgithub/regenie/releases/download/v2.2.4/regenie_v2.2.4.gz_x86_64_Linux.zip && \
+    unzip regenie_v2.2.4.gz_x86_64_Linux.zip && chmod a+x regenie_v2.2.4.gz_x86_64_Linux && mv regenie_v2.2.4.gz_x86_64_Linux regenie && \
     cp regenie /usr/local/bin && \
-    rm regenie_v2.0.2.gz_x86_64_Linux*
+    rm regenie_v2.2.4.gz_x86_64_Linux.*
 
 #Install bcftools
 RUN wget https://github.com/samtools/bcftools/releases/download/1.12/bcftools-1.12.tar.bz2 -O bcftools.tar.bz2 && \
