@@ -124,6 +124,12 @@ RUN wget https://snpeff.blob.core.windows.net/versions/snpEff_latest_core.zip &&
     unzip snpEff_latest_core.zip &&  \
     cp  snpEff/*.jar /usr/local/bin 
 
+#Install Metal
+RUN wget http://csg.sph.umich.edu/abecasis/Metal/download/Linux-metal.tar.gz && \
+    tar -xvzf Linux-metal.tar.gz -C /user/local/bin && \
+    rm -rf  Linux-metal*
+
+
 RUN rm *.zip *.tar.*
  
 ENV BCFTOOLS_PLUGINS=/opt/bcftools-1.12/plugins  
