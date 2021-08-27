@@ -45,26 +45,23 @@ https://github.com/statgenetics/UKBB_GWAS_dev/issues
 
 ## **Documents**
 
-1. Analisis plan for each phenotype can be found [here](https://docs.google.com/document/d/1cpxTzElpsEkwmBDjnMBHg2wW7CL1AcG_b0_0wE_k5rQ/edit)
+1. Analisis plan for each phenotype can be found [here](https://drive.google.com/drive/u/0/folders/1-lL0gRk95W7hDi7Cs2GacYLPqIDJlP-J)
 
-2. Exclusion criteria applied to the data set is [here](https://docs.google.com/spreadsheets/d/12L7Cx4Ov8FppGVmG0DxL9uG-lVRHM5QJSea0nORyirQ/edit#gid=0)
+2. Exclusion criteria applied to the data set is [here](https://drive.google.com/file/d/1AEbw794i9J6bBbcsrZ02s28nGqk0t9fS/view?usp=sharing)
 
 
 **Location of the files on Yale's cluster:**
 
-**Hard-called genotype files:** /SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/UKB_Caucasians_phenotypeindepqc120319_updated082020removedwithdrawnindiv.bed
-
-**Imputed genotypes:** /SAY/dbgapstg/scratch/UKBiobank/genotype_files/ukb39554_imputeddataset/
-
-**Unrelated samples:** /SAY/dbgapstg/scratch/UKBiobank/genotype_files/pleiotropy_geneticfiles/unrelated_n307259/UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620
-
-**Results:** /SAY/dbgapstg/scratch/UKBiobank/results/
-
-**Phenotype files:** /SAY/dbgapstg/scratch/UKBiobank/phenotype_files/
+* **Hard-called genotype files:** UKBiobank/genotype_files/pleiotropy_geneticfiles/UKB_Caucasians_phenotypeindepqc120319_updated082020removedwithdrawnindiv.bed
+* **Imputed genotypes:** UKBiobank/genotype_files/ukb39554_imputeddataset/
+* **Unrelated samples:** UKBiobank/genotype_files/pleiotropy_geneticfiles/unrelated_n307259/UKB_unrelatedcauc_phenotypes_asthmat2dbmiwaisthip_agesex_waisthipratio_040620
+* **Results:** UKBiobank/results/
+* **Phenotype files:** UKBiobank/phenotype_files/
 
 **Location of the files on Columbias's cluster:**
 
-**Results:** /mnt/mfs/statgen/UKBiobank/results
+* **Results:** /mnt/mfs/statgen/UKBiobank/results
+* **Data transferred from Yale:** /mnt/mfs/statgen/archive/UKBiobank_Yale_transfer
 
 # Release website
 

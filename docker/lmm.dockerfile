@@ -25,6 +25,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       automake \
       gcc \
       perl \
+      default-jre\
+      libgsl-dev\
       zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev libncurses5-dev \
       $LIB_INSTALL\ 
       && tar -xzf BGEN-7aa2c109c6.tar.gz \
@@ -35,7 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install pre-requisites for region-extraction pipeline
 
-RUN pip install pandas_plink pybgen scipy memory_profiler rpy2
+RUN pip install pandas_plink pybgen scipy memory_profiler rpy2 seaborn matplotlib
 
 # Download and install PLINK2 version alpha2.3 date:01-24-2020
 
@@ -57,13 +59,15 @@ RUN wget https://www.well.ox.ac.uk/~gav/resources/qctool_v2.0.6-Ubuntu16.04-x86_
     cp qctool /usr/local/bin/
 
 #Download and install R packages
-RUN Rscript -e 'p = c("data.table", "ggplot2", "ggrepel", "dplyr", "qqman", "remotes","scales", "stats", "matrixStats", "gridExtra", "igraph", "devtools", "RccpArmadillo", "CompQuadForm", "doMC", "foreach", "Matrix", "BiocManager", "testthat"); install.packages(p, repos="https://cloud.r-project.org")'
+RUN Rscript -e 'p = c("data.table", "ggplot2", "ggrepel", "dplyr", "qqman", "remotes","scales", "stats", "matrixStats", "gridExtra", "igraph", "devtools", "RccpArmadillo", "CompQuadForm", "doMC", "foreach", "Matrix", "BiocManager", "testthat", "matrixcalc"); install.packages(p, repos="https://cloud.r-project.org")'
 RUN Rscript -e 'remotes::install_github("anastasia-lucas/hudson")'
 RUN Rscript -e 'remotes::install_github("stephenslab/susieR")'
 RUN Rscript -e 'remotes::install_github("gabraham/flashpca/flashpcaR")'
 RUN Rscript -e 'BiocManager::install(c("SeqArray","SeqVarTools"))'
+RUN Rscript -e 'devtools::install_github("hanchenphd/GMMAT")'
 RUN Rscript -e 'devtools::install_github("zhengxwen/gdsfmt")'
 RUN Rscript -e 'devtools::install_github("zhengxwen/SNPRelate")'
+RUN Rscript -e 'remotes::install_github("stephenslab/mvsusieR", dependencies=TRUE)'
 
 #Download and intall BOLT-LMM
 
@@ -86,31 +90,46 @@ RUN wget https://cnsgenomics.com/software/gcta/bin/gcta_1.93.2beta.zip && \
 RUN wget https://github.com/genetics-statistics/GEMMA/releases/download/v0.98.4/gemma-0.98.4-linux-static-AMD64.gz && \
     gunzip gemma-0.98.4-linux-static-AMD64.gz && \
     chmod a+x gemma-0.98.4-linux-static-AMD64 && \
-    cp gemma-0.98.4-linux-static-AMD64 /usr/local/bin && \
-    rm gemma-0.98.4-linux-static-AMD64.*
+    cp gemma-0.98.4-linux-static-AMD64 /usr/local/bin/gemma && \
+    rm gemma-0.98.4-linux-static-AMD64*
     
        
-# Download and compile regenie from source code
+# Download regenie v2.0.2 executable for Linux
 
-COPY .  /tmp/
-
-WORKDIR /tmp/regenie
-
-RUN  make BGEN_PATH=/tmp/BGEN-7aa2c109c6 HAS_BOOST_IOSTREAM=$BOOST_IO
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      libgomp1 $LIB_INSTALL \
-     &&  cp /tmp/regenie/regenie /usr/local/bin
-
+RUN wget https://github.com/rgcgithub/regenie/releases/download/v2.0.2/regenie_v2.0.2.gz_x86_64_Linux.zip && \
+    unzip regenie_v2.0.2.gz_x86_64_Linux.zip && chmod a+x regenie_v2.0.2.gz_x86_64_Linux && mv regenie_v2.0.2.gz_x86_64_Linux regenie && \
+    cp regenie /usr/local/bin && \
+    rm regenie_v2.0.2.gz_x86_64_Linux*
 
 #Install bcftools
-RUN wget https://github.com/samtools/bcftools/releases/download/1.3.1/bcftools-1.3.1.tar.bz2 -O bcftools.tar.bz2 && \
+RUN wget https://github.com/samtools/bcftools/releases/download/1.12/bcftools-1.12.tar.bz2 -O bcftools.tar.bz2 && \
   tar -xjvf bcftools.tar.bz2 && \
-  cd bcftools-1.3.1 && \
+  cp -r bcftools-1.12 /opt && \
+  cd /opt/bcftools-1.12 && \
   make && \
   make prefix=/usr/local/bin install && \
   ln -s /usr/local/bin/bin/bcftools /usr/bin/bcftools
 
+#Install htslib that includes tabix
+RUN wget https://github.com/samtools/htslib/releases/download/1.12/htslib-1.12.tar.bz2 -O htslib-1.12.tar.bz2 && \
+    tar -xjvf htslib-1.12.tar.bz2 &&  \
+    cd htslib-1.12 && \
+    ./configure --prefix=/usr/local/bin && \
+    make && \
+    make install && \
+    cp tabix bgzip htsfile /usr/local/bin
+
+#Instal SnpEff that contains SnpSift
+RUN wget https://snpeff.blob.core.windows.net/versions/snpEff_latest_core.zip && \
+    unzip snpEff_latest_core.zip &&  \
+    cp  snpEff/*.jar /usr/local/bin 
+
+RUN rm *.zip *.tar.*
+ 
+ENV BCFTOOLS_PLUGINS=/opt/bcftools-1.12/plugins  
+
 USER jovyan
 
 WORKDIR /home/jovyan
+
+

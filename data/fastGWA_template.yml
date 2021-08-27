@@ -3,8 +3,8 @@
 # A1 is the effect allele 
 CHR: CHR
 POS: POS
-REF: A2
-ALT: A1
+REF: REF
+ALT: ALT
 SNP: SNP
 BETA: BETA
 SE: SE
