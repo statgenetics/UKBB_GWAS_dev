@@ -126,8 +126,8 @@ RUN wget https://snpeff.blob.core.windows.net/versions/snpEff_latest_core.zip &&
 
 #Install Metal
 RUN wget http://csg.sph.umich.edu/abecasis/Metal/download/Linux-metal.tar.gz && \
-    tar -xvzf Linux-metal.tar.gz -C /user/local/bin && \
-    rm -rf  Linux-metal*
+    tar -xvzf Linux-metal.tar.gz && cd generic-metal/ && cp metal /usr/local/bin && \
+    rm -rf  *metal*
 
 
 RUN rm *.zip *.tar.*
