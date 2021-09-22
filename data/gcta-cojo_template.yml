@@ -1,9 +1,9 @@
 # GCTA-COJO summary statistics template
-SNP: SNP
-A1: A1 #A1 needs to be the effect allele
-A2: A2 # The other allele
-freq: AF1
+SNP: ID
+A1: ALLELE1 #A1 needs to be the effect allele
+A2: ALLELE0 # The other allele
+freq: A1FREQ
 b: BETA
 se: SE
-p: P
+p: LOG10P
 N: N
