@@ -59,7 +59,7 @@ RUN wget https://www.well.ox.ac.uk/~gav/resources/qctool_v2.0.6-Ubuntu16.04-x86_
     cp qctool /usr/local/bin/
 
 #Download and install R packages
-RUN Rscript -e 'p = c("data.table", "ggplot2", "ggrepel", "dplyr", "qqman", "remotes","scales", "stats", "matrixStats", "gridExtra", "igraph", "devtools", "RccpArmadillo", "CompQuadForm", "doMC", "foreach", "Matrix", "BiocManager", "testthat", "matrixcalc"); install.packages(p, repos="https://cloud.r-project.org")'
+RUN Rscript -e 'p = c("data.table", "ggplot2", "ggrepel", "dplyr", "qqman", "remotes","scales", "stats", "matrixStats", "gridExtra", "igraph", "devtools", "RccpArmadillo", "CompQuadForm", "doMC", "foreach", "Matrix", "BiocManager", "testthat", "matrixcalc","svglite"); install.packages(p, repos="https://cloud.r-project.org")'
 RUN Rscript -e 'remotes::install_github("anastasia-lucas/hudson")'
 RUN Rscript -e 'remotes::install_github("stephenslab/susieR")'
 RUN Rscript -e 'remotes::install_github("gabraham/flashpca/flashpcaR")'
