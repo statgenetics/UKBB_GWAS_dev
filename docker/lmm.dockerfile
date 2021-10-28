@@ -37,7 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install pre-requisites for region-extraction pipeline
 
-RUN pip install pandas_plink pybgen scipy memory_profiler rpy2 seaborn matplotlib bed-reader liftover
+RUN pip install pandas_plink pybgen scipy memory_profiler rpy2 seaborn matplotlib bed_reader liftover
 
 # Download and install PLINK2 version alpha2.3 date:01-24-2020
 
