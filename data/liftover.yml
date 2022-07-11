@@ -1,0 +1,12 @@
+# Summary statistics template for GWAS catalog
+
+ID: CHR,POS,A0,A1
+CHR: chromosome
+POS: base_pair_location
+A0: other_allele
+A1: effect_allele
+SNP: variant_id
+STAT: beta
+SE: standard_error
+P: p_value
+
