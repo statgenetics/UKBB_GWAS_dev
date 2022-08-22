@@ -5,6 +5,7 @@ CHR: chromosome
 POS: base_pair_location
 A0: other_allele
 A1: effect_allele
+EAF: effect_allele_frequency
 SNP: variant_id
 STAT: beta
 SE: standard_error
